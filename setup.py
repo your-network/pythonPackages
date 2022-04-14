@@ -8,7 +8,7 @@ setuptools.setup(
     description='All packages used for YOUR development',
     long_description=open('README.txt').read(),
     long_description_content_type="text/markdown",
-    url='https://github.com/your-network/python_packages',
+    url='https://github.com/your-network/pythonPackages',
     project_urls = {
     },
     license='MIT',
