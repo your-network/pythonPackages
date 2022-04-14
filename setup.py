@@ -1,6 +1,6 @@
-import setuptools
+from setuptools import setup, find_packages
 
-setuptools.setup(
+setup(
     name="pythonPackages",
     version='0.0.1',
     author='Thijmen Francken',
@@ -11,7 +11,7 @@ setuptools.setup(
     url='https://github.com/your-network/pythonPackages',
     project_urls = {
     },
-    license='MIT',
-    packages=['seleniumYour', 'helpers'],
+    license='LICENSE',
+    packages= find_packages(),
     install_requires=['selenium'],
 )
