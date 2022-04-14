@@ -14,4 +14,5 @@ setup(
     license='LICENSE',
     packages= find_packages(),
     install_requires=['selenium'],
+    zip_safe=False,
 )
