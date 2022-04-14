@@ -1,7 +1,7 @@
 import setuptools
 
 setuptools.setup(
-    name="python_packages",
+    name="pythonPackages",
     version='0.0.1',
     author='Thijmen Francken',
     author_email='thijmen.airbridge@gmail.com',
