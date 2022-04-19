@@ -2,9 +2,9 @@ from setuptools import setup, find_packages
 
 setup(
     name="pythonPackages",
-    version='0.0.1',
+    version='0.0.2',
     author='Thijmen Francken',
-    author_email='thijmen.airbridge@gmail.com',
+    author_email='thijmenfrancken@gmail.com',
     description='All packages used for YOUR development',
     long_description=open('README.txt').read(),
     long_description_content_type="text/markdown",
@@ -13,6 +13,6 @@ setup(
     },
     license='LICENSE',
     packages= find_packages(),
-    install_requires=['selenium'],
+    install_requires=['selenium','pandas'],
     zip_safe=False,
 )
