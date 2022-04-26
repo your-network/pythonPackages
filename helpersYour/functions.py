@@ -1,4 +1,8 @@
 import re
+from gzip import GzipFile
+from urllib.request import urlopen,HTTPPasswordMgrWithDefaultRealm,HTTPBasicAuthHandler,build_opener,install_opener
+from io import BytesIO
+
 
 def get_digits(string):
     digits = re.findall(r'\d+', string)
@@ -37,3 +41,37 @@ def rename_dic_key(dic={},naming=[]):
             dic[new] = dic.pop(old)
     return dic
 
+def open_xml_gz_url(request_url, file_path, auth=False, username=None, password=None):
+    try:
+        if auth:
+            # create a password manager
+            password_mgr = HTTPPasswordMgrWithDefaultRealm()
+
+            # Add the username and password.
+            # If we knew the realm, we could use it instead of None.
+            password_mgr.add_password(None, request_url, username, password)
+
+            handler = HTTPBasicAuthHandler(password_mgr)
+
+            # create "opener" (OpenerDirector instance)
+            opener = build_opener(handler)
+
+            # use the opener to fetch a URL
+            opener.open(request_url)
+            opener.addheaders.append(("Accept-Encoding", "gzip"))
+            # Install the opener.
+            # Now all calls to urllib.request.urlopen use our opener.
+            install_opener(opener)
+
+            response = urlopen(request_url)
+        else:
+            response = urlopen(request_url)
+
+        compressed_file = BytesIO(response.read())
+        decompressed_file = GzipFile(fileobj=compressed_file)
+        with open(file_path, 'wb') as outfile:
+            outfile.write(decompressed_file.read())
+        return True
+    except Exception as e:
+        print('Failed to download and unpack url: '+ str(e))
+        return False
