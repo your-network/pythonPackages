@@ -2,9 +2,11 @@ import os
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
+from selenium.common import exceptions
 from selenium_stealth import stealth
 import platform
 from time import sleep
+import pickle
 
 def start_driver(driver_status,driver_type):
     current_directory = os.getcwd()
@@ -86,3 +88,28 @@ def move_mouse_directions(driver, element):
     action.release()
     action.perform()
     return print(f"Human mouse moved")
+
+
+def store_cookies(cookies):
+    try:
+        old_cookies = cookies = pickle.load(open("cookies.pkl", "rb"))
+        print(f"Old cookies: {len(old_cookies)}")
+        new_cookies = old_cookies + cookies
+        print(f"New cookies: {len(new_cookies)}")
+        pickle.dump(new_cookies, open("cookies.pkl", "wb"))
+    except:
+        pickle.dump(cookies, open("cookies.pkl", "wb"))
+
+
+def set_stored_cookies(driver):
+    if os.path.isfile("cookies.pkl"):
+        cookies = pickle.load(open("cookies.pkl", "rb"))
+        cookies_set = 0
+        for count, cookie in enumerate(cookies):
+            try:
+                driver.add_cookie(cookie)
+                cookies_set += 1
+            except exceptions.InvalidCookieDomainException as e:
+                print(e)
+                pass
+        print(f"Cookies added. Number: {cookies_set}")
