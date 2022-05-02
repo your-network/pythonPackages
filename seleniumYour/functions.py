@@ -2,42 +2,49 @@ import os
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
+from selenium_stealth import stealth
 import platform
 from time import sleep
 
-def get_driver_settings(driver_type):
-    DRIVER_SETTINGS = {}
-    DRIVER_SETTINGS['DRIVER'] = driver_type
+def start_driver(driver_status,driver_type):
     current_directory = os.getcwd()
-    if driver_type == 'CHROME':
-        if "macOS" in platform.platform():
-            current_directory = current_directory.replace('/scraper', '')
-            DRIVER_SETTINGS['DRIVER_PATH'] = "/Users/thijmenfrancken/Documents/python/pandas/chromedriver"
-        else:
-            DRIVER_SETTINGS['DRIVER_PATH'] = "/Users/thijmenfrancken/Documents/python/pandas/chromedriver"
-    elif driver_type == 'FIREFOX':
-        DRIVER_SETTINGS['DRIVER_PATH'] = "/Users/thijmenfrancken/Downloads/geckodriver"
-    print(f"driver path: {DRIVER_SETTINGS['DRIVER_PATH']}")
-    return DRIVER_SETTINGS
-
-def start_driver(driver_status,driver_type,driver_path):
     ## options
     options = Options()
-#     options.add_argument("--headless")
-    options.add_argument("window-size=1400,600")
+    #     options.add_argument("--headless")
+    options.add_argument("user-data-dir=/Users/thijmenfrancken/repos/your/scrapers/chrome_profiles/")
+    options.add_argument('--profile-directory=Profile 21')
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option('useAutomationExtension', False)
+    options.add_argument('start-maximized')
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument('--no-first-run --no-service-autorun --password-store=basic')
+    options.add_argument("--enable-javascript")
+    #     options.add_argument("--log-level=3")
+    #     options.add_argument("--proxy-server=us-wa.proxymesh.com:31280")
+    options.add_argument('start-maximized')
     if driver_status == 'start':
-        driver_settings = get_driver_settings(driver_type)
-        if driver_settings['DRIVER'] == 'FIREFOX':
-            driver = webdriver.Firefox(executable_path=r'{driver_path}'.format(driver_path=driver_settings['DRIVER_PATH']))
-        elif driver_settings['DRIVER'] == 'CHROME':
-            driver = webdriver.Chrome(chrome_options=options, executable_path=r'{driver_path}'.format(driver_path=driver_settings['DRIVER_PATH']))
-    elif driver_status == 'restart':
-        driver.close()
-        driver_settings = get_driver_settings(driver_type)
-        if driver_settings['DRIVER'] == 'FIREFOX':
-            driver = webdriver.Firefox(executable_path=r'{driver_path}'.format(driver_path=driver_settings['DRIVER_PATH']))
-        elif driver_settings['DRIVER'] == 'CHROME':
-            driver = webdriver.Chrome(executable_path=r'{driver_path}'.format(driver_path=driver_settings['DRIVER_PATH']))
+        if driver_type == 'FIREFOX':
+            os_platform = platform.platform()
+            if 'macOS' in os_platform:
+                driver_path = f"{current_directory}/geckodriver"
+            else:
+                driver_path = f"{current_directory}/geckodriver.exe"
+            driver = webdriver.Firefox(executable_path=driver_path)
+        elif driver_type == 'CHROME':
+            os_platform = platform.platform()
+            if 'macOS' in os_platform:
+                driver_path = f"{current_directory}/chromedriver"
+            else:
+                driver_path = f"{current_directory}/chromedriver.exe"
+            driver = webdriver.Chrome(chrome_options=options, executable_path=driver_path)
+            stealth(driver,
+                    languages=["en-US", "en"],
+                    vendor="Google Inc.",
+                    platform="Win32",
+                    webgl_vendor="Intel Inc.",
+                    renderer="Intel Iris OpenGL Engine",
+                    fix_hairline=True,
+                    )
     else:
         print('driver start fail')
     return driver

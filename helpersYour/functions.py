@@ -3,6 +3,8 @@ from gzip import GzipFile
 from urllib.request import urlopen,HTTPPasswordMgrWithDefaultRealm,HTTPBasicAuthHandler,build_opener,install_opener
 from io import BytesIO
 
+def has_numbers(inputString):
+    return any(char.isdigit() for char in inputString)
 
 def get_digits(string):
     digits = re.findall(r'\d+', string)

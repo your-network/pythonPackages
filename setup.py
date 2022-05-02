@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pythonPackages",
-    version='0.0.2',
+    version='0.0.3',
     author='Thijmen Francken',
     author_email='thijmenfrancken@gmail.com',
     description='All packages used for YOUR development',
@@ -13,6 +13,6 @@ setup(
     },
     license='LICENSE',
     packages= find_packages(),
-    install_requires=['selenium','pandas'],
+    install_requires=['selenium','pandas','selenium_stealth'],
     zip_safe=False,
 )
