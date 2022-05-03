@@ -13,7 +13,7 @@ def start_driver(driver_status,driver_type):
     ## options
     options = Options()
     #     options.add_argument("--headless")
-    options.add_argument("user-data-dir=/Users/thijmenfrancken/repos/your/scrapers/chrome_profiles/")
+    options.add_argument(f"user-data-dir={current_directory}/chrome_profiles /")
     options.add_argument('--profile-directory=Profile 21')
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('useAutomationExtension', False)
