@@ -12,18 +12,17 @@ def start_driver(driver_status,driver_type):
     current_directory = os.getcwd()
     ## options
     options = Options()
+    arguments = ["--disable-browser-side-navigation", f"user-data-dir={current_directory}/chrome_profiles/",
+                 "--profile-directory=Profile 21", "excludeSwitches", ["enable-automation"],
+                 "'useAutomationExtension', False", "start-maximized", "--disable-blink-features=AutomationControlled",
+                 "--no-first-run --no-service-autorun --password-store=basic", "--enable-javascript", "--disable-gpu",
+                 "--disable-dev-shm-usage", "--no-sandbox"]
+    for argument in arguments:
+        options.add_argument(argument)
+    ## saved arguments
     #     options.add_argument("--headless")
-    options.add_argument(f"user-data-dir={current_directory}/chrome_profiles/")
-    options.add_argument('--profile-directory=Profile 21')
-    options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    options.add_experimental_option('useAutomationExtension', False)
-    options.add_argument('start-maximized')
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument('--no-first-run --no-service-autorun --password-store=basic')
-    options.add_argument("--enable-javascript")
     #     options.add_argument("--log-level=3")
     #     options.add_argument("--proxy-server=us-wa.proxymesh.com:31280")
-    options.add_argument('start-maximized')
     if driver_status == 'start':
         if driver_type == 'FIREFOX':
             os_platform = platform.platform()
