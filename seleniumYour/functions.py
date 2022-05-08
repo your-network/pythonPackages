@@ -13,12 +13,15 @@ def start_driver(driver_status,driver_type):
     ## options
     options = Options()
     arguments = ["--disable-browser-side-navigation", f"user-data-dir={current_directory}/chrome_profiles/",
-                 "--profile-directory=Profile 21", "excludeSwitches", ["enable-automation"],
-                 "'useAutomationExtension', False", "start-maximized", "--disable-blink-features=AutomationControlled",
-                 "--no-first-run --no-service-autorun --password-store=basic", "--enable-javascript", "--disable-gpu",
+                 "--profile-directory=Profile 21", "start-maximized",
+                 "--disable-blink-features=AutomationControlled", "--no-first-run --no-service-autorun --password-store=basic",
+                 "--enable-javascript", "--disable-gpu",
                  "--disable-dev-shm-usage", "--no-sandbox"]
     for argument in arguments:
         options.add_argument(argument)
+    ## special cases
+    options.add_argument('useAutomationExtension', False)
+    options.add_argument("excludeSwitches", ["enable-automation"])
     ## saved arguments
     #     options.add_argument("--headless")
     #     options.add_argument("--log-level=3")
