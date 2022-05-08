@@ -20,8 +20,6 @@ def start_driver(driver_status,driver_type):
                  "--disable-extensions"]
     for argument in arguments:
         options.add_argument(argument)
-    ## special cases
-    options.add_argument("excludeSwitches", ["enable-automation"])
     ## saved arguments
     #     options.add_argument("--headless")
     #     options.add_argument("--log-level=3")
