@@ -16,11 +16,11 @@ def start_driver(driver_status,driver_type):
                  "--profile-directory=Profile 21", "start-maximized",
                  "--disable-blink-features=AutomationControlled", "--no-first-run --no-service-autorun --password-store=basic",
                  "--enable-javascript", "--disable-gpu",
-                 "--disable-dev-shm-usage", "--no-sandbox"]
+                 "--disable-dev-shm-usage", "--no-sandbox",
+                 "--disable-extensions"]
     for argument in arguments:
         options.add_argument(argument)
     ## special cases
-    options.add_argument('useAutomationExtension', False)
     options.add_argument("excludeSwitches", ["enable-automation"])
     ## saved arguments
     #     options.add_argument("--headless")
