@@ -1,7 +1,11 @@
 import re
 from gzip import GzipFile
 from urllib.request import urlopen,HTTPPasswordMgrWithDefaultRealm,HTTPBasicAuthHandler,build_opener,install_opener
+import requests
+from PIL import Image
 from io import BytesIO
+import numpy as np
+import hashlib
 
 def has_numbers(inputString):
     return any(char.isdigit() for char in inputString)
@@ -77,3 +81,13 @@ def open_xml_gz_url(request_url, file_path, auth=False, username=None, password=
     except Exception as e:
         print('Failed to download and unpack url: '+ str(e))
         return False
+
+def image_details(image_url):
+    response = requests.get(image_url)
+    ## size
+    im = Image.open(BytesIO(response.content))
+    w, h = im.size
+    ## hash
+    Na = np.array(im).astype(np.uint16)
+    sha256 = hashlib.sha256(Na.tobytes()).hexdigest()
+    return w, h, sha256
