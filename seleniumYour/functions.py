@@ -13,8 +13,9 @@ def start_driver(driver_status,driver_type):
     ## options
     options = Options()
     arguments = ["--disable-browser-side-navigation", f"user-data-dir={current_directory}/chrome_profiles/",
-                 "--profile-directory=Profile 21",
-                 "--disable-blink-features=AutomationControlled", "--no-first-run --no-service-autorun --password-store=basic",
+                 "--profile-directory=Profile 21", "--force-device-scale-factor=1",
+                 "--ignore-certificate-errors", "--ignore-ssl-errors", "--no-service-autorun",
+                 "--disable-blink-features=AutomationControlled", "--no-first-run", "--password-store=basic",
                  "--enable-javascript","window-size=1920,1080",
                  "--disable-dev-shm-usage", "--no-sandbox",
                  "--disable-extensions","disable-infobars"]
