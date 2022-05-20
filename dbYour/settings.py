@@ -9,7 +9,7 @@ SOURCE = {'Internal':1,
     'Decentraland': 6,
     'Sandbox':7}
 
-## db sqlalchemy
+## dbYour sqlalchemy
 SQLALCHEMY_DATABASE_URI = "mariadb+mariadbconnector://admin:CVTc6nR645jFraIll1NZ@oehoe-prod-master-01.crrprfk47ofc.eu-central-1.rds.amazonaws.com:3306/YourContentData"
 WTF_CSRF_SECRET_KEY = '123456789987654321'
 SECRET_KEY = '123456789987654321'
