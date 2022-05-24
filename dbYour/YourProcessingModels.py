@@ -35,7 +35,7 @@ class collectionQueue(Base):
     __tablename__ = 'collectionQueue'
     id = Column(Integer, primary_key=True)
     source = Column(Integer)
-    categoryId = Column(Integer)
+    categoryId = Column(String)
     language = Column(String)
     valueJson = Column(String, nullable=True)
     status = Column(Integer)
