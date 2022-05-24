@@ -30,3 +30,16 @@ class productQueue(Base):
     updatedAt = Column(DateTime, nullable=True)
     def __init__(self, **kwargs):
         super(productQueue, self).__init__(**kwargs)
+
+class collectionQueue(Base):
+    __tablename__ = 'collectionQueue'
+    id = Column(Integer, primary_key=True)
+    source = Column(Integer)
+    categoryId = Column(Integer)
+    language = Column(String)
+    valueJson = Column(String, nullable=True)
+    status = Column(Integer)
+    createdAt = Column(DateTime, nullable=True)
+    updatedAt = Column(DateTime, nullable=True)
+    def __init__(self, **kwargs):
+        super(collectionQueue, self).__init__(**kwargs)
