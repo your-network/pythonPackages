@@ -6,7 +6,7 @@ class Api:
     api_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidGhpam1lbkB5b3VyLmlvIiwianRpIjoiNDE3NjdmODQtNGQ3NS00NDA2LTljODgtZjZiNjdkOTc3MDQ4IiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiU3VwZXJBZG1pbiIsImV4cCI6MTY4MjUwNTMwMywiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1MDAwIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo1MDAwIn0.Eu7uIM-ECgMKuHjjoSOOBX2QC_SaDkHjsSOVCTwm7TU"
     header = {'Authorization': 'Bearer ' + api_token}
 
-    def UpdateCategory(self, payload):
+    def updateCategory(self, payload):
         r = requests.post('https://api.yourcontent.io/Category/CreateOrUpdate',
                           json=payload,
                           headers=self.header)
@@ -17,7 +17,7 @@ class Api:
             print(f"Update Call failed. Response code: {r.status_code}, text: {r.text}")
             return r.status_code
 
-    def CreateCategory(self, payload):
+    def createCategory(self, payload):
         r = requests.post('https://api.yourcontent.io/Category/CreateOrUpdate',
                           json=payload,
                           headers=self.header)
@@ -34,7 +34,7 @@ class Api:
             print(f"Call failed. Response code: {r.status_code}, text: {r.text}")
             return None
 
-    def GetAllCategories(self):
+    def getAllCategories(self):
         start_time = datetime.now()
         print(f"YourApi get all categories. Start time: {start_time}")
         category_list = []
