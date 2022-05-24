@@ -3,8 +3,8 @@ import json
 from datetime import datetime
 
 class Api:
-    from ..settings import YOUR_API_TOKEN
-    header = {'Authorization': 'Bearer ' + YOUR_API_TOKEN}
+    api_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidGhpam1lbkB5b3VyLmlvIiwianRpIjoiNDE3NjdmODQtNGQ3NS00NDA2LTljODgtZjZiNjdkOTc3MDQ4IiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiU3VwZXJBZG1pbiIsImV4cCI6MTY4MjUwNTMwMywiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1MDAwIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo1MDAwIn0.Eu7uIM-ECgMKuHjjoSOOBX2QC_SaDkHjsSOVCTwm7TU"
+    header = {'Authorization': 'Bearer ' + api_token}
 
     def UpdateCategory(self, payload):
         r = requests.post('https://api.yourcontent.io/Category/CreateOrUpdate',
@@ -121,4 +121,25 @@ class Api:
             print(f"Attribute create Error. Response text: {r.content}")
             attribute_id = None
         return attribute_id
+
+    def getAllCategories(self):
+        next_page = True
+        page = 1
+        categories = []
+        while next_page:
+            r = requests.get(f"https://api.yourcontent.io/Category/GetAll?resultsPerPage=100&page={page}",
+                              headers=self.header)
+            if r.status_code == 200:
+                result = json.loads(r.text)
+                data = result.get('data')
+                if len(data) > 0:
+                    categories = categories + data
+                    page += 1
+                else:
+                    break
+            else:
+                print(f"Attribute create Error. Response text: {r.content}")
+                break
+
+        return categories
 

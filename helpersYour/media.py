@@ -6,19 +6,25 @@ import numpy as np
 import uuid
 import os
 ## your functions
-from ..amazon.amazonFunctions import amazon
+from amazonYour.amazonFunctions import amazon
 from .writers import generateUUID
 
 def getIpfsImageDetails(ipfs_url):
-    from ..settings import GATEWAY_URL
     file_directory = ipfs_url.split("//")[-1]
 
-    response = requests.request("GET", f"{GATEWAY_URL}{file_directory}")
+    response = requests.request("GET", f"https://cloudflare-ipfs.com/ipfs/{file_directory}")
 
     im = Image.open(BytesIO(response.content))
     w, h = im.size
 
-    return im, w, h, im.format
+    shA256 = sha256Image(im)
+
+    return {'url': ipfs_url,
+            'width': w,
+            'heigth': h,
+            'format': im.format,
+            'shA256': shA256,
+            'fileSize': len(response.content)}
 
 def createImageDetailsDic(details,language):
     image_dic = {"url": details['url'],
