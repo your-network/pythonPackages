@@ -1,13 +1,12 @@
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 class ProcessingDB:
-    from .settings import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_ECHO, WTF_CSRF_SECRET_KEY, SECRET_KEY
 
-    from sqlalchemy import create_engine
-    from sqlalchemy.orm import sessionmaker
+    def __init__(self, SQLALCHEMY_DATABASE_URI):
+        self.engine = create_engine(SQLALCHEMY_DATABASE_URI, pool_recycle=True)
 
-    engine = create_engine(SQLALCHEMY_DATABASE_URI, pool_recycle=True)
-
-    Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        self.Session = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
 
     def startSession(self):
         from .YourProcessingModels import Base

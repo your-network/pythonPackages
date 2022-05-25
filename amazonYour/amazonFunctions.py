@@ -4,9 +4,8 @@ import csv
 from io import StringIO, BytesIO
 
 class amazon:
-    S3_ACCESS_KEY = ''
-    S3_SECRET_KEY = ''
-    s3_client = boto3.client('s3', aws_access_key_id=S3_ACCESS_KEY, aws_secret_access_key=S3_SECRET_KEY)
+    def __init__(self,S3_ACCESS_KEY,S3_SECRET_KEY):
+        self.s3_client = boto3.client('s3', aws_access_key_id=S3_ACCESS_KEY, aws_secret_access_key=S3_SECRET_KEY)
 
     def uploadCsv(self, bucket, file_name, data):
         field_separator = ","

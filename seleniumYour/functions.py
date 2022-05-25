@@ -16,9 +16,10 @@ def start_driver(driver_status,driver_type):
                  "--profile-directory=Profile 21", "--force-device-scale-factor=1",
                  "--ignore-certificate-errors", "--ignore-ssl-errors", "--no-service-autorun",
                  "--disable-blink-features=AutomationControlled", "--no-first-run", "--password-store=basic",
-                 "--enable-javascript","window-size=1920,1080",
+                 "--enable-javascript", "window-size=1920,1080",
                  "--disable-dev-shm-usage", "--no-sandbox",
-                 "--disable-extensions","disable-infobars"]
+                 "--disable-extensions", "disable-infobars"
+                 ]
     for argument in arguments:
         options.add_argument(argument)
     ## saved arguments

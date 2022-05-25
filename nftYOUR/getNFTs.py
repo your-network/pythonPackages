@@ -1,13 +1,14 @@
 import requests
 import json
 
-API_KEY_AL = "pHMfRlA4Vt5HGHgw-LQkxyqJU5au9Yee"
-REQUEST_URL = f"https://eth-mainnet.g.alchemy.com/v2/{API_KEY_AL}/getNFTsForCollection"
-HEADERS = {
-    "Accept": "application/json"
-}
 
-def getCollectionNFTs(contract_address):
+def getCollectionNFTs(contract_address, API_KEY_ALCHEMY):
+
+    REQUEST_URL = f"https://eth-mainnet.g.alchemy.com/v2/{API_KEY_ALCHEMY}/getNFTsForCollection"
+    HEADERS = {
+        "Accept": "application/json"
+    }
+
     parameters = {'contractAddress': contract_address,
                   'withMetadata': 'true'}
 
