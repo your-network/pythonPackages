@@ -12,4 +12,4 @@ def updateCategory(payload):
         print(f"Update Call Success, category id: {payload.get('categoryId')}")
         return 200
     else:
-        print(f"Update Call failed. Response code: {r.status_code}, text: {r.text}")
+        print(f"Update Call failed. Response code: {r.status_code}, text: {r.content}")

@@ -17,7 +17,7 @@ def createCategory(payload):
             print(f"Call Success but no response category id")
             return None
     else:
-        print(f"Call failed. Response code: {r.status_code}, text: {r.text}")
+        print(f"Call failed. Response code: {r.status_code}, text: {r.content}")
         return None
 
 def createProductBulk(data_bulk):
@@ -32,7 +32,7 @@ def createProductBulk(data_bulk):
         resp_data = json.loads(r.text)
         product_bulk_response = resp_data['data']
     else:
-        print(f"Error in product bulk insert. Response text: {r}")
+        print(f"Error in product bulk insert. Response text: {r.content}")
         product_bulk_response = None
 
     end_time = datetime.now()
@@ -84,3 +84,33 @@ def createAttribute(data):
         print(f"Attribute create Error. Response text: {r.content}")
         attribute_id = None
     return attribute_id
+
+def createCategoryCategoryRelation(data):
+    r = requests.post(f"https://api.yourcontent.io/Relation/CreateCategoryCategory",
+                     json=data,
+                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+    if r.status_code == 200:
+        return True
+    else:
+        print(f"Attribute create Error. Response text: {r.content}")
+        return False
+
+def createCategoryProductRelation(data):
+    r = requests.post(f"https://api.yourcontent.io/Relation/CreateCategoryProduct",
+                     json=data,
+                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+    if r.status_code == 200:
+        return True
+    else:
+        print(f"Attribute create Error. Response text: {r.content}")
+        return False
+
+def createProductProductRelation(data):
+    r = requests.post(f"https://api.yourcontent.io/Relation/CreateProductProduct",
+                     json=data,
+                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+    if r.status_code == 200:
+        return True
+    else:
+        print(f"Attribute create Error. Response text: {r.content}")
+        return False
