@@ -20,7 +20,7 @@ def createCategory(payload):
         print(f"Call failed. Response code: {r.status_code}, text: {r.text}")
         return None
 
-def createProductBulk(self,data_bulk):
+def createProductBulk(data_bulk):
     start_time = datetime.now()
     print(f"YourApi process product bulk. Start time: {start_time}")
     r = requests.get(f"https://api.yourcontent.io/Product/CreateOrUpdateBulk",
@@ -39,7 +39,7 @@ def createProductBulk(self,data_bulk):
     print(f"Api product bulk insert finished, processing time: {end_time - start_time}")
     return product_bulk_response
 
-def createAttributeUnit(self,data):
+def createAttributeUnit(data):
     r = requests.post(f"https://api.yourcontent.io/Attribute/CreateOrUpdateAttributeTypeUnit",
                      json=data,
                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_HEADER"]})
@@ -57,7 +57,7 @@ def createAttributeUnit(self,data):
         unit_id = None
     return unit_id
 
-def createAttributeType(self,data):
+def createAttributeType(data):
     r = requests.post(f"https://api.yourcontent.io/Attribute/CreateOrUpdateAttributeType",
                      json=data,
                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_HEADER"]})
@@ -71,7 +71,7 @@ def createAttributeType(self,data):
         attribute_type_id = None
     return attribute_type_id
 
-def createAttribute(self,data):
+def createAttribute(data):
     r = requests.post(f"https://api.yourcontent.io/Attribute/CreateOrUpdate",
                      json=data,
                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_HEADER"]})

@@ -3,7 +3,7 @@ import requests
 import json
 from datetime import datetime
 
-def getAllCategories(self):
+def getAllCategories():
     next_page = True
     page = 1
     categories = []

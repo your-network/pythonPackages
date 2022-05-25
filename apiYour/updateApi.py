@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 
-def updateCategory(self, payload):
+def updateCategory(payload):
     r = requests.post('https://api.yourcontent.io/Category/CreateOrUpdate',
                       json=payload,
                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_HEADER"]})
