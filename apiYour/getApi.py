@@ -9,7 +9,7 @@ def getAllCategories():
     categories = []
     while next_page:
         r = requests.get(f"https://api.yourcontent.io/Category/GetAll?resultsPerPage=100&page={page}",
-                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_HEADER"]})
+                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
         if r.status_code == 200:
             result = json.loads(r.text)
             data = result.get('data')

@@ -6,7 +6,7 @@ from datetime import datetime
 def createCategory(payload):
     r = requests.post('https://api.yourcontent.io/Category/CreateOrUpdate',
                       json=payload,
-                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_HEADER"]})
+                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
     if r.status_code == 200:
         resp_data = json.loads(r.text).get('data')
         if resp_data:
@@ -25,7 +25,7 @@ def createProductBulk(data_bulk):
     print(f"YourApi process product bulk. Start time: {start_time}")
     r = requests.get(f"https://api.yourcontent.io/Product/CreateOrUpdateBulk",
                      json=data_bulk,
-                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_HEADER"]})
+                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
     print(f"Bulk response: {r.text}")
     if r.status_code == 200:
         print(f"Success in product bulk insert. Number products: {len(data_bulk)}")
@@ -42,7 +42,7 @@ def createProductBulk(data_bulk):
 def createAttributeUnit(data):
     r = requests.post(f"https://api.yourcontent.io/Attribute/CreateOrUpdateAttributeTypeUnit",
                      json=data,
-                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_HEADER"]})
+                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
     # print(f"Attribute Unit create response: {r.content}")
     if r.status_code == 200:
         # print(f"Attribute Unit create Success")
@@ -60,7 +60,7 @@ def createAttributeUnit(data):
 def createAttributeType(data):
     r = requests.post(f"https://api.yourcontent.io/Attribute/CreateOrUpdateAttributeType",
                      json=data,
-                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_HEADER"]})
+                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
     # print(f"Attribute Type create response: {r.content}")
     if r.status_code == 200:
         # print(f"Attribute Type create Success")
@@ -74,7 +74,7 @@ def createAttributeType(data):
 def createAttribute(data):
     r = requests.post(f"https://api.yourcontent.io/Attribute/CreateOrUpdate",
                      json=data,
-                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_HEADER"]})
+                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
     # print(f"Attribute create response: {r.content}")
     if r.status_code == 200:
         # print(f"Attribute create Success")

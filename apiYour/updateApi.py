@@ -7,7 +7,7 @@ from datetime import datetime
 def updateCategory(payload):
     r = requests.post('https://api.yourcontent.io/Category/CreateOrUpdate',
                       json=payload,
-                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_HEADER"]})
+                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
     if r.status_code == 200:
         print(f"Update Call Success, category id: {payload.get('categoryId')}")
         return 200
