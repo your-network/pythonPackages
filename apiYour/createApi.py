@@ -6,7 +6,7 @@ from datetime import datetime
 def createCategory(payload):
     r = requests.post('https://api.yourcontent.io/Category/CreateOrUpdate',
                       json=payload,
-                      headers=os.environ["YOUR_API_HEADER"])
+                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_HEADER"]})
     if r.status_code == 200:
         resp_data = json.loads(r.text).get('data')
         if resp_data:
@@ -25,7 +25,7 @@ def createProductBulk(self,data_bulk):
     print(f"YourApi process product bulk. Start time: {start_time}")
     r = requests.get(f"https://api.yourcontent.io/Product/CreateOrUpdateBulk",
                      json=data_bulk,
-                     headers=os.environ["YOUR_API_HEADER"])
+                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_HEADER"]})
     print(f"Bulk response: {r.text}")
     if r.status_code == 200:
         print(f"Success in product bulk insert. Number products: {len(data_bulk)}")
@@ -42,7 +42,7 @@ def createProductBulk(self,data_bulk):
 def createAttributeUnit(self,data):
     r = requests.post(f"https://api.yourcontent.io/Attribute/CreateOrUpdateAttributeTypeUnit",
                      json=data,
-                     headers=os.environ["YOUR_API_HEADER"])
+                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_HEADER"]})
     # print(f"Attribute Unit create response: {r.content}")
     if r.status_code == 200:
         # print(f"Attribute Unit create Success")
@@ -60,7 +60,7 @@ def createAttributeUnit(self,data):
 def createAttributeType(self,data):
     r = requests.post(f"https://api.yourcontent.io/Attribute/CreateOrUpdateAttributeType",
                      json=data,
-                     headers=os.environ["YOUR_API_HEADER"])
+                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_HEADER"]})
     # print(f"Attribute Type create response: {r.content}")
     if r.status_code == 200:
         # print(f"Attribute Type create Success")
@@ -74,7 +74,7 @@ def createAttributeType(self,data):
 def createAttribute(self,data):
     r = requests.post(f"https://api.yourcontent.io/Attribute/CreateOrUpdate",
                      json=data,
-                     headers=os.environ["YOUR_API_HEADER"])
+                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_HEADER"]})
     # print(f"Attribute create response: {r.content}")
     if r.status_code == 200:
         # print(f"Attribute create Success")
