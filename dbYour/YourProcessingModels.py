@@ -43,3 +43,10 @@ class collectionQueue(Base):
     updatedAt = Column(DateTime, nullable=True)
     def __init__(self, **kwargs):
         super(collectionQueue, self).__init__(**kwargs)
+
+class latestUpdateDate(Base):
+    __tablename__ = 'latestUpdateDate'
+    type = Column(String, primary_key=True)
+    updateDate = Column(DateTime, nullable=True)
+    def __init__(self, **kwargs):
+        super(latestUpdateDate, self).__init__(**kwargs)
