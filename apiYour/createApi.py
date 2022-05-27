@@ -2,6 +2,8 @@ import os
 import requests
 import json
 from datetime import datetime
+import logging
+logging.basicConfig(filename="createApiLogs.log", level=logging.INFO)
 
 def createCategory(payload):
     r = requests.post('https://api.yourcontent.io/Category/CreateOrUpdate',
@@ -14,9 +16,23 @@ def createCategory(payload):
             print(f"Call Success, response category id: {cat_id}")
             return cat_id
         else:
+            logging.error(f"Call create category success but no response data."
+                          f""
+                          f"Response code: {r.status_code}, "
+                          f""
+                          f"text: {r.content}, "
+                          f""
+                          f"data: {payload}")
             print(f"Call Success but no response category id")
             return None
     else:
+        logging.error(f"Call create category failed. "
+                      f""
+                      f"Response code: {r.status_code}, "
+                      f""
+                      f"Content response: {r.content}, "
+                      f""
+                      f"data: {payload}")
         print(f"Call failed. Response code: {r.status_code}, text: {r.content}")
         return None
 
@@ -32,6 +48,11 @@ def createProductBulk(data_bulk):
         resp_data = json.loads(r.text)
         product_bulk_response = resp_data['data']
     else:
+        logging.error(f"Call create bulk product failed. "
+                      f""
+                      f"Response code: {r.status_code}, "
+                      f""
+                      f"Content response: {r.content}")
         print(f"Error in product bulk insert. Response text: {r.content}")
         product_bulk_response = None
 
@@ -49,11 +70,13 @@ def createAttributeUnit(data):
         resp_data = json.loads(r.text)
         unit_id = resp_data['data']['id']
     else:
-        print(f"Attribute Unit create Error."
-              f""
-              f"Data: {data},"
-              f""
-              f"Response text: {r.content}")
+        logging.error(f"Call create attribute unit failed. "
+                      f""
+                      f"Response code: {r.status_code}, "
+                      f""
+                      f"Content response: {r.content}, "
+                      f""
+                      f"data: {data}")
         unit_id = None
     return unit_id
 
@@ -67,6 +90,13 @@ def createAttributeType(data):
         resp_data = json.loads(r.text)
         attribute_type_id = resp_data['data']['id']
     else:
+        logging.error(f"Call Attribute Type failed. "
+                      f""
+                      f"Response code: {r.status_code}, "
+                      f""
+                      f"Content response: {r.content}, "
+                      f""
+                      f"data: {data}")
         print(f"Attribute Type create Error. Response text: {r.content}")
         attribute_type_id = None
     return attribute_type_id
@@ -81,6 +111,13 @@ def createAttribute(data):
         resp_data = json.loads(r.text)
         attribute_id = resp_data['data']['id']
     else:
+        logging.error(f"Call Attribute create failed. "
+                      f""
+                      f"Response code: {r.status_code}, "
+                      f""
+                      f"Content response: {r.content}, "
+                      f""
+                      f"data: {data}")
         print(f"Attribute create Error. Response text: {r.content}")
         attribute_id = None
     return attribute_id
@@ -92,7 +129,14 @@ def createCategoryCategoryRelation(data):
     if r.status_code == 200:
         return True
     else:
-        print(f"Attribute create Error. Response text: {r.content}")
+        logging.error(f"Call create category category relation failed. "
+                      f""
+                      f"Response code: {r.status_code}, "
+                      f""
+                      f"Content response: {r.content}, "
+                      f""
+                      f"data: {data}")
+        print(f"Create category category relation Error. Response text: {r.content}")
         return False
 
 def createCategoryProductRelation(data):
@@ -102,7 +146,14 @@ def createCategoryProductRelation(data):
     if r.status_code == 200:
         return True
     else:
-        print(f"Attribute create Error. Response text: {r.content}")
+        logging.error(f"Call create category product relation failed. "
+                      f""
+                      f"Response code: {r.status_code}, "
+                      f""
+                      f"Content response: {r.content}, "
+                      f""
+                      f"data: {data}")
+        print(f"Create category product relation Error. Response text: {r.content}")
         return False
 
 def createProductProductRelation(data):
@@ -112,5 +163,12 @@ def createProductProductRelation(data):
     if r.status_code == 200:
         return True
     else:
-        print(f"Attribute create Error. Response text: {r.content}")
+        logging.error(f"Call create product product relation failed. "
+                      f""
+                      f"Response code: {r.status_code}, "
+                      f""
+                      f"Content response: {r.content}, "
+                      f""
+                      f"data: {data}")
+        print(f"Create product product relation Error. Response text: {r.content}")
         return False
