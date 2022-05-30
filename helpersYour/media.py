@@ -5,12 +5,7 @@ import requests
 import numpy as np
 import mimetypes
 import json
-import uuid
-import os
-## your functions
-from amazonYour.authenticate import getAmazonClient
-from amazonYour.upload import uploadMediaFile,uploadBytesMedia
-from .writers import generateUUID
+
 
 def getIpfsImageDetails(ipfs_url):
     file_directory = ipfs_url.split("//")[-1]
@@ -68,14 +63,15 @@ def imageDetailsUrl(image_url=None,keep=0):
     im = Image.open(BytesIO(content))
     w, h = im.size
     sha256 = sha256Image(im)
-    ext = im.get_format_mimetype()
+    extension = im.get_format_mimetype()
 
     return {'url': image_url,
             'width': w,
             'heigth': h,
             'format':im.format,
             'shA256': sha256,
-            'fileSize': len(content)}
+            'fileSize': len(content),
+            'extension': extension}
 
 def getMediaFileUrl(url=None):
     file_name = url.split("/")[-1]

@@ -16,3 +16,14 @@ def createCategoryIdLookup(your_categories):
         nft_lookup.update({nft['properties']['ID']: nft['id']})
 
     return attr_gr_lookup, cat_lookup, nft_lookup
+
+
+def createAttributeIdLookup(your_attributes,source):
+    sources = {'icecat': 2, 'your': 1, 'opensea': 5}
+    icecat_attributes = [x for x in your_attributes if x['source'] == sources.get(source)]
+
+    attr_lookup = {}
+    for attr in icecat_attributes:
+        attr_lookup.update({attr['externalId']: attr['id']})
+
+    return attr_lookup
