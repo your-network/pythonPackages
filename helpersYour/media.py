@@ -3,10 +3,13 @@ from io import BytesIO
 import hashlib
 import requests
 import numpy as np
+import mimetypes
+import json
 import uuid
 import os
 ## your functions
-from amazonYour.authenticate import amazon
+from amazonYour.authenticate import getAmazonClient
+from amazonYour.upload import uploadMediaFile,uploadBytesMedia
 from .writers import generateUUID
 
 def getIpfsImageDetails(ipfs_url):
@@ -19,16 +22,19 @@ def getIpfsImageDetails(ipfs_url):
 
     shA256 = sha256Image(im)
 
+    extension = mimetypes.guess_extension(im.format)
+
     return {'url': ipfs_url,
             'width': w,
             'heigth': h,
             'format': im.format,
             'shA256': shA256,
-            'fileSize': len(response.content)}
+            'fileSize': len(response.content),
+            'extension': extension}
 
 def createImageDetailsDic(details,language):
     image_dic = {"url": details['url'],
-                 "internalPath": f"/{details['shA256']}.{details['format'].lower()}",
+                 "internalPath": f"/{details['shA256']}.{details['extension']}",
                  "downloadNeeded": False,
                  "contentType": details['format'],
                  "fileSize": details['fileSize'],
@@ -44,7 +50,7 @@ def createImageDetailsDic(details,language):
 def createMediaDetailsDic(url,language):
     details = getMediaFileUrl(url)
     media_dic = {"url": details['url'],
-                 'internalPath': f"/{details['shA256']}.{details['fileName'].split('.')[-1]}",
+                 'internalPath': f"/{details['shA256']}.{details['extension']}",
                  "downloadNeeded": False,
                  "contentType": details['contentType'],
                  "fileSize": details['fileSize'],
@@ -62,6 +68,7 @@ def imageDetailsUrl(image_url=None,keep=0):
     im = Image.open(BytesIO(content))
     w, h = im.size
     sha256 = sha256Image(im)
+    ext = im.get_format_mimetype()
 
     return {'url': image_url,
             'width': w,
@@ -78,15 +85,30 @@ def getMediaFileUrl(url=None):
     header = r.headers
 
     content_type = header.get('content-type')
+    extension = mimetypes.guess_extension(content_type)
     sha256 = hashlib.sha256(content).hexdigest()
 
     return {'url': url,
             'contentType': content_type,
             'fileName': file_name,
             'shA256': sha256,
-            'fileSize': len(content)}
+            'fileSize': len(content),
+            'extension': extension}
 
 def sha256Image(im):
     Na = np.array(im).astype(np.uint16)
     sha256 = hashlib.sha256(Na.tobytes()).hexdigest()
     return sha256
+
+
+class fileTypes:
+    def __init__(self):
+        f = open('mimetypes.json', 'r')
+        self.type_lookup = json.loads(f.read())
+
+    def getFileType(self, content_type):
+        if self.type_lookup.get(content_type.lower()):
+            return self.type_lookup.get(content_type.lower())
+        else:
+            type = mimetypes.guess_type(content_type)
+            return self.type_lookup.get(type)

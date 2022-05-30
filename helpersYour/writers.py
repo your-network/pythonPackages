@@ -12,6 +12,5 @@ def appending_data_json(data,file_name, dic_level):
     with open(file_name, "w") as file:
         json.dump(file_data, file)
 
-
 def generateUUID():
     return uuid.uuid4().hex

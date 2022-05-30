@@ -1,4 +1,5 @@
 from botocore.exceptions import ClientError
+import boto3
 import csv
 from io import StringIO, BytesIO
 
@@ -19,7 +20,7 @@ def uploadCsv(s3_client, bucket, file_name, data):
         return False
 
 
-def uploadBytesMedia(s3_client, bucket, media_name, media):
+def uploadBytesMedia(s3_client, bucket, media, media_name):
     try:
         in_mem_file = BytesIO()
         media.save(in_mem_file, format=media.format)
@@ -34,6 +35,19 @@ def uploadBytesMedia(s3_client, bucket, media_name, media):
             }
         )
         return True
+    except ClientError as e:
+        print(e)
+        return False
+
+
+def uploadMediaFile(amazonS3Client, bucket, request_response, media_name):
+    try:
+        with request_response as part:
+            part.raw.decode_content = True
+            conf = amazonS3Client.transfer.TransferConfig(multipart_threshold=10000, max_concurrency=4)
+            amazonS3Client.upload_fileobj(part.raw, bucket, media_name, Config=conf)
+        return True
+
     except ClientError as e:
         print(e)
         return False
