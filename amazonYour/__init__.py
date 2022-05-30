@@ -1,1 +1,2 @@
-from .amazonFunctions import *
+from .authenticate import *
+from .upload import *

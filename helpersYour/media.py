@@ -6,7 +6,7 @@ import numpy as np
 import uuid
 import os
 ## your functions
-from amazonYour.amazonFunctions import amazon
+from amazonYour.authenticate import amazon
 from .writers import generateUUID
 
 def getIpfsImageDetails(ipfs_url):
