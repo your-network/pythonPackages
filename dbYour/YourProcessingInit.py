@@ -20,4 +20,4 @@ class ProcessingDB:
     @staticmethod
     def closeSession(session,db):
         session.close()
-        db.close()
+        db.dispose()
