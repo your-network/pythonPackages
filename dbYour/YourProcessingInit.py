@@ -9,7 +9,7 @@ class ProcessingDB:
         Base.metadata.create_all(self.engine)
 
     def startSession(self):
-        Session = sessionmaker(autocommit=True, autoflush=True, bind=self.engine)
+        Session = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
         self.session = Session()
         return self.session
 
