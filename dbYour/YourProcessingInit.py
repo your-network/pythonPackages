@@ -17,7 +17,6 @@ class ProcessingDB:
         self.session = self.Session()
         return self.session
 
-    @staticmethod
-    def closeSession(session,db):
+    def closeSession(self,session):
         session.close()
-        db.dispose()
+        self.engine.drop()
