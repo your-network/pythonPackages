@@ -13,12 +13,10 @@ def createCategory(payload):
         resp_data = json.loads(r.text).get('data')
         if resp_data:
             cat_id = resp_data.get('id')
-            print(f"Call Success, response category id: {cat_id}")
+            # print(f"Call Success, response category id: {cat_id}")
             return cat_id
         else:
             logging.error(f"Call create category success but no response data."
-                          f""
-                          f"Response code: {r.status_code}, "
                           f""
                           f"text: {r.content}, "
                           f""
