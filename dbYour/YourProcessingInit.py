@@ -9,11 +9,13 @@ class ProcessingDB:
         Base.metadata.create_all(self.engine)
 
     def startSession(self):
-        self.Session = sessionmaker(autocommit=True, autoflush=True, bind=self.engine)
-        return self.Session
+        Session = sessionmaker(autocommit=True, autoflush=True, bind=self.engine)
+        self.session = Session()
+        return self.session
 
     def closeSession(self):
-        self.Session.close()
+        self.session.flush()
+        self.session.close()
 
     def closeConnection(self):
         self.engine.dispose()
