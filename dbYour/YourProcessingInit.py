@@ -4,19 +4,16 @@ from sqlalchemy.orm import sessionmaker
 class ProcessingDB:
 
     def __init__(self, SQLALCHEMY_DATABASE_URI):
-        self.engine = create_engine(SQLALCHEMY_DATABASE_URI, pool_recycle=3600)
-
-        self.Session = sessionmaker(autocommit=True, autoflush=True, bind=self.engine)
-
-    def startSession(self):
         from .YourProcessingModels import Base
-        # 2 - generate database schema
+        self.engine = create_engine(SQLALCHEMY_DATABASE_URI, pool_recycle=3600)
         Base.metadata.create_all(self.engine)
 
-        # 3 - create a new session
-        self.session = self.Session()
+    def startSession(self):
+        self.Session = sessionmaker(autocommit=True, autoflush=True, bind=self.engine)
         return self.session
 
     def closeSession(self,session):
         session.close()
-        self.engine.drop()
+
+    def closeConnection(self):
+        self.engine.dispose()
