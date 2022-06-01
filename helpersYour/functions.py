@@ -116,5 +116,6 @@ def str_to_bool(s):
     elif s.lower() == 'false':
          return False
     else:
-         raise ValueError
+        print(s)
+        raise ValueError
 
