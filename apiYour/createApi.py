@@ -127,18 +127,18 @@ def createCategoryCategoryRelation(data):
     if r.status_code == 200:
         return True
     else:
-        # logging.error(f"Call create category category relation failed. "
-        #               f""
-        #               f"Response code: {r.status_code}, "
-        #               f""
-        #               f"Content response: {r.content}, "
-        #               f""
-        #               f"data: {data}")
-        # print(f"Create category category relation Error. Response text: {r.content}")
+        logging.error(f"Call create category category relation failed. "
+                      f""
+                      f"Response code: {r.status_code}, "
+                      f""
+                      f"Content response: {r.content}, "
+                      f""
+                      f"data: {data}")
+        print(f"Create category category relation Error. Response text: {r.content}")
         return False
 
-def createCategoryProductRelation(data):
-    r = requests.post(f"https://api.yourcontent.io/Relation/CreateCategoryProduct",
+def createCategoryAttributeRelation(data):
+    r = requests.post(f"https://api.yourcontent.io/Relation/CreateAttributeCategory",
                      json=data,
                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
     if r.status_code == 200:
