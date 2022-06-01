@@ -3,6 +3,7 @@ import requests
 import json
 from datetime import datetime
 import logging
+from helpers import logging_error_message
 logging.basicConfig(filename="getApiLogs.log", level=logging.INFO)
 
 def getAllCategories():
@@ -63,38 +64,7 @@ def getAllAttributeTypes():
             else:
                 break
         else:
-            logging.error(f"Attribute Types get all Error "
-                          f""
-                          f"Response code: {r.status_code}, "
-                          f""
-                          f"Content response: {r.content}")
-            print(f"Attribute Types get all Error. Response text: {r.content}")
-            break
-
-    return attributeTypes
-
-def getAllAttributeTypes():
-    next_page = True
-    page = 1
-    attributeTypes = []
-    while next_page:
-        r = requests.get(f"https://api.yourcontent.io/AttributeType?resultsPerPage=100&page={page}",
-                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-        if r.status_code == 200:
-            result = json.loads(r.text)
-            data = result.get('data')
-            if len(data) > 0:
-                attributeTypes = attributeTypes + data
-                page += 1
-            else:
-                break
-        else:
-            logging.error(f"Attribute Types get all Error "
-                          f""
-                          f"Response code: {r.status_code}, "
-                          f""
-                          f"Content response: {r.content}")
-            print(f"Attribute Types get all Error. Response text: {r.content}")
+            logging_error_message("Attribute Types get all", r.status_code, r.content, None)
             break
 
     return attributeTypes
@@ -115,12 +85,8 @@ def getAllAttributeTypeUnit():
             else:
                 break
         else:
-            logging.error(f"Attribute Type Units get all Error "
-                          f""
-                          f"Response code: {r.status_code}, "
-                          f""
-                          f"Content response: {r.content}")
-            print(f"Attribute Types get all Error. Response text: {r.content}")
+            logging_error_message("Attribute Types Units get all", r.status_code, r.content, None)
             break
 
     return attributeTypeUnits
+

@@ -35,3 +35,12 @@ def createAttributeTypeUnitNameLookup(your_attr_type_units):
         attr_type_unit_lookup.update({unit['name']: unit['id']})
 
     return attr_type_unit_lookup
+
+def logging_error_message(topic, status_code, content, payload):
+    import logging
+    logging.error(f"Call {topic} failure."
+                  f""
+                  f"text: {content}, "
+                  f""
+                  f"data: {payload}")
+    print(f"Call {topic} failed. Response code: {status_code}, text: {content}")
