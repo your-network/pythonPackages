@@ -27,3 +27,11 @@ def createAttributeIdLookup(your_attributes,source):
         attr_lookup.update({attr['externalId']: attr['id']})
 
     return attr_lookup
+
+def createAttributeTypeUnitNameLookup(your_attr_type_units):
+    attr_type_unit_lookup = {}
+
+    for unit in your_attr_type_units:
+        attr_type_unit_lookup.update({unit['name']: unit['id']})
+
+    return attr_type_unit_lookup
