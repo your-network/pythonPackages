@@ -44,6 +44,17 @@ class collectionQueue(Base):
     def __init__(self, **kwargs):
         super(collectionQueue, self).__init__(**kwargs)
 
+class relationQueue(Base):
+    __tablename__ = 'relationQueue'
+    id = Column(Integer, primary_key=True)
+    relationType = Column(String)
+    entityId = Column(String)
+    status = Column(Integer)
+    createdAt = Column(DateTime, nullable=True)
+    updatedAt = Column(DateTime, nullable=True)
+    def __init__(self, **kwargs):
+        super(relationQueue, self).__init__(**kwargs)
+
 class latestUpdateDate(Base):
     __tablename__ = 'latestUpdateDate'
     type = Column(String, primary_key=True)
