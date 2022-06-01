@@ -2,6 +2,8 @@ import os
 import requests
 import json
 from datetime import datetime
+import logging
+logging.basicConfig(filename="getApiLogs.log", level=logging.INFO)
 
 def getAllCategories():
     next_page = True
@@ -44,3 +46,81 @@ def getAllAttributes():
             break
 
     return attributes
+
+def getAllAttributeTypes():
+    next_page = True
+    page = 1
+    attributeTypes = []
+    while next_page:
+        r = requests.get(f"https://api.yourcontent.io/AttributeType?resultsPerPage=100&page={page}",
+                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        if r.status_code == 200:
+            result = json.loads(r.text)
+            data = result.get('data')
+            if len(data) > 0:
+                attributeTypes = attributeTypes + data
+                page += 1
+            else:
+                break
+        else:
+            logging.error(f"Attribute Types get all Error "
+                          f""
+                          f"Response code: {r.status_code}, "
+                          f""
+                          f"Content response: {r.content}")
+            print(f"Attribute Types get all Error. Response text: {r.content}")
+            break
+
+    return attributeTypes
+
+def getAllAttributeTypes():
+    next_page = True
+    page = 1
+    attributeTypes = []
+    while next_page:
+        r = requests.get(f"https://api.yourcontent.io/AttributeType?resultsPerPage=100&page={page}",
+                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        if r.status_code == 200:
+            result = json.loads(r.text)
+            data = result.get('data')
+            if len(data) > 0:
+                attributeTypes = attributeTypes + data
+                page += 1
+            else:
+                break
+        else:
+            logging.error(f"Attribute Types get all Error "
+                          f""
+                          f"Response code: {r.status_code}, "
+                          f""
+                          f"Content response: {r.content}")
+            print(f"Attribute Types get all Error. Response text: {r.content}")
+            break
+
+    return attributeTypes
+
+def getAllAttributeTypeUnit():
+    next_page = True
+    page = 1
+    attributeTypeUnits = []
+    while next_page:
+        r = requests.get(f"https://api.yourcontent.io/AttributeTypeUnit?resultsPerPage=100&page={page}",
+                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        if r.status_code == 200:
+            result = json.loads(r.text)
+            data = result.get('data')
+            if len(data) > 0:
+                attributeTypeUnits = attributeTypeUnits + data
+                page += 1
+            else:
+                break
+        else:
+            logging.error(f"Attribute Type Units get all Error "
+                          f""
+                          f"Response code: {r.status_code}, "
+                          f""
+                          f"Content response: {r.content}")
+            print(f"Attribute Types get all Error. Response text: {r.content}")
+            break
+
+    return attributeTypeUnits
