@@ -109,3 +109,12 @@ def flatten_json(y):
 
     flatten(y)
     return out
+
+def str_to_bool(s):
+    if s.lower() == 'true':
+         return True
+    elif s.lower() == 'false':
+         return False
+    else:
+         raise ValueError
+
