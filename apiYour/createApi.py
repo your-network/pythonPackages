@@ -3,7 +3,7 @@ import requests
 import json
 from datetime import datetime
 import logging
-from helpers import logging_error_message
+from apiYour.helpers import logging_error_message
 logging.basicConfig(filename="createApiLogs.log", level=logging.INFO)
 
 
