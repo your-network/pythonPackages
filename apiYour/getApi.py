@@ -22,7 +22,7 @@ def getAllCategories():
             else:
                 break
         else:
-            print(f"Category get all create Error. Response text: {r.content}")
+            logging_error_message("Category get all", r.status_code, r.content, None)
             break
 
     return categories
@@ -43,7 +43,7 @@ def getAllAttributes():
             else:
                 break
         else:
-            print(f"Attribute create Error. Response text: {r.content}")
+            logging_error_message("Attributes get all", r.status_code, r.content, None)
             break
 
     return attributes
