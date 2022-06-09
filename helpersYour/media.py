@@ -17,7 +17,7 @@ def getIpfsImageDetails(ipfs_url):
 
     shA256 = sha256Image(im)
 
-    extension = mimetypes.guess_extension(im.format)
+    extension = im.get_format_mimetype().split('/')[-1]
 
     return {'url': ipfs_url,
             'width': w,
@@ -56,14 +56,14 @@ def createMediaDetailsDic(url,language):
                 }
     return media_dic
 
-def imageDetailsUrl(image_url=None,keep=0):
+def imageDetailsUrl(image_url=None):
     response = requests.get(image_url)
     content = response.content
 
     im = Image.open(BytesIO(content))
     w, h = im.size
     sha256 = sha256Image(im)
-    extension = im.get_format_mimetype()
+    extension = im.get_format_mimetype().split('/')[-1]
 
     return {'url': image_url,
             'width': w,
@@ -81,7 +81,6 @@ def getMediaFileUrl(url=None):
     header = r.headers
 
     content_type = header.get('content-type')
-    extension = mimetypes.guess_extension(content_type)
     sha256 = hashlib.sha256(content).hexdigest()
 
     return {'url': url,
@@ -89,7 +88,7 @@ def getMediaFileUrl(url=None):
             'fileName': file_name,
             'shA256': sha256,
             'fileSize': len(content),
-            'extension': extension}
+            'extension': content_type.lower()}
 
 def sha256Image(im):
     Na = np.array(im).astype(np.uint16)
