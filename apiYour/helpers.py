@@ -28,13 +28,13 @@ def createAttributeIdLookup(your_attributes,source):
 
     return attr_lookup
 
-def createAttributeNameLookup(your_attributes,source):
-    sources = {'icecat': 2, 'your': 1, 'opensea': 5}
-    icecat_attributes = [x for x in your_attributes if x['source'] == sources.get(source)]
-
+def createAttributeNameLookup(your_attributes):
     attr_lookup = {}
-    for attr in icecat_attributes:
-        attr_lookup.update({attr['externalId']: attr['name']})
+    for attr in your_attributes:
+        if attr_lookup.get(attr['source']):
+            attr_lookup[attr['source']].update({attr['externalId']: attr['name']})
+        else:
+            attr_lookup.update({attr['source']: {attr['externalId']: attr['name']}})
 
     return attr_lookup
 
