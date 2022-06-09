@@ -32,7 +32,7 @@ def createCategory(payload):
 def createProductBulk(data_bulk):
     start_time = datetime.now()
     print(f"YourApi process product bulk. Start time: {start_time}")
-    r = requests.get(f"https://api.yourcontent.io/Product/CreateOrUpdateBulk",
+    r = requests.post(f"https://api.yourcontent.io/Product/CreateOrUpdateBulk",
                      json=data_bulk,
                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
     print(f"Bulk response: {r.text}")
