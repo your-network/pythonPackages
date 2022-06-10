@@ -59,6 +59,8 @@ class relationQueue(Base):
 class latestUpdateDate(Base):
     __tablename__ = 'latestUpdateDate'
     type = Column(String, primary_key=True)
+    source = Column(Integer)
+    purpose = Column(Integer)
     updateDate = Column(DateTime, nullable=True)
     def __init__(self, **kwargs):
         super(latestUpdateDate, self).__init__(**kwargs)
