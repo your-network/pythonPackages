@@ -31,10 +31,11 @@ class productQueue(Base):
     def __init__(self, **kwargs):
         super(productQueue, self).__init__(**kwargs)
 
-class collectionQueue(Base):
-    __tablename__ = 'collectionQueue'
+class categoryQueue(Base):
+    __tablename__ = 'categoryQueue'
     id = Column(Integer, primary_key=True)
     source = Column(Integer)
+    purpose = Column(Integer)
     categoryId = Column(String)
     language = Column(String)
     valueJson = Column(String, nullable=True)
@@ -42,7 +43,7 @@ class collectionQueue(Base):
     createdAt = Column(DateTime, nullable=True)
     updatedAt = Column(DateTime, nullable=True)
     def __init__(self, **kwargs):
-        super(collectionQueue, self).__init__(**kwargs)
+        super(categoryQueue, self).__init__(**kwargs)
 
 class relationQueue(Base):
     __tablename__ = 'relationQueue'

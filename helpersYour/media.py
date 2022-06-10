@@ -88,22 +88,9 @@ def getMediaFileUrl(url=None):
             'fileName': file_name,
             'shA256': sha256,
             'fileSize': len(content),
-            'extension': content_type.lower()}
+            'extension': content_type.lower().split('/')[-1]}
 
 def sha256Image(im):
     Na = np.array(im).astype(np.uint16)
     sha256 = hashlib.sha256(Na.tobytes()).hexdigest()
     return sha256
-
-
-class fileTypes:
-    def __init__(self):
-        f = open('mimetypes.json', 'r')
-        self.type_lookup = json.loads(f.read())
-
-    def getFileType(self, content_type):
-        if self.type_lookup.get(content_type.lower()):
-            return self.type_lookup.get(content_type.lower())
-        else:
-            type = mimetypes.guess_type(content_type)
-            return self.type_lookup.get(type)
