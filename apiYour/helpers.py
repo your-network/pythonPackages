@@ -18,13 +18,13 @@ def createCategoryIdLookup(your_categories):
     return attr_gr_lookup, cat_lookup, nft_lookup
 
 
-def createAttributeIdLookup(your_attributes,source):
-    sources = {'icecat': 2, 'your': 1, 'opensea': 5}
-    icecat_attributes = [x for x in your_attributes if x['source'] == sources.get(source)]
-
+def createAttributeIdLookup(your_attributes):
     attr_lookup = {}
-    for attr in icecat_attributes:
-        attr_lookup.update({attr['externalId']: attr['id']})
+    for attr in your_attributes:
+        if attr_lookup.get(attr['source']):
+            attr_lookup[attr['source']].update({attr['externalId']: attr['id']})
+        else:
+            attr_lookup.update({attr['source']: {attr['externalId']: attr['id']}})
 
     return attr_lookup
 
