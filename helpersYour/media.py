@@ -3,9 +3,6 @@ from io import BytesIO
 import hashlib
 import requests
 import numpy as np
-import mimetypes
-import json
-
 
 def getIpfsImageDetails(ipfs_url):
     file_directory = ipfs_url.split("//")[-1]
