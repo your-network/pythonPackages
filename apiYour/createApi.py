@@ -15,19 +15,14 @@ def createCategory(payload):
         resp_data = json.loads(r.text).get('data')
         if resp_data:
             cat_id = resp_data.get('id')
-            # print(f"Call Success, response category id: {cat_id}")
-            return cat_id
+            media = resp_data.get('duplicates')
+            return cat_id, media
         else:
-            logging.error(f"Call create category success but no response data."
-                          f""
-                          f"text: {r.content}, "
-                          f""
-                          f"data: {payload}")
-            print(f"Call Success but no response category id")
-            return None
+            logging_error_message("create category", r.status_code, r.content, payload)
+            return None, None
     else:
         logging_error_message("create category", r.status_code, r.content, payload)
-        return None
+        return None, None
 
 def createProductBulk(data_bulk):
     start_time = datetime.now()
