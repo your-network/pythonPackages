@@ -37,8 +37,7 @@ def createImageDetailsDic(details,language):
                  "width": details['width'],
                  "shA256": details['shA256'],
                  "languages": [language],
-                 "attributes": {
-                    }
+                 "attributes": []
                 }
     return image_dic
 
@@ -51,8 +50,7 @@ def createMediaDetailsDic(url,language):
                  "fileSize": details['fileSize'],
                  "shA256": details['shA256'],
                  "languages": [language],
-                 "attributes": {
-                    }
+                 "attributes": []
                 }
     return media_dic
 
