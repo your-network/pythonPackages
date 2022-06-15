@@ -8,7 +8,7 @@ def imageUrlS3BucketUpload(amazonS3Client, media_url, internal_path):
     response = requests.get(media_url)
     image = Image.open(BytesIO(response.content))
     ## upload details
-    uploadBytesMedia(amazonS3Client,
+    return uploadBytesMedia(amazonS3Client,
                      "yourcontent-dev",
                      image,
                      internal_path)
@@ -16,7 +16,7 @@ def imageUrlS3BucketUpload(amazonS3Client, media_url, internal_path):
 def mediaUrlS3BucketUpload(amazonS3Client, media_url, internal_path):
     response = requests.get(media_url)
     ## upload details
-    uploadMediaFile(amazonS3Client,
+    return uploadMediaFile(amazonS3Client,
                     "yourcontent-dev",
                     response,
                     internal_path)
