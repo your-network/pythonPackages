@@ -6,23 +6,30 @@ import hashlib
 import requests
 import numpy as np
 
+import logging
+from helpersYour.logging import logging_error_message
+logging.basicConfig(filename="mediaReadingLogs.log", level=logging.INFO)
+
 def getIpfsImageDetails(ipfs_url):
-    file_directory = ipfs_url.split("//")[-1]
+    try:
+        file_directory = ipfs_url.split("//")[-1]
 
-    response = requests.request("GET", f"https://cloudflare-ipfs.com/ipfs/{file_directory}")
+        response = requests.request("GET", f"https://cloudflare-ipfs.com/ipfs/{file_directory}")
 
-    im = Image.open(BytesIO(response.content))
-    w, h = im.size
+        im = Image.open(BytesIO(response.content))
+        w, h = im.size
 
-    shA256 = sha256Image(im)
+        shA256 = sha256Image(im)
 
-    return {'url': ipfs_url,
-            'width': w,
-            'heigth': h,
-            'format': im.get_format_mimetype(),
-            'shA256': shA256,
-            'fileSize': len(response.content),
-            'extension': im.get_format_mimetype().split('/')[-1]}
+        return {'url': ipfs_url,
+                'width': w,
+                'heigth': h,
+                'format': im.get_format_mimetype(),
+                'shA256': shA256,
+                'fileSize': len(response.content),
+                'extension': im.get_format_mimetype().split('/')[-1]}
+    except Exception as e:
+        logging_error_message("Ipfs Image reading", ipfs_url, e)
 
 def createImageDetailsDic(details,language):
     image_dic = {"url": details['url'],
@@ -52,37 +59,43 @@ def createMediaDetailsDic(url,language):
     return media_dic
 
 def imageDetailsUrl(image_url=None):
-    response = requests.get(image_url)
-    content = response.content
+    try:
+        response = requests.get(image_url)
+        content = response.content
 
-    im = Image.open(BytesIO(content))
-    w, h = im.size
-    sha256 = sha256Image(im)
+        im = Image.open(BytesIO(content))
+        w, h = im.size
+        sha256 = sha256Image(im)
 
-    return {'url': image_url,
-            'width': w,
-            'heigth': h,
-            'format':im.get_format_mimetype(),
-            'shA256': sha256,
-            'fileSize': len(content),
-            'extension': im.get_format_mimetype().split('/')[-1]}
+        return {'url': image_url,
+                'width': w,
+                'heigth': h,
+                'format':im.get_format_mimetype(),
+                'shA256': sha256,
+                'fileSize': len(content),
+                'extension': im.get_format_mimetype().split('/')[-1]}
+    except Exception as e:
+        logging_error_message("Image reading", image_url, e)
 
 def getMediaFileUrl(url=None):
-    file_name = url.split("/")[-1]
+    try:
+        file_name = url.split("/")[-1]
 
-    r = requests.get(url)
-    content = r.content
-    header = r.headers
+        r = requests.get(url)
+        content = r.content
+        header = r.headers
 
-    content_type = header.get('content-type')
-    sha256 = hashlib.sha256(content).hexdigest()
+        content_type = header.get('content-type')
+        sha256 = hashlib.sha256(content).hexdigest()
 
-    return {'url': url,
-            'contentType': content_type,
-            'fileName': file_name,
-            'shA256': sha256,
-            'fileSize': len(content),
-            'extension': content_type.lower().split('/')[-1]}
+        return {'url': url,
+                'contentType': content_type,
+                'fileName': file_name,
+                'shA256': sha256,
+                'fileSize': len(content),
+                'extension': content_type.lower().split('/')[-1]}
+    except Exception as e:
+        logging_error_message("Media file reading", url, e)
 
 def sha256Image(im):
     Na = np.array(im).astype(np.uint16)
