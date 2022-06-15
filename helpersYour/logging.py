@@ -7,6 +7,8 @@ def logging_error_message(topic, data, error_message):
                   f"Data: {data}, "
                   )
     print(f"Read {topic} failure."
-                  f""
-                  f"Data: {data}, "
-                  )
+            f" "
+            f"Error message: {error_message}"
+            f" "
+            f"Data: {data}, "
+        )

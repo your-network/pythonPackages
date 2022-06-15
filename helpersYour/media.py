@@ -14,7 +14,7 @@ def getIpfsImageDetails(ipfs_url):
     try:
         file_directory = ipfs_url.split("//")[-1]
 
-        response = requests.request("GET", f"https://cloudflare-ipfs.com/ipfs/{file_directory}", headers=HEADER)
+        response = requests.request("GET", f"https://cloudflare-ipfs.com/ipfs/{file_directory}")
 
         im = Image.open(BytesIO(response.content))
         w, h = im.size
@@ -31,6 +31,7 @@ def getIpfsImageDetails(ipfs_url):
 
     except Exception as e:
         logging_error_message("Ipfs Image reading", ipfs_url, e)
+        return None
 
 def createImageDetailsDic(details,language):
     image_dic = {"url": details['url'],
@@ -90,12 +91,13 @@ def imageDetailsUrl(image_url=None):
 
     except Exception as e:
         logging_error_message("Image reading", image_url, e)
+        return None
 
 def getMediaFileUrl(url=None):
     try:
         file_name = url.split("/")[-1]
 
-        r = requests.get(url, headers=HEADER)
+        r = requests.get(url)
         content = r.content
         header = r.headers
 
@@ -108,8 +110,10 @@ def getMediaFileUrl(url=None):
                 'shA256': sha256,
                 'fileSize': len(content),
                 'extension': content_type.lower().split('/')[-1]}
+
     except Exception as e:
         logging_error_message("Media file reading", url, e)
+        return None
 
 def sha256Image(im):
     Na = np.array(im).astype(np.uint16)
