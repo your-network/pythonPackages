@@ -1,4 +1,6 @@
 from PIL import Image
+Image.MAX_IMAGE_PIXELS = None
+
 from io import BytesIO
 import hashlib
 import requests
