@@ -6,7 +6,6 @@ import logging
 from apiYour.helpers import logging_error_message
 logging.basicConfig(filename="createApiLogs.log", level=logging.INFO)
 
-
 def createCategory(payload):
     r = requests.post('https://api.yourcontent.io/Category/CreateOrUpdate',
                       json=payload,
