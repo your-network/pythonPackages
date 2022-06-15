@@ -58,7 +58,8 @@ class relationQueue(Base):
 
 class latestUpdateDate(Base):
     __tablename__ = 'latestUpdateDate'
-    type = Column(String, primary_key=True)
+    id = Column(Integer, primary_key=True)
+    type = Column(String)
     source = Column(Integer)
     purpose = Column(Integer)
     updateDate = Column(DateTime, nullable=True)

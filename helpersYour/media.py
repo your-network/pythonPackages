@@ -1,6 +1,6 @@
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
-
+from helpersYour.settings import HEADER
 from io import BytesIO
 import hashlib
 import requests
@@ -14,7 +14,7 @@ def getIpfsImageDetails(ipfs_url):
     try:
         file_directory = ipfs_url.split("//")[-1]
 
-        response = requests.request("GET", f"https://cloudflare-ipfs.com/ipfs/{file_directory}")
+        response = requests.request("GET", f"https://cloudflare-ipfs.com/ipfs/{file_directory}", headers=HEADER)
 
         im = Image.open(BytesIO(response.content))
         w, h = im.size
@@ -28,6 +28,7 @@ def getIpfsImageDetails(ipfs_url):
                 'shA256': shA256,
                 'fileSize': len(response.content),
                 'extension': im.get_format_mimetype().split('/')[-1]}
+
     except Exception as e:
         logging_error_message("Ipfs Image reading", ipfs_url, e)
 
@@ -60,7 +61,7 @@ def createMediaDetailsDic(url,language):
 
 def imageDetailsUrl(image_url=None):
     try:
-        response = requests.get(image_url)
+        response = requests.get(image_url, headers=HEADER)
         content = response.content
 
         header = response.headers
@@ -94,7 +95,7 @@ def getMediaFileUrl(url=None):
     try:
         file_name = url.split("/")[-1]
 
-        r = requests.get(url)
+        r = requests.get(url, headers=HEADER)
         content = r.content
         header = r.headers
 
