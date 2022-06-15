@@ -63,17 +63,30 @@ def imageDetailsUrl(image_url=None):
         response = requests.get(image_url)
         content = response.content
 
-        im = Image.open(BytesIO(content))
-        w, h = im.size
-        sha256 = sha256Image(im)
+        header = response.headers
+        content_type = header.get('content-type')
+
+        if 'svg' in content_type:
+            w, h = 0, 0
+            sha256 = hashlib.sha256(content).hexdigest()
+            extension = 'svg'
+            format = content_type
+
+        else:
+            im = Image.open(BytesIO(content))
+            w, h = im.size
+            sha256 = sha256Image(im)
+            extension = im.get_format_mimetype().split('/')[-1]
+            format = im.get_format_mimetype()
 
         return {'url': image_url,
                 'width': w,
                 'heigth': h,
-                'format':im.get_format_mimetype(),
+                'format': format,
                 'shA256': sha256,
                 'fileSize': len(content),
-                'extension': im.get_format_mimetype().split('/')[-1]}
+                'extension': extension}
+
     except Exception as e:
         logging_error_message("Image reading", image_url, e)
 
