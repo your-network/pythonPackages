@@ -19,7 +19,7 @@ def getIpfsImageDetails(ipfs_url):
         im = Image.open(BytesIO(response.content))
         w, h = im.size
 
-        shA256 = sha256Image(im)
+        shA256 = hashlib.sha256(response.content).hexdigest()
 
         return {'url': ipfs_url,
                 'width': w,
@@ -72,19 +72,19 @@ def imageDetailsUrl(image_url=None):
             w, h = 0, 0
             sha256 = hashlib.sha256(content).hexdigest()
             extension = 'svg'
-            format = content_type
+            file_format = content_type
 
         else:
             im = Image.open(BytesIO(content))
             w, h = im.size
-            sha256 = sha256Image(im)
+            sha256 = hashlib.sha256(response.content).hexdigest()
             extension = im.get_format_mimetype().split('/')[-1]
-            format = im.get_format_mimetype()
+            file_format = im.get_format_mimetype()
 
         return {'url': image_url,
                 'width': w,
                 'heigth': h,
-                'format': format,
+                'format': file_format,
                 'shA256': sha256,
                 'fileSize': len(content),
                 'extension': extension}
@@ -114,8 +114,3 @@ def getMediaFileUrl(url=None):
     except Exception as e:
         logging_error_message("Media file reading", url, e)
         return None
-
-def sha256Image(im):
-    Na = np.array(im).astype(np.uint16)
-    sha256 = hashlib.sha256(Na.tobytes()).hexdigest()
-    return sha256

@@ -25,9 +25,6 @@ def unprocessedProductIds(products, session):
     except exc.SQLAlchemyError as e:
         print(e)
 
-# def updateProductIdStatus(source_id, product_id, session):
-
-
 def unprocessedMedia(media, session):
     from YourProcessingModels import mediaQueue
 
