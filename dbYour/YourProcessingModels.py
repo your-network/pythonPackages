@@ -22,7 +22,7 @@ class productQueue(Base):
     __tablename__ = 'productQueue'
     id = Column(Integer, primary_key=True)
     source = Column(Integer)
-    productId = Column(Integer)
+    productId = Column(String)
     language = Column(String)
     valueJson = Column(String, nullable=True)
     status = Column(Integer)
@@ -44,6 +44,18 @@ class categoryQueue(Base):
     updatedAt = Column(DateTime, nullable=True)
     def __init__(self, **kwargs):
         super(categoryQueue, self).__init__(**kwargs)
+
+class brandQueue(Base):
+    __tablename__ = 'brandQueue'
+    id = Column(Integer, primary_key=True)
+    source = Column(Integer)
+    brandId = Column(String)
+    valueJson = Column(String, nullable=True)
+    status = Column(Integer)
+    createdAt = Column(DateTime, nullable=True)
+    updatedAt = Column(DateTime, nullable=True)
+    def __init__(self, **kwargs):
+        super(brandQueue, self).__init__(**kwargs)
 
 class relationQueue(Base):
     __tablename__ = 'relationQueue'
