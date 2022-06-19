@@ -38,6 +38,16 @@ def createAttributeNameLookup(your_attributes):
 
     return attr_lookup
 
+def createBrandIdLookup(your_brands):
+    brand_lookup = {}
+    for brand in your_brands:
+        if brand_lookup.get(brand['source']):
+            brand_lookup[brand['source']].update({brand['externalId']: brand['id']})
+        else:
+            brand_lookup.update({brand['source']: {brand['externalId']: brand['id']}})
+
+    return brand_lookup
+
 def createAttributeTypeUnitNameLookup(your_attr_type_units):
     attr_type_unit_lookup = {}
 
