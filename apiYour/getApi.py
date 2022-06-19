@@ -69,6 +69,29 @@ def getAllAttributeTypes():
 
     return attributeTypes
 
+def getAllBrands():
+    next_page = True
+    page = 1
+    brands = []
+    while next_page:
+        r = requests.get(f"https://api.yourcontent.io/Brand?resultsPerPage=100&page={page}",
+                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+
+        if r.status_code == 200:
+            result = json.loads(r.text)
+            data = result.get('data')
+            if len(data) > 0:
+                brands = brands + data
+                page += 1
+            else:
+                break
+
+        else:
+            logging_error_message("Brands get all", r.status_code, r.content, None)
+            break
+
+    return brands
+
 def getAllAttributeTypeUnit():
     next_page = True
     page = 1
