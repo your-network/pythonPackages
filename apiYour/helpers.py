@@ -54,9 +54,13 @@ def createAttributeTypeUnitNameLookup(your_attr_type_units):
 
 def logging_error_message(topic, status_code, content, payload):
     import logging
-    logging.error(f"Call {topic} failure."
+    from datetime import datetime
+    message = (f"Time: {datetime.now()}"
+                  f""
+                  f"Call {topic} failure."
                   f""
                   f"text: {content}, "
                   f""
                   f"data: {payload}")
-    print(f"Call {topic} failed. Response code: {status_code}, text: {content}")
+    logging.error(message)
+    print(message)
