@@ -107,6 +107,16 @@ def createCategoryCategoryRelation(data):
         logging_error_message("create category category relation", r.status_code, r.content, data)
         return False
 
+def createBrandCategoryRelation(data):
+    r = requests.post(f"https://api.yourcontent.io/Relation/CreateBrandCategory",
+                     json=data,
+                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+    if r.status_code == 200:
+        return True
+    else:
+        logging_error_message("create brand category relation", r.status_code, r.content, data)
+        return False
+
 def createCategoryAttributeRelation(data):
     r = requests.post(f"https://api.yourcontent.io/Relation/CreateAttributeCategory",
                      json=data,
