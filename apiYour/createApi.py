@@ -96,6 +96,18 @@ def createBrand(data):
         brand_id = None
     return brand_id
 
+def createSeries(data):
+    r = requests.post(f"https://api.yourcontent.io/Series",
+                     json=data,
+                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+    if r.status_code == 200:
+        resp_data = json.loads(r.text)
+        serie_id = resp_data['data']['id']
+    else:
+        logging_error_message("create brand", r.status_code, r.content, data)
+        serie_id = None
+    return serie_id
+
 
 def createCategoryCategoryRelation(data):
     r = requests.post(f"https://api.yourcontent.io/Relation/CreateCategoryCategory",
