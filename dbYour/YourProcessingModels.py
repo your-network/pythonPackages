@@ -68,6 +68,19 @@ class relationQueue(Base):
     def __init__(self, **kwargs):
         super(relationQueue, self).__init__(**kwargs)
 
+class references(Base):
+    __tablename__ = 'relationQueue'
+    id = Column(Integer, primary_key=True)
+    type = Column(String)
+    source = Column(Integer)
+    purpose = Column(Integer)
+    externalId = Column(Integer)
+    internalId = Column(Integer)
+    createdAt = Column(DateTime, nullable=True)
+    updatedAt = Column(DateTime, nullable=True)
+    def __init__(self, **kwargs):
+        super(references, self).__init__(**kwargs)
+
 class latestUpdateDate(Base):
     __tablename__ = 'latestUpdateDate'
     id = Column(Integer, primary_key=True)
