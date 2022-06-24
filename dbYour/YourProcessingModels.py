@@ -69,7 +69,7 @@ class relationQueue(Base):
         super(relationQueue, self).__init__(**kwargs)
 
 class references(Base):
-    __tablename__ = 'relationQueue'
+    __tablename__ = 'references'
     id = Column(Integer, primary_key=True)
     type = Column(String)
     source = Column(Integer)
