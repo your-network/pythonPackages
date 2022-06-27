@@ -16,9 +16,6 @@ def createCategory(payload):
             cat_id = resp_data.get('id')
             media = resp_data.get('duplicates')
             return cat_id, media
-        else:
-            logging_error_message("create category", r.status_code, r.content, payload)
-            return None, None
     else:
         logging_error_message("create category", r.status_code, r.content, payload)
         return None, None
@@ -104,7 +101,7 @@ def createSeries(data):
         resp_data = json.loads(r.text)
         serie_id = resp_data['data']['id']
     else:
-        logging_error_message("create brand", r.status_code, r.content, data)
+        logging_error_message("create serie", r.status_code, r.content, data)
         serie_id = None
     return serie_id
 
