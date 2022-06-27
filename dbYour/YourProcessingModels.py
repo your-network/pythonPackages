@@ -31,6 +31,19 @@ class productQueue(Base):
     def __init__(self, **kwargs):
         super(productQueue, self).__init__(**kwargs)
 
+class productQueueCopy(Base):
+    __tablename__ = 'productQueueCopy'
+    id = Column(Integer, primary_key=True)
+    source = Column(Integer)
+    productId = Column(String)
+    language = Column(String)
+    valueJson = Column(String, nullable=True)
+    status = Column(Integer)
+    createdAt = Column(DateTime, nullable=True)
+    updatedAt = Column(DateTime, nullable=True)
+    def __init__(self, **kwargs):
+        super(productQueueCopy, self).__init__(**kwargs)
+
 class categoryQueue(Base):
     __tablename__ = 'categoryQueue'
     id = Column(Integer, primary_key=True)
