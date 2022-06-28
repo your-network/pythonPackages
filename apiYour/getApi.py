@@ -53,7 +53,7 @@ def getAllAttributeTypes():
     page = 1
     attributeTypes = []
     while next_page:
-        r = requests.get(f"https://api.yourcontent.io/AttributeType?resultsPerPage=100&page={page}",
+        r = requests.get(f"https://api.yourcontent.io/AttributeType?resultsPerPage=10000&page={page}",
                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
         if r.status_code == 200:
             result = json.loads(r.text)
@@ -74,7 +74,7 @@ def getAllBrands():
     page = 1
     brands = []
     while next_page:
-        r = requests.get(f"https://api.yourcontent.io/Brand?resultsPerPage=1000&page={page}",
+        r = requests.get(f"https://api.yourcontent.io/Brand?resultsPerPage=10000&page={page}",
                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
         if r.status_code == 200:
@@ -97,7 +97,7 @@ def getAllAttributeTypeUnit():
     page = 1
     attributeTypeUnits = []
     while next_page:
-        r = requests.get(f"https://api.yourcontent.io/AttributeTypeUnit?resultsPerPage=100&page={page}",
+        r = requests.get(f"https://api.yourcontent.io/AttributeTypeUnit?resultsPerPage=10000&page={page}",
                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
         if r.status_code == 200:
             result = json.loads(r.text)
