@@ -11,7 +11,7 @@ def getAllCategories():
     page = 1
     categories = []
     while next_page:
-        r = requests.get(f"https://api.yourcontent.io/Category/GetAll?resultsPerPage=1000&page={page}",
+        r = requests.get(f"https://api.yourcontent.io/Category/GetAll?resultsPerPage=10000&page={page}",
                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
         if r.status_code == 200:
             result = json.loads(r.text)
@@ -32,7 +32,7 @@ def getAllAttributes():
     page = 1
     attributes = []
     while next_page:
-        r = requests.get(f"https://api.yourcontent.io/Attribute?resultsPerPage=100&page={page}",
+        r = requests.get(f"https://api.yourcontent.io/Attribute?resultsPerPage=10000&page={page}",
                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
         if r.status_code == 200:
             result = json.loads(r.text)
