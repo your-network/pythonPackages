@@ -21,7 +21,7 @@ class mediaQueue(Base):
 class productQueue(Base):
     __tablename__ = 'productQueue'
     id = Column(Integer, primary_key=True)
-    source = Column(String)
+    source = Column(Integer)
     productId = Column(String)
     language = Column(String)
     valueJson = Column(String, nullable=True)
@@ -34,7 +34,7 @@ class productQueue(Base):
 class productQueueCopy(Base):
     __tablename__ = 'productQueueCopy'
     id = Column(Integer, primary_key=True)
-    source = Column(String)
+    source = Column(Integer)
     productId = Column(String)
     language = Column(String)
     valueJson = Column(String, nullable=True)
