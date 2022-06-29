@@ -98,6 +98,7 @@ def getAllBrands():
             logging_error_message("Brands get all", r.status_code, r.content, None)
             break
 
+    print(f"End brand getall, overall processing time: {datetime.now() - overal_start_time}")
     return brands
 
 def getAllAttributeTypeUnit():
