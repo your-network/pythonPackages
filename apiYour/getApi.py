@@ -70,18 +70,12 @@ def getAllAttributeTypes():
     return attributeTypes
 
 def getAllBrands():
-    overal_start_time = datetime.now()
-    print(f"Start brand getall: {overal_start_time}")
     next_page = True
     page = 1
     brands = []
     while next_page:
-        call_start_time = datetime.now()
-        print(f"Start call time: {call_start_time}")
         r = requests.get(f"https://api.yourcontent.io/Brand?resultsPerPage=10000&page={page}",
                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-        start_processing_time = datetime.now()
-        print(f"end call processing time: {start_processing_time-call_start_time}, start processing time: {start_processing_time}")
 
         if r.status_code == 200:
             result = json.loads(r.text)
@@ -89,16 +83,12 @@ def getAllBrands():
             if len(data) > 0:
                 brands = brands + data
                 page += 1
-                print(f"Append data plus next page number processing time: {datetime.now() - start_processing_time}")
             else:
-                print(f"Last page processing time: {datetime.now() - start_processing_time}")
                 break
-
         else:
             logging_error_message("Brands get all", r.status_code, r.content, None)
             break
 
-    print(f"End brand getall, overall processing time: {datetime.now() - overal_start_time}")
     return brands
 
 def getAllAttributeTypeUnit():

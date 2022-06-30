@@ -49,16 +49,19 @@ def createImageDetailsDic(details,language):
 
 def createMediaDetailsDic(url,language):
     details = getMediaFileUrl(url)
-    media_dic = {"url": details['url'],
-                 'internalPath': f"/{details['shA256']}.{details['extension']}",
-                 "downloadNeeded": False,
-                 "contentType": details['contentType'],
-                 "fileSize": details['fileSize'],
-                 "shA256": details['shA256'],
-                 "languages": [language],
-                 "attributes": []
-                }
-    return media_dic
+    if details:
+        media_dic = {"url": details['url'],
+                     'internalPath': f"/{details['shA256']}.{details['extension']}",
+                     "downloadNeeded": False,
+                     "contentType": details['contentType'],
+                     "fileSize": details['fileSize'],
+                     "shA256": details['shA256'],
+                     "languages": [language],
+                     "attributes": []
+                    }
+        return media_dic
+    else:
+        return None
 
 def imageDetailsUrl(image_url=None):
     try:
