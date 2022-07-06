@@ -30,7 +30,7 @@ def createProductBulk(data_bulk):
     if r.status_code == 200:
         print(f"Success in product bulk insert. Number products: {len(data_bulk)}")
         resp_data = json.loads(r.text)
-        product_bulk_response = resp_data['data']
+        product_bulk_response = resp_data
     else:
         logging_error_message("bulk product insert", r.status_code, r.content, None)
         product_bulk_response = None
