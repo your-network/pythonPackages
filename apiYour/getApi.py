@@ -17,7 +17,7 @@ def getAllCategories():
             result = json.loads(r.text)
             data = result.get('data')
             if len(data.get('results', [])) > 0:
-                categories = categories + data
+                categories = categories + data['results']
                 page += 1
             else:
                 break
@@ -81,7 +81,7 @@ def getAllBrands():
             result = json.loads(r.text)
             data = result.get('data')
             if len(data.get('results', [])) > 0:
-                brands = brands + data
+                brands = brands + data['results']
                 page += 1
             else:
                 break
