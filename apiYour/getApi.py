@@ -16,7 +16,7 @@ def getAllCategories():
         if r.status_code == 200:
             result = json.loads(r.text)
             data = result.get('data')
-            if len(data.get('results', [])) > 0:
+            if data.get('results'):
                 categories = categories + data['results']
                 page += 1
             else:
@@ -80,7 +80,7 @@ def getAllBrands():
         if r.status_code == 200:
             result = json.loads(r.text)
             data = result.get('data')
-            if len(data.get('results', [])) > 0:
+            if data.get('results'):
                 brands = brands + data['results']
                 page += 1
             else:

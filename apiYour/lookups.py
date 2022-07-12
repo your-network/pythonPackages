@@ -1,7 +1,7 @@
 def createCategoryIdLookup(your_categories):
     category_lookup = {}
     for category in your_categories:
-        if category['externalIDs']:
+        if category.get('externalIDs'):
             for source in category['externalIDs'].keys():
                 if category_lookup.get(source):
                     if category_lookup[source].get(category['purpose']):
@@ -13,6 +13,8 @@ def createCategoryIdLookup(your_categories):
                 else:
                     category_lookup.update(
                         {source: {category['purpose']: {category['externalIDs'][source][0]: category['id']}}})
+        else:
+            print(f"Category without externalIds: {category}")
 
     return category_lookup
 
