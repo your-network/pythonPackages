@@ -5,10 +5,9 @@ def callback(message):
     print(message.data)
     message.ack()
 
-def subscribeTopicMessages(subscriber, topic_name, subscription_name):
-    topic = f"{os.environ['TOPIC_CONSTRUCT']}{topic_name}"
+def subscribeTopicMessages(subscriber, subscription_name):
     subscription = f"{os.environ['SUB_CONSTRUCT']}{subscription_name}"
 
-    future = subscriber.subscribe(subscription_name, callback)
+    future = subscriber.subscribe(subscription, callback)
 
     return future
