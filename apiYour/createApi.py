@@ -39,6 +39,25 @@ def createProductBulk(data_bulk):
     print(f"Api product bulk insert finished, processing time: {end_time - start_time}")
     return product_bulk_response
 
+def createProductQueue(data_bulk):
+    start_time = datetime.now()
+    print(f"YourApi process product queue. Start time: {start_time}")
+    r = requests.post(f"https://api.yourcontent.io/Product/QueueForCreateBulk",
+                     json=data_bulk,
+                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+    print(f"Bulk response: {r.text}")
+    if r.status_code == 200:
+        print(f"Success in product queue insert. Number products: {len(data_bulk)}")
+        resp_data = json.loads(r.text)
+        product_bulk_response = resp_data
+    else:
+        logging_error_message("queue product insert", r.status_code, r.content, None)
+        product_bulk_response = None
+
+    end_time = datetime.now()
+    print(f"Api product queue insert finished, processing time: {end_time - start_time}")
+    return product_bulk_response
+
 def createAttributeUnit(data):
     r = requests.post(f"https://api.yourcontent.io/Attribute/CreateOrUpdateAttributeTypeUnit",
                      json=data,
@@ -104,7 +123,6 @@ def createSeries(data):
         logging_error_message("create serie", r.status_code, r.content, data)
         serie_id = None
     return serie_id
-
 
 def createCategoryCategoryRelation(data):
     r = requests.post(f"https://api.yourcontent.io/Relation/CreateCategoryCategory",
