@@ -24,7 +24,7 @@ class PubSubHandler:
 
 
 def callback(message):
-    print(message.data)
+    # print(message.data)
     message.ack()
 
 def ack_messages(subscriber, message_ids):
@@ -35,7 +35,7 @@ def ack_messages(subscriber, message_ids):
 def subscribeTopicMessages(subscriber, subscription_name):
     subscription_path = f"{os.environ['SUB_CONSTRUCT']}{subscription_name}"
 
-    future = subscriber.subscribe(subscription_path)
+    future = subscriber.subscribe(subscription_path, callback=callback)
 
     return future
 
