@@ -21,7 +21,7 @@ def publishTopicBatchMessages(batch_publisher, topic_name, batch_data):
 
     for data in batch_data:
         publish_future = batch_publisher.publish(topic, json.dumps(data).encode('utf-8'))
-        publish_future.add_done_callback(callback)
+        # publish_future.add_done_callback(callback)
         publish_futures.append(publish_future)
 
     futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
