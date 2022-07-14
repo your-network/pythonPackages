@@ -35,9 +35,7 @@ def ack_messages(subscriber, message_ids):
 def subscribeTopicMessages(subscriber, subscription_name):
     subscription_path = f"{os.environ['SUB_CONSTRUCT']}{subscription_name}"
 
-    future = subscriber.subscribe(subscription,
-                                  max_messages=8,
-                                  return_immediately=True)
+    future = subscriber.subscribe(subscription_path, callback=callback)
 
     return future
 
