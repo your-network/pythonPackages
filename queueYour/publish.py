@@ -13,8 +13,6 @@ def publishTopicMessage(publisher, topic_name, data):
 
     future = publisher.publish(topic, json.dumps(data).encode('utf-8'), spam='eggs')
 
-    print(f"result: {future.result()}")
-
 def publishTopicBatchMessages(batch_publisher, topic_name, batch_data):
 
     topic = f"{os.environ['TOPIC_CONSTRUCT']}{topic_name}"
