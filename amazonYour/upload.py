@@ -30,7 +30,7 @@ def uploadBytesMedia(amazonS3Client, bucket, media_bytes, media_name, content_ty
             media_name,
             ExtraArgs={'ContentType': content_type, 'ACL': "public-read"}
         )
-        print(f"Media name: {media_name}, uploaded to amazon")
+        # print(f"Media name: {media_name}, uploaded to amazon")
         return True
     except ClientError as e:
         print(e)
