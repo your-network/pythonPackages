@@ -7,7 +7,7 @@ class QueueAuth:
 
     def __init__(self, service_account_info, project_id):
         self.service_account_info = service_account_info
-        self.project_id = self.project_id
+        self.project_id = project_id
         os.environ["TOPIC_CONSTRUCT"] = f"projects/{project_id}/topics/"
         os.environ["SUB_CONSTRUCT"] = f"projects/{project_id}/subscriptions/"
 
