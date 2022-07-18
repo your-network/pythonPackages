@@ -29,3 +29,8 @@ def ack_messages(subscriber, subscription_path, message_ack_ids):
                 "ack_ids": message_ack_ids,
             }
         )
+
+def processMessageDetails(message):
+    message_dic = {'ack_id': message.ack_id,
+                   'data': json.loads(message.message.data)}
+    return message_dic
