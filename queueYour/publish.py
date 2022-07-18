@@ -2,6 +2,7 @@ import json
 import os
 from concurrent import futures
 from google.cloud import pubsub_v1
+from helpersYour.writers import _batch_iter
 
 # Resolve the publish future in a separate thread.
 def callback(future: pubsub_v1.publisher.futures.Future) -> None:
@@ -18,12 +19,15 @@ def publishTopicBatchMessages(batch_publisher, topic_name, batch_data):
 
     publish_futures = []
 
-    for data in batch_data:
-        publish_future = batch_publisher.publish(topic, json.dumps(data).encode('utf-8'))
-        publish_future.add_done_callback(callback)
-        publish_futures.append(publish_future)
+    for batch in _batch_iter(300, batch_data):
 
-    futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
+        for data in batch:
+            publish_future = batch_publisher.publish(topic, json.dumps(data).encode('utf-8'))
+            publish_future.add_done_callback(callback)
+            publish_futures.append(publish_future)
+
+        futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
+        print(f"Queue Batch insert finished")
 
     print(f"All messages published. Number messages: {len(batch_data)}")
 

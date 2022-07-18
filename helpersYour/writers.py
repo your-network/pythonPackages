@@ -1,5 +1,6 @@
 import json
 import uuid
+import itertools
 
 def write_file_json(data, file_name):
     with open(file_name, 'w') as f:
@@ -14,3 +15,11 @@ def appending_data_json(data,file_name, dic_level):
 
 def generateUUID():
     return uuid.uuid4().hex
+
+def _batch_iter(n, iterable):
+    it = iter(iterable)
+    while True:
+        batch = list(itertools.islice(it, n))
+        if not batch:
+            return
+        yield batch
