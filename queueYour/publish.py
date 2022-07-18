@@ -16,16 +16,14 @@ def publishTopicMessage(publisher, topic_name, data):
 def publishTopicBatchMessages(batch_publisher, topic_name, batch_data):
     topic = f"{os.environ['TOPIC_CONSTRUCT']}{topic_name}"
 
-    with batch_publisher:
+    publish_futures = []
 
-        publish_futures = []
+    for data in batch_data:
+        publish_future = batch_publisher.publish(topic, json.dumps(data).encode('utf-8'))
+        publish_future.add_done_callback(callback)
+        publish_futures.append(publish_future)
 
-        for data in batch_data:
-            publish_future = batch_publisher.publish(topic, json.dumps(data).encode('utf-8'))
-            publish_future.add_done_callback(callback)
-            publish_futures.append(publish_future)
+    futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
 
-        futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
-
-        print(f"All messages published. Number messages: {len(batch_data)}")
+    print(f"All messages published. Number messages: {len(batch_data)}")
 
