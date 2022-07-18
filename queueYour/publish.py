@@ -14,15 +14,18 @@ def publishTopicMessage(publisher, topic_name, data):
     future = publisher.publish(topic, json.dumps(data).encode('utf-8'), spam='eggs')
 
 def publishTopicBatchMessages(batch_publisher, topic_name, batch_data):
-
     topic = f"{os.environ['TOPIC_CONSTRUCT']}{topic_name}"
 
-    publish_futures = []
+    with batch_publisher:
 
-    for data in batch_data:
-        publish_future = batch_publisher.publish(topic, json.dumps(data).encode('utf-8'))
-        # publish_future.add_done_callback(callback)
-        publish_futures.append(publish_future)
+        publish_futures = []
 
-    futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
+        batch_publisher.batch
+
+        for data in batch_data:
+            publish_future = batch_publisher.publish(topic, json.dumps(data).encode('utf-8'))
+            publish_future.add_done_callback(callback)
+            publish_futures.append(publish_future)
+
+        futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
 

@@ -28,9 +28,9 @@ class QueueAuth:
 
     def connectBatchPublisherQueue(self):
         batch_settings = pubsub_v1.types.BatchSettings(
-            max_messages=100,  # default 100
-            max_bytes=1024,  # default 1 MB
-            max_latency=1,  # default 10 ms
+            max_messages=250,  # default 100
+            max_bytes=2024,  # default 1 MB
+            max_latency=5,  # default 10 ms
         )
 
         publisher = pubsub_v1.PublisherClient.from_service_account_json(self.service_account_info,
