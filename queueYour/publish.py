@@ -19,15 +19,19 @@ def publishTopicBatchMessages(batch_publisher, topic_name, batch_data):
 
     publish_futures = []
 
-    for batch in _batch_iter(300, batch_data):
+    with batch_publisher:
+        for batch in _batch_iter(100, batch_data):
+            # Data must be a bytestring
+            for data in batch:
+                data = json.dumps(data).encode('utf-8')
+                publish_future = batch_publisher.publish(topic, data)
+                # Non-blocking. Allow the publisher client to batch multiple messages.
+                publish_future.add_done_callback(callback)
+                publish_futures.append(publish_future)
 
-        for data in batch:
-            publish_future = batch_publisher.publish(topic, json.dumps(data).encode('utf-8'))
-            publish_future.add_done_callback(callback)
-            publish_futures.append(publish_future)
+            futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
 
-        futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
-        print(f"Queue Batch insert finished")
+            print(f"Queue Batch insert finished")
 
     print(f"All messages published. Number messages: {len(batch_data)}")
 
