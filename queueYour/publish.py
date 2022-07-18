@@ -30,7 +30,7 @@ def publishTopicBatchMessages(batch_publisher, topic_name, batch_data):
 
         futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
 
-            print(f"Queue Batch insert finished")
+        print(f"Queue Batch insert finished")
 
     print(f"All messages published. Number messages: {len(batch_data)}")
 
