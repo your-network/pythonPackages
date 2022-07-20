@@ -18,6 +18,11 @@ def createCategoryIdLookup(your_categories):
 
     return category_lookup
 
+def updateCategoryIdLookup(category_lookup, source, purpose, external_id, internal_id):
+    category_lookup[source][purpose].update(
+        {str(external_id): internal_id})
+    return category_lookup
+
 def createAttributeIdLookup(your_attributes):
     attr_lookup = {}
     for attr in your_attributes:
@@ -43,10 +48,10 @@ def createBrandIdLookup(your_brands):
     for brand in your_brands:
         if brand.get('externalIDs'):
             for source in brand['externalIDs'].keys():
-                if brand_lookup.get(source):
-                    brand_lookup[source].update({brand['externalIDs'][source][0]: brand['id']})
+                if brand_lookup.get(str(source)):
+                    brand_lookup[str(source)].update({str(brand['externalIDs'][source][0]): brand['id']})
                 else:
-                    brand_lookup.update({source: {brand['externalIDs'][source][0]: brand['id']}})
+                    brand_lookup.update({str(source): {str(brand['externalIDs'][source][0]): brand['id']}})
 
     return brand_lookup
 
