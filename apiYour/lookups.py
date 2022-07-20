@@ -3,16 +3,16 @@ def createCategoryIdLookup(your_categories):
     for category in your_categories:
         if category.get('externalIDs'):
             for source in category['externalIDs'].keys():
-                if category_lookup.get(source):
-                    if category_lookup[source].get(category['purpose']):
-                        category_lookup[source][category['purpose']].update(
-                            {category['externalIDs'][source][0]: category['id']})
+                if category_lookup.get(str(source)):
+                    if category_lookup[str(source)].get(str(category['purpose'])):
+                        category_lookup[str(source)][str(category['purpose'])].update(
+                            {str(category['externalIDs'][source][0]): category['id']})
                     else:
-                        category_lookup[source].update(
-                            {category['purpose']: {category['externalIDs'][source][0]: category['id']}})
+                        category_lookup[str(source)].update(
+                            {str(category['purpose']): {str(category['externalIDs'][source][0]): category['id']}})
                 else:
                     category_lookup.update(
-                        {source: {category['purpose']: {category['externalIDs'][source][0]: category['id']}}})
+                        {str(source): {str(category['purpose']): {str(category['externalIDs'][source][0]): category['id']}}})
         else:
             print(f"Category without externalIds: {category}")
 
