@@ -30,7 +30,7 @@ def getIpfsImageDetails(ipfs_url):
                 'extension': im.get_format_mimetype().split('/')[-1]}
 
     except Exception as e:
-        logging_error_message("Ipfs Image reading", ipfs_url, e)
+        logging_error_message("get", "Ipfs Image reading", ipfs_url, e, response.status_code)
         return None
 
 def createImageDetailsDic(details,language):
@@ -93,7 +93,7 @@ def imageDetailsUrl(image_url=None):
                 'extension': extension}
 
     except Exception as e:
-        logging_error_message("Image reading", image_url, e)
+        logging_error_message("get", "Image reading", image_url, e, response.status_code)
         return None
 
 def getMediaFileUrl(url=None):
@@ -115,5 +115,5 @@ def getMediaFileUrl(url=None):
                 'extension': content_type.lower().split('/')[-1]}
 
     except Exception as e:
-        logging_error_message("Media file reading", url, e)
+        logging_error_message("get", "Media file reading", url, e, r.status_code)
         return None

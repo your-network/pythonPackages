@@ -1,14 +1,12 @@
-def logging_error_message(topic, data, error_message):
+def logging_error_message(log_type, topic, data, error_message, status_code):
     import logging
-    logging.error(f"Read {topic} failure."
-                  f" "
-                  f"Error message: {error_message}"
-                  f" "
-                  f"Data: {data}, "
+    logging.basicConfig(filename=f"{log_type}ApiLogs.log", level=logging.INFO)
+
+    logging.error(f"Read {topic} failure.\n"
+                  f"Error code: {status_code}, message: {error_message} \n"
+                  f"Data: {data}"
                   )
-    print(f"Read {topic} failure."
-            f" "
-            f"Error message: {error_message}"
-            f" "
-            f"Data: {data}, "
+    print(f"Read {topic} failure.\n"
+                  f"Error code: {status_code}, message: {error_message} \n"
+                  f"Data: {data}"
         )

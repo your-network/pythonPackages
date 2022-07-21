@@ -2,6 +2,7 @@ import os
 import requests
 import json
 from datetime import datetime
+from helpersYour.logging import logging_error_message
 
 
 def updateCategory(payload):
@@ -12,4 +13,4 @@ def updateCategory(payload):
         print(f"Update Call Success, category id: {payload.get('categoryId')}")
         return 200
     else:
-        print(f"Update Call failed. Response code: {r.status_code}, text: {r.content}")
+        logging_error_message("update", "Update Category get all", payload, r.text, r.status_code)

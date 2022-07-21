@@ -3,8 +3,7 @@ import requests
 import json
 from datetime import datetime
 import logging
-from apiYour.helpers import logging_error_message
-logging.basicConfig(filename="getApiLogs.log", level=logging.INFO)
+from helpersYour.logging import logging_error_message
 
 def getAllCategories():
     next_page = True
@@ -22,7 +21,7 @@ def getAllCategories():
             else:
                 break
         else:
-            logging_error_message("Category get all", r.status_code, r.content, None)
+            logging_error_message("get", "Category get all", None, r.text, r.status_code)
             break
 
     return categories
@@ -43,7 +42,7 @@ def getAllAttributes():
             else:
                 break
         else:
-            logging_error_message("Attributes get all", r.status_code, r.content, None)
+            logging_error_message("get", "Attributes get all", None, r.text, r.status_code)
             break
 
     return attributes
@@ -64,7 +63,7 @@ def getAllAttributeTypes():
             else:
                 break
         else:
-            logging_error_message("Attribute Types get all", r.status_code, r.content, None)
+            logging_error_message("get", "Attribute Types get all", None, r.text, r.status_code)
             break
 
     return attributeTypes
@@ -86,7 +85,7 @@ def getAllBrands():
             else:
                 break
         else:
-            logging_error_message("Brands get all", r.status_code, r.content, None)
+            logging_error_message("get", "Brands get all", None, r.text, r.status_code)
             break
 
     return brands
@@ -107,7 +106,7 @@ def getAllAttributeTypeUnit():
             else:
                 break
         else:
-            logging_error_message("Attribute Types Units get all", r.status_code, r.content, None)
+            logging_error_message("get", "Attribute Type Units get all", None, r.text, r.status_code)
             break
 
     return attributeTypeUnits
