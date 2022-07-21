@@ -4,11 +4,7 @@ from helpersYour.settings import HEADER
 from io import BytesIO
 import hashlib
 import requests
-import numpy as np
-
-import logging
 from helpersYour.logging import logging_error_message
-logging.basicConfig(filename="mediaReadingLogs.log", level=logging.INFO)
 
 def getIpfsImageDetails(ipfs_url):
     try:
