@@ -12,8 +12,6 @@ def getAllCategories():
     while next_page:
         r = requests.get(f"https://api.yourcontent.io/Category/GetAll?resultsPerPage=10000&page={page}",
                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-        print(f"print response: {r.text}")
-        logging_error_message("get", "Response category get all", None, r.text, r.status_code)
         if r.status_code == 200:
             result = json.loads(r.text)
             data = result.get('data')
