@@ -12,9 +12,8 @@ def updateCategory(payload, category_id):
     if r.status_code == 200:
         resp_data = json.loads(r.text).get('data')
         if resp_data:
-            cat_id = resp_data.get('id')
             media = resp_data.get('duplicates')
-            return cat_id, media
+            return media
     else:
         logging_error_message("update", "Update category", payload, r.text, r.status_code)
         return None, None
