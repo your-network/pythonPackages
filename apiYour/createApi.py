@@ -5,7 +5,7 @@ from datetime import datetime
 from helpersYour.logging import logging_error_message
 
 def createCategory(payload):
-    r = requests.post('https://api.yourcontent.io/Category/CreateOrUpdate',
+    r = requests.post('https://api.yourcontent.io/Category/',
                       json=payload,
                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
     if r.status_code == 200:
