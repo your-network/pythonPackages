@@ -9,6 +9,7 @@ def getAllCategories():
     next_page = True
     page = 1
     categories = []
+    print(f"API token: {os.environ['YOUR_API_TOKEN']}")
     while next_page:
         r = requests.get(f"https://api.yourcontent.io/Category/GetAll?resultsPerPage=10000&page={page}",
                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
