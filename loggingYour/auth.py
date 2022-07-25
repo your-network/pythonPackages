@@ -17,7 +17,6 @@ class LoggingAuth:
 
     def setLogger(self, logger_name: str, level: str) -> object:
         logger = self.client.logger(logger_name)
-        logger.setLevel(level)
         ## set handler
         logger.addHandler(self.gcloud_logging_handler)
         logger.addHandler(self.stream_handler)
