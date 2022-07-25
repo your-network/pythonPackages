@@ -4,7 +4,7 @@ from helpersYour.settings import HEADER
 from io import BytesIO
 import hashlib
 import requests
-from helpersYour.logging import logging_error_message
+from loggingYour.logging import logging_error_message
 
 def getIpfsImageDetails(ipfs_url):
     try:
@@ -59,7 +59,7 @@ def createMediaDetailsDic(url,language):
     else:
         return None
 
-def imageDetailsUrl(image_url=None):
+def imageDetailsUrl(image_url: str =None) -> dict:
     try:
         response = requests.get(image_url, headers=HEADER)
         content = response.content
@@ -90,7 +90,7 @@ def imageDetailsUrl(image_url=None):
 
     except Exception as e:
         logging_error_message("get", "Image reading", image_url, e, response.status_code)
-        return None
+        return {}
 
 def getMediaFileUrl(url=None):
     try:

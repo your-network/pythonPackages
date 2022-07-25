@@ -23,12 +23,18 @@ def createCategoryIdLookup(your_categories: list) -> dict:
 
     return category_lookup
 
-def updateCategoryIdLookup(category_lookup, source, purpose, external_id, internal_id):
+def updateCategoryIdLookup(category_lookup: dict,
+                           source: str,
+                           purpose:str,
+                           external_id: str,
+                           internal_id: int) -> dict:
+
     category_lookup[source][purpose].update(
         {str(external_id): internal_id})
+
     return category_lookup
 
-def createAttributeIdLookup(your_attributes):
+def createAttributeIdLookup(your_attributes: list) -> dict:
     attr_lookup = {}
     for attr in your_attributes:
         if attr_lookup.get(attr['source']):
@@ -38,7 +44,7 @@ def createAttributeIdLookup(your_attributes):
 
     return attr_lookup
 
-def createAttributeNameLookup(your_attributes):
+def createAttributeNameLookup(your_attributes: list) -> dict:
     attr_lookup = {}
     for attr in your_attributes:
         if attr_lookup.get(attr['source']):
@@ -48,7 +54,7 @@ def createAttributeNameLookup(your_attributes):
 
     return attr_lookup
 
-def createBrandIdLookup(your_brands):
+def createBrandIdLookup(your_brands: list) -> dict:
     brand_lookup = {}
     for brand in your_brands:
         if brand.get('externalIDs'):
@@ -60,7 +66,7 @@ def createBrandIdLookup(your_brands):
 
     return brand_lookup
 
-def createAttributeTypeUnitNameLookup(your_attr_type_units):
+def createAttributeTypeUnitNameLookup(your_attr_type_units: list) -> dict:
     attr_type_unit_lookup = {}
 
     for unit in your_attr_type_units:

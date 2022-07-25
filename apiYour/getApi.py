@@ -1,11 +1,9 @@
 import os
 import requests
 import json
-from datetime import datetime
-import logging
-from helpersYour.logging import logging_error_message
+from loggingYour.logging import logging_handler
 
-def getAllCategories():
+def getAllCategories() -> list:
     next_page = True
     page = 1
     categories = []
@@ -26,7 +24,7 @@ def getAllCategories():
 
     return categories
 
-def getAllAttributes():
+def getAllAttributes() -> list:
     next_page = True
     page = 1
     attributes = []
@@ -47,7 +45,7 @@ def getAllAttributes():
 
     return attributes
 
-def getAllAttributeTypes():
+def getAllAttributeTypes() -> list:
     next_page = True
     page = 1
     attributeTypes = []
@@ -68,7 +66,7 @@ def getAllAttributeTypes():
 
     return attributeTypes
 
-def getAllBrands():
+def getAllBrands() -> list:
     next_page = True
     page = 1
     brands = []
@@ -90,7 +88,7 @@ def getAllBrands():
 
     return brands
 
-def getAllAttributeTypeUnit():
+def getAllAttributeTypeUnit() -> list:
     next_page = True
     page = 1
     attributeTypeUnits = []
