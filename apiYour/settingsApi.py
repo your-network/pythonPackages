@@ -8,4 +8,5 @@ SOURCE_IDS = [{'name': 'Internal', 'id': '1'},
 
 PURPOSE_IDS = [{'name': 'Taxonomy', 'id': '1'},
                {'name': 'AttributeGroup', 'id': '2'},
-               {'name': 'NFTCollection', 'id': '3'}]
+               {'name': 'NFTCollection', 'id': '3'},
+               {'name': 'ProductFamily', 'id': '4'}]

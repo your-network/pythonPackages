@@ -1,6 +1,7 @@
 def createCategoryIdLookup(your_categories: list) -> dict:
     from apiYour.settingsApi import SOURCE_IDS, PURPOSE_IDS
     category_lookup = {}
+
     ## setting sources
     for source_row in SOURCE_IDS:
         category_lookup.update({source_row['id']: {}})
@@ -11,7 +12,6 @@ def createCategoryIdLookup(your_categories: list) -> dict:
 
     ## process categories for lookup
     for category in your_categories:
-        print(category)
         if category.get('externalIDs') or str(category['purpose']) == "2":
             if str(category['purpose']) == "2":
                 external_id = category['properties']["ID"]
