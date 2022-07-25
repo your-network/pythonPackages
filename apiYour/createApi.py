@@ -2,7 +2,7 @@ import os
 import requests
 import json
 from datetime import datetime
-from loggingYour.logging import logging_error_message
+from loggingYour.logging import logging_handler
 
 def createCategory(payload):
     r = requests.post('https://api.yourcontent.io/Category/',

@@ -3,9 +3,10 @@ import os
 import requests
 import json
 import google.cloud.logging
+category_logger = logging.Logger("categories")
+
 from loggingYour.logging import logging_handler
 
-category_logger = logging.Logger("categories")
 
 def getAllCategories() -> list:
     next_page = True

@@ -1,7 +1,7 @@
 import os
 import requests
 import json
-from loggingYour.logging import logging_error_message
+# from loggingYour.logging import logging_error_message
 
 
 def updateCategory(payload, category_id):
