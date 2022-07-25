@@ -1,21 +1,22 @@
-def createCategoryIdLookup(your_categories):
+def createCategoryIdLookup(your_categories: list) -> dict:
+    from settings import SOURCE_IDS, PURPOSE_IDS
     category_lookup = {}
+    ## setting sources
+    for source_row in SOURCE_IDS:
+        category_lookup.update({source_row['id']: {}})
+    ## setting purposes
+    for purpose_row in PURPOSE_IDS:
+        for source_key in category_lookup.keys():
+            category_lookup[source_key].update({purpose_row['id']: {}})
+
+    ## process categories for lookup
     for category in your_categories:
         if category.get('externalIDs') or str(category['purpose']) == "2":
             if str(category['purpose']) == "2":
                 external_id = category['properties']["ID"]
                 category.update({'externalIDs': {"2": [external_id]}})
             for source in category['externalIDs'].keys():
-                if category_lookup.get(str(source)):
-                    if category_lookup[str(source)].get(str(category['purpose'])):
-                        category_lookup[str(source)][str(category['purpose'])].update(
-                            {str(category['externalIDs'][source][0]): category['id']})
-                    else:
-                        category_lookup[str(source)].update(
-                            {str(category['purpose']): {str(category['externalIDs'][source][0]): category['id']}})
-                else:
-                    category_lookup.update(
-                        {str(source): {str(category['purpose']): {str(category['externalIDs'][source][0]): category['id']}}})
+                category_lookup[str(source)][str(category['purpose'])].update({str(category['externalIDs'][source][0]): category['id']})
         else:
             print(f"Category without externalIds: {category}")
 
