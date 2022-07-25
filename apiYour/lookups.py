@@ -1,5 +1,5 @@
 def createCategoryIdLookup(your_categories: list) -> dict:
-    from settingsApi import SOURCE_IDS, PURPOSE_IDS
+    from apiYour.settingsApi import SOURCE_IDS, PURPOSE_IDS
     category_lookup = {}
     ## setting sources
     for source_row in SOURCE_IDS:
