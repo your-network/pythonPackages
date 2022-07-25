@@ -1,7 +1,11 @@
+import logging
 import os
 import requests
 import json
+import google.cloud.logging
 from loggingYour.logging import logging_handler
+
+category_logger = logging.Logger("categories")
 
 def getAllCategories() -> list:
     next_page = True
@@ -17,9 +21,24 @@ def getAllCategories() -> list:
                 categories = categories + data['results']
                 page += 1
             else:
+                logging_handler(category_logger,
+                                "INFO",
+                                "Category get all",
+                                None,
+                                "get all call doesn't return new data so all categories gathered",
+                                r.status_code,
+                                r.text)
                 break
         else:
-            logging_error_message("get", "Category get all", None, r.text, r.status_code)
+            logging_handler(category_logger,
+                            "ERROR",
+                            "Category get all",
+                            None,
+                            "Error in the get all function",
+                            r.status_code,
+                            r.text)
+
+            # logging_error_message("get", "Category get all", None, r.text, r.status_code)
             break
 
     return categories
