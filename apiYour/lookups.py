@@ -11,6 +11,7 @@ def createCategoryIdLookup(your_categories: list) -> dict:
 
     ## process categories for lookup
     for category in your_categories:
+        print(category)
         if category.get('externalIDs') or str(category['purpose']) == "2":
             if str(category['purpose']) == "2":
                 external_id = category['properties']["ID"]
