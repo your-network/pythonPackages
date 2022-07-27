@@ -1,5 +1,5 @@
 
-def message_handler(logger: object,
+def messageHandler(logger: object,
                     level: str,
                     topic: str,
                     data: dict,
