@@ -1,12 +1,9 @@
-import logging
 import os
 import requests
 import json
-import google.cloud.logging
-category_logger = logging.Logger("categories")
 from loggingYour.messageHandler import messageHandler
 
-def getAllCategories() -> list:
+def getAllCategories(logger: object) -> list:
     next_page = True
     page = 1
     categories = []
@@ -20,25 +17,26 @@ def getAllCategories() -> list:
                 categories = categories + data['results']
                 page += 1
             else:
-                messageHandler(category_logger,
-                                "INFO",
-                                "Category get all",
-                                None,
-                                "get all call doesn't return new data so all categories gathered",
-                                r.status_code,
-                                r.text)
+                messageHandler(logger,
+                               "INFO",
+                               "getAllCategories: No new data so all categories gathered",
+                               data=categories,
+                               status_code=r.status_code,
+                               response_text=r.text)
                 break
         else:
-            messageHandler(category_logger,
+            messageHandler(logger,
                             "ERROR",
-                            "Category get all",
-                            None,
-                            "Error in the get all function",
-                            r.status_code,
-                            r.text)
-
-            # logging_error_message("get", "Category get all", None, r.text, r.status_code)
+                            "getAllCategories: Error in the get all function",
+                            data=categories,
+                            status_code=r.status_code,
+                            response_text=r.text)
             break
+
+    messageHandler(logger,
+                   "INFO",
+                   f"getAllCategories: Finish get all categories. Length: {len(categories)}",
+                   data=categories)
 
     return categories
 
