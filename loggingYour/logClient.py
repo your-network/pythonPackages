@@ -1,16 +1,16 @@
 import logging
 import google.cloud.logging_v2
-from google.cloud.logging_v2.handlers import setup_logging
+from google.cloud.logging_v2.handlers import setup_logging, CloudLoggingHandler
+from google.cloud.logging_v2.handlers.transports import SyncTransport
 
 class logClient:
 
     def __init__(self, service_account_info: str):
         self.client = google.cloud.logging_v2.Client.from_service_account_json(service_account_info)
-        handler = self.client.get_default_handler()
-        setup_logging(handler)
 
     def setLogger(self, logger_name: str) -> object:
-
+        handler = CloudLoggingHandler(self.client, name=logger_name, transport=SyncTransport)
+        setup_logging(handler)
         ## set logger
         logger = google.cloud.logging_v2.Logger(logger_name, self.client)
 
