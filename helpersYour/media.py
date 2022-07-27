@@ -4,7 +4,7 @@ from helpersYour.settings import HEADER
 from io import BytesIO
 import hashlib
 import requests
-from loggingYour.logClient import logging_error_message
+from loggingYour.messageHandler import messageHandler
 
 def getIpfsImageDetails(ipfs_url):
     try:
@@ -26,7 +26,7 @@ def getIpfsImageDetails(ipfs_url):
                 'extension': im.get_format_mimetype().split('/')[-1]}
 
     except Exception as e:
-        logging_error_message("get", "Ipfs Image reading", ipfs_url, e, response.status_code)
+        messageHandler("get", "Ipfs Image reading", ipfs_url, e, response.status_code)
         return None
 
 def createImageDetailsDic(details,language):
@@ -89,7 +89,7 @@ def imageDetailsUrl(image_url: str =None) -> dict:
                 'extension': extension}
 
     except Exception as e:
-        logging_error_message("get", "Image reading", image_url, e, response.status_code)
+        messageHandler("get", "Image reading", image_url, e, response.status_code)
         return {}
 
 def getMediaFileUrl(url=None):
@@ -111,5 +111,5 @@ def getMediaFileUrl(url=None):
                 'extension': content_type.lower().split('/')[-1]}
 
     except Exception as e:
-        logging_error_message("get", "Media file reading", url, e, r.status_code)
+        messageHandler("get", "Media file reading", url, e, r.status_code)
         return None
