@@ -21,6 +21,7 @@ def getAllCategories(logger: object) -> list:
                                "INFO",
                                "getAllCategories: No new data so all categories gathered",
                                data= result.get('data'),
+                               labels={'function': 'getAllCategories', 'endpoint': '/Category/GetAll'},
                                status_code=r.status_code,
                                response_text=r.text)
                 break
@@ -28,6 +29,7 @@ def getAllCategories(logger: object) -> list:
             messageHandler(logger,
                             "ERROR",
                             "getAllCategories: Error in the get all function",
+                           labels={'function': 'getAllCategories', 'endpoint': '/Category/GetAll'},
                             status_code=r.status_code,
                             response_text=r.text)
             break
@@ -35,7 +37,8 @@ def getAllCategories(logger: object) -> list:
     messageHandler(logger,
                    "INFO",
                    f"getAllCategories: Finish get all categories. Length: {len(categories)}",
-                   data=categories[:10])
+                   data=categories[:10],
+                   labels={'function': 'getAllCategories', 'endpoint': '/Category/GetAll'},)
 
     return categories
 

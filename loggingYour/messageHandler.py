@@ -3,13 +3,15 @@ def messageHandler(logger: object,
                     level: str,
                     topic: str,
                     data: dict = None,
+                    labels: dict = None,
                     error_message: str = None,
                     status_code: int = None,
                     response_text: str = None) -> None:
 
     json_payload = {"topic": topic,
                     "error_message": error_message,
-                    "data": data
+                    "data": data,
+                    "labels": labels,
                     }
 
     if status_code:
