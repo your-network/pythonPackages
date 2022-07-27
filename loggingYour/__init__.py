@@ -1,2 +1,2 @@
-from .auth import *
+from .messageHandler import *
 from .logClient import *
