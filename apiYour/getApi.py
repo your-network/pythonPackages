@@ -5,7 +5,7 @@ import json
 import google.cloud.logging
 category_logger = logging.Logger("categories")
 
-from loggingYour.logging import logging_handler
+from loggingYour.logClient import logging_handler
 
 
 def getAllCategories() -> list:

@@ -4,7 +4,7 @@ from helpersYour.settings import HEADER
 from io import BytesIO
 import hashlib
 import requests
-from loggingYour.logging import logging_error_message
+from loggingYour.logClient import logging_error_message
 
 def getIpfsImageDetails(ipfs_url):
     try:
