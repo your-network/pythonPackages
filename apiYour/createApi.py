@@ -2,26 +2,30 @@ import os
 import requests
 import json
 from datetime import datetime
+from typing import Tuple
 from loggingYour.messageHandler import messageHandler
 
-def createCategory(payload: dict, logger: object):
+def createCategory(payload: dict, logger: object) -> Tuple[int, dict]:
+    resp_data = None
     r = requests.post('https://api.yourcontent.io/Category/',
                       json=payload,
                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+
     if r.status_code == 200:
         resp_data = json.loads(r.text).get('data')
         if resp_data:
             cat_id = resp_data.get('id')
             media = resp_data.get('duplicates')
             return cat_id, media
+
     else:
-        messageHandler(product_logger, "WARNING",
-                       "Products",
-                       {'data': 'dict data'},
-                       "error message",
-                       "500",
-                       "response request text")
-        messageHandler("create", "create category", payload, r.text, r.status_code)
+        messageHandler(logger,
+                       "ERROR",
+                       f"createCategory: status code not 200",
+                       data=resp_data,
+                       status_code=r.status_code,
+                       response_text=r.text)
+
         return None, None
 
 def createProductBulk(data_bulk):
