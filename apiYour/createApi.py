@@ -2,9 +2,9 @@ import os
 import requests
 import json
 from datetime import datetime
-from loggingYour.logClient import logging_handler
+from loggingYour.messageHandler import messageHandler
 
-def createCategory(payload):
+def createCategory(payload: dict, logger: object):
     r = requests.post('https://api.yourcontent.io/Category/',
                       json=payload,
                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
@@ -15,7 +15,13 @@ def createCategory(payload):
             media = resp_data.get('duplicates')
             return cat_id, media
     else:
-        logging_error_message("create", "create category", payload, r.text, r.status_code)
+        messageHandler(product_logger, "WARNING",
+                       "Products",
+                       {'data': 'dict data'},
+                       "error message",
+                       "500",
+                       "response request text")
+        messageHandler("create", "create category", payload, r.text, r.status_code)
         return None, None
 
 def createProductBulk(data_bulk):
@@ -30,7 +36,7 @@ def createProductBulk(data_bulk):
         resp_data = json.loads(r.text)
         product_bulk_response = resp_data
     else:
-        logging_error_message("create", "bulk product insert", data_bulk, r.text, r.status_code)
+        messageHandler("create", "bulk product insert", data_bulk, r.text, r.status_code)
         product_bulk_response = None
 
     end_time = datetime.now()
@@ -49,7 +55,7 @@ def createProductQueue(data_bulk):
         resp_data = json.loads(r.text)
         product_bulk_response = resp_data
     else:
-        logging_error_message("create", "queue product insert", data_bulk, r.text, r.status_code)
+        messageHandler("create", "queue product insert", data_bulk, r.text, r.status_code)
         product_bulk_response = None
 
     end_time = datetime.now()
@@ -66,7 +72,7 @@ def createAttributeUnit(data):
         resp_data = json.loads(r.text)
         unit_id = resp_data['data']['id']
     else:
-        logging_error_message("create", "create attribute unit", data, r.text, r.status_code)
+        messageHandler("create", "create attribute unit", data, r.text, r.status_code)
         unit_id = None
     return unit_id
 
@@ -80,7 +86,7 @@ def createAttributeType(data):
         resp_data = json.loads(r.text)
         attribute_type_id = resp_data['data']['id']
     else:
-        logging_error_message("create", "create attribute type", data, r.text, r.status_code)
+        messageHandler("create", "create attribute type", data, r.text, r.status_code)
         attribute_type_id = None
     return attribute_type_id
 
@@ -94,7 +100,7 @@ def createAttribute(data):
         resp_data = json.loads(r.text)
         attribute_id = resp_data['data']['id']
     else:
-        logging_error_message("create", "create attribute", data, r.text, r.status_code)
+        messageHandler("create", "create attribute", data, r.text, r.status_code)
         attribute_id = None
     return attribute_id
 
@@ -106,7 +112,7 @@ def createBrand(data):
         resp_data = json.loads(r.text)
         brand_id = resp_data['data']['id']
     else:
-        logging_error_message("create", "create brand", data, r.text, r.status_code)
+        messageHandler("create", "create brand", data, r.text, r.status_code)
         brand_id = None
     return brand_id
 
@@ -118,7 +124,7 @@ def createSeries(data):
         resp_data = json.loads(r.text)
         serie_id = resp_data['data']['id']
     else:
-        logging_error_message("create", "create serie", data, r.text, r.status_code)
+        messageHandler("create", "create serie", data, r.text, r.status_code)
         serie_id = None
     return serie_id
 
@@ -129,7 +135,7 @@ def createCategoryCategoryRelation(data):
     if r.status_code == 200:
         return True
     else:
-        logging_error_message("create", "create category category relation", data, r.text, r.status_code)
+        messageHandler("create", "create category category relation", data, r.text, r.status_code)
         return False
 
 def createBrandCategoryRelation(data):
@@ -139,7 +145,7 @@ def createBrandCategoryRelation(data):
     if r.status_code == 200:
         return True
     else:
-        logging_error_message("create", "create brand category relation", data, r.text, r.status_code)
+        messageHandler("create", "create brand category relation", data, r.text, r.status_code)
         return False
 
 def createCategoryAttributeRelation(data):
@@ -149,7 +155,7 @@ def createCategoryAttributeRelation(data):
     if r.status_code == 200:
         return True
     else:
-        logging_error_message("create", "create category product relation", data, r.text, r.status_code)
+        messageHandler("create", "create category product relation", data, r.text, r.status_code)
         return False
 
 def createProductProductRelation(data):
@@ -159,5 +165,5 @@ def createProductProductRelation(data):
     if r.status_code == 200:
         return True
     else:
-        logging_error_message("create", "create product product relation", data, r.text, r.status_code)
+        messageHandler("create", "create product product relation", data, r.text, r.status_code)
         return False

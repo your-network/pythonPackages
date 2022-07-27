@@ -1,8 +1,7 @@
 import os
 import requests
 import json
-# from loggingYour.logging import logging_error_message
-
+from loggingYour.messageHandler import messageHandler
 
 def updateCategory(payload, category_id):
     r = requests.put(f"https://api.yourcontent.io/Category/{category_id}",
@@ -14,5 +13,5 @@ def updateCategory(payload, category_id):
             media = resp_data.get('duplicates')
             return media
     else:
-        logging_error_message("update", "Update category", payload, r.text, r.status_code)
+        messageHandler("update", "Update category", payload, r.text, r.status_code)
         return None, None

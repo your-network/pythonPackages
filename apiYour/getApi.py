@@ -4,9 +4,7 @@ import requests
 import json
 import google.cloud.logging
 category_logger = logging.Logger("categories")
-
-from loggingYour.logClient import logging_handler
-
+from loggingYour.messageHandler import messageHandler
 
 def getAllCategories() -> list:
     next_page = True
@@ -22,7 +20,7 @@ def getAllCategories() -> list:
                 categories = categories + data['results']
                 page += 1
             else:
-                logging_handler(category_logger,
+                messageHandler(category_logger,
                                 "INFO",
                                 "Category get all",
                                 None,
@@ -31,7 +29,7 @@ def getAllCategories() -> list:
                                 r.text)
                 break
         else:
-            logging_handler(category_logger,
+            messageHandler(category_logger,
                             "ERROR",
                             "Category get all",
                             None,
@@ -60,7 +58,7 @@ def getAllAttributes() -> list:
             else:
                 break
         else:
-            logging_error_message("get", "Attributes get all", None, r.text, r.status_code)
+            messageHandler("get", "Attributes get all", None, r.text, r.status_code)
             break
 
     return attributes
@@ -81,7 +79,7 @@ def getAllAttributeTypes() -> list:
             else:
                 break
         else:
-            logging_error_message("get", "Attribute Types get all", None, r.text, r.status_code)
+            messageHandler("get", "Attribute Types get all", None, r.text, r.status_code)
             break
 
     return attributeTypes
@@ -103,7 +101,7 @@ def getAllBrands() -> list:
             else:
                 break
         else:
-            logging_error_message("get", "Brands get all", None, r.text, r.status_code)
+            messageHandler("get", "Brands get all", None, r.text, r.status_code)
             break
 
     return brands
@@ -124,7 +122,7 @@ def getAllAttributeTypeUnit() -> list:
             else:
                 break
         else:
-            logging_error_message("get", "Attribute Type Units get all", None, r.text, r.status_code)
+            messageHandler("get", "Attribute Type Units get all", None, r.text, r.status_code)
             break
 
     return attributeTypeUnits
