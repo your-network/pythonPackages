@@ -6,11 +6,19 @@ import hashlib
 import requests
 from loggingYour.messageHandler import messageHandler
 
-def getIpfsImageDetails(ipfs_url):
+def getIpfsImageDetails(logger: object, ipfs_url: str) -> dict:
+    msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'getIpfsImageDetails'})
+
     try:
         file_directory = ipfs_url.split("//")[-1]
 
         response = requests.request("GET", f"https://cloudflare-ipfs.com/ipfs/{file_directory}")
+
+        ## logging
+        msg_handler.logStruct(topic=f"getIpfsImageDetails: get ipfs image through cloudflare",
+                              data=ipfs_url,
+                       status_code=response.status_code,
+                       response_text=response.text)
 
         im = Image.open(BytesIO(response.content))
         w, h = im.size
@@ -26,10 +34,13 @@ def getIpfsImageDetails(ipfs_url):
                 'extension': im.get_format_mimetype().split('/')[-1]}
 
     except Exception as e:
-        messageHandler("get", "Ipfs Image reading", ipfs_url, e, response.status_code)
-        return None
+        ## logging
+        msg_handler.logStruct(level="ERROR",
+                              topic=f"getIpfsImageDetails: ipfs image reading error",
+                              error_message=e)
+        return {}
 
-def createImageDetailsDic(details,language):
+def createImageDetailsDic(details: dict,language: str) -> dict:
     image_dic = {"url": details['url'],
                  "internalPath": f"/{details['shA256']}.{details['extension']}",
                  "downloadNeeded": False,
@@ -43,7 +54,7 @@ def createImageDetailsDic(details,language):
                 }
     return image_dic
 
-def createMediaDetailsDic(url,language):
+def createMediaDetailsDic(url: str,language: str) -> dict:
     details = getMediaFileUrl(url)
     if details:
         media_dic = {"url": details['url'],
@@ -57,11 +68,20 @@ def createMediaDetailsDic(url,language):
                     }
         return media_dic
     else:
-        return None
+        return {}
 
-def imageDetailsUrl(image_url: str =None) -> dict:
+def imageDetailsUrl(logger: object, image_url: str =None) -> dict:
+    msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'imageDetailsUrl'})
+
     try:
         response = requests.get(image_url, headers=HEADER)
+
+        ## logging
+        msg_handler.logStruct(topic=f"imageDetailsUrl: get image with request",
+                              data=image_url,
+                              status_code=response.status_code,
+                              response_text=response.text)
+
         content = response.content
 
         header = response.headers
@@ -89,14 +109,26 @@ def imageDetailsUrl(image_url: str =None) -> dict:
                 'extension': extension}
 
     except Exception as e:
-        messageHandler("get", "Image reading", image_url, e, response.status_code)
+        ## logging
+        msg_handler.logStruct(level="ERROR",
+                              topic=f"imageDetailsUrl: image reading error",
+                              error_message=e)
         return {}
 
-def getMediaFileUrl(url=None):
+def getMediaFileUrl(logger: object, url: str=None) -> dict:
+    msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'getMediaFileUrl'})
+
     try:
         file_name = url.split("/")[-1]
 
         r = requests.get(url)
+
+        ## logging
+        msg_handler.logStruct(topic=f"getMediaFileUrl: get media with request",
+                              data=url,
+                              status_code=r.status_code,
+                              response_text=r.text)
+
         content = r.content
         header = r.headers
 
@@ -111,5 +143,9 @@ def getMediaFileUrl(url=None):
                 'extension': content_type.lower().split('/')[-1]}
 
     except Exception as e:
-        messageHandler("get", "Media file reading", url, e, r.status_code)
-        return None
+        ## logging
+        msg_handler.logStruct(level="ERROR",
+                              topic=f"getMediaFileUrl: media reading error",
+                              error_message=e)
+
+        return {}

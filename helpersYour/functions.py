@@ -7,10 +7,10 @@ from io import BytesIO
 import numpy as np
 import hashlib
 
-def has_numbers(inputString):
+def has_numbers(inputString: str) -> bool:
     return any(char.isdigit() for char in inputString)
 
-def get_digits(string):
+def get_digits(string: str) -> int:
     digits = re.findall(r'\d+', string)
     if len(digits) == 0:
         return None
@@ -23,7 +23,7 @@ def remove_nulls(d):
     none_filtered = {k: v for k, v in d.items() if v is not None}
     return {k: v for k, v in none_filtered.items() if v != ''}
 
-def remove_dic_none_values(dic):
+def remove_dic_none_values(dic: dict) -> dict:
     remove_fields = []
     for key,value in dic.items():
         if value is None and key is not None:
@@ -82,7 +82,7 @@ def open_xml_gz_url(request_url, file_path, auth=False, username=None, password=
         print('Failed to download and unpack url: '+ str(e))
         return False
 
-def image_details(image_url):
+def image_details(image_url: str):
     response = requests.get(image_url)
     ## size
     im = Image.open(BytesIO(response.content))
@@ -118,4 +118,3 @@ def str_to_bool(s):
     else:
         print(s)
         raise ValueError
-
