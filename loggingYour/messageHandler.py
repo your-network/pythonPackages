@@ -15,15 +15,19 @@ class messageHandler:
                        response_text: str = None) -> None:
 
         json_payload = {"topic": topic,
-                        "error_message": error_message,
-                        "data": data,
                         "labels": self.labels,
                         }
 
+        if error_message:
+            json_payload.update({"error_message": error_message})
+
+        if data:
+            json_payload.update({"data": data})
+
         if status_code:
             json_payload.update({"status_code": status_code,
-                                 "response_text": response_text
-                                 })
+                                 "response_text": response_text})
+
         if level:
             self.level = level
 

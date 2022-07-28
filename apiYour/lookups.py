@@ -1,5 +1,6 @@
+from apiYour.settingsApi import SOURCE_IDS, PURPOSE_IDS
+
 def createCategoryIdLookup(your_categories: list) -> dict:
-    from apiYour.settingsApi import SOURCE_IDS, PURPOSE_IDS
     category_lookup = {}
 
     ## setting sources
@@ -22,6 +23,23 @@ def createCategoryIdLookup(your_categories: list) -> dict:
             print(f"Category without externalIds: {category}")
 
     return category_lookup
+
+def createSerieIdLookup(series: list) -> dict:
+    serie_lookup = {}
+
+    ## setting sources
+    for source_row in SOURCE_IDS:
+        serie_lookup.update({source_row['id']: {}})
+
+    ## process series for lookup
+    for serie in series:
+        if serie.get('externalIDs'):
+            for source in serie_lookup['externalIDs'].keys():
+                serie_lookup[str(source)].update({str(serie['externalIDs'][source][0]): serie['id']})
+        else:
+            print(f"Serie without externalIds: {serie}")
+
+    return serie_lookup
 
 def updateCategoryIdLookup(category_lookup: dict,
                            source: str,
