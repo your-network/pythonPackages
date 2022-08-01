@@ -55,20 +55,20 @@ def updateCategoryIdLookup(category_lookup: dict,
 def createAttributeIdLookup(your_attributes: list) -> dict:
     attr_lookup = {}
     for attr in your_attributes:
-        if attr_lookup.get(attr['source']):
-            attr_lookup[attr['source']].update({attr['externalId']: attr['id']})
+        if attr_lookup.get(str(attr['source'])):
+            attr_lookup[str(attr['source'])].update({attr['externalId']: attr['id']})
         else:
-            attr_lookup.update({attr['source']: {attr['externalId']: attr['id']}})
+            attr_lookup.update({str(attr['source']): {attr['externalId']: attr['id']}})
 
     return attr_lookup
 
 def createAttributeNameLookup(your_attributes: list) -> dict:
     attr_lookup = {}
     for attr in your_attributes:
-        if attr_lookup.get(attr['source']):
-            attr_lookup[attr['source']].update({attr['externalId']: attr['name']})
+        if attr_lookup.get(str(attr['source'])):
+            attr_lookup[str(attr['source'])].update({attr['externalId']: attr['name']})
         else:
-            attr_lookup.update({attr['source']: {attr['externalId']: attr['name']}})
+            attr_lookup.update({str(attr['source']): {attr['externalId']: attr['name']}})
 
     return attr_lookup
 
