@@ -2,7 +2,7 @@ import json
 import os
 from concurrent import futures
 from google.cloud import pubsub_v1
-from helpersYour.writers import _batch_iter
+from helpersYour.functions import splitList
 
 # Resolve the publish future in a separate thread.
 def callback(future: pubsub_v1.publisher.futures.Future) -> None:
@@ -14,12 +14,14 @@ def publishTopicMessage(publisher, topic_name, data):
 
     future = publisher.publish(topic, json.dumps(data).encode('utf-8'), spam='eggs')
 
-def publishTopicBatchMessages(batch_publisher, topic_name, batch_data):
+def publishTopicBatchMessages(batch_publisher, topic_name, batch_data, msg_handler) -> None:
     topic = f"{os.environ['TOPIC_CONSTRUCT']}{topic_name}"
 
     publish_futures = []
 
-    for batch in _batch_iter(100, batch_data):
+    batch_list = list(splitList(batch_data, 500))
+
+    for batch in batch_list:
         # Data must be a bytestring
         for data in batch:
             data = json.dumps(data).encode('utf-8')
@@ -30,7 +32,11 @@ def publishTopicBatchMessages(batch_publisher, topic_name, batch_data):
 
         futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
 
-        print(f"Queue Batch insert finished")
+        msg_handler.logStruct(
+            topic=f"publishTopicBatchMessages: Queue Batch insert finished",
+            data=batch,
+            level="DEBUG")
 
-    print(f"All messages published. Number messages: {len(batch_data)}")
-
+    msg_handler.logStruct(
+        topic=f"publishTopicBatchMessages: All messages published. Number messages: {len(batch_data)}",
+        level="DEBUG")

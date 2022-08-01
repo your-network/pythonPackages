@@ -118,3 +118,9 @@ def str_to_bool(s):
     else:
         print(s)
         raise ValueError
+
+def splitList(list_a, chunk_size):
+
+  for i in range(0, len(list_a), chunk_size):
+    yield list_a[i:i + chunk_size]
+
