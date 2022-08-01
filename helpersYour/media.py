@@ -54,8 +54,9 @@ def createImageDetailsDic(details: dict,language: str) -> dict:
                 }
     return image_dic
 
-def createMediaDetailsDic(url: str,language: str) -> dict:
-    details = getMediaFileUrl(url)
+def createMediaDetailsDic(logger: object, url: str,language: str) -> dict:
+    details = getMediaFileUrl(logger, url)
+
     if details:
         media_dic = {"url": details['url'],
                      'internalPath': f"/{details['shA256']}.{details['extension']}",
@@ -66,7 +67,9 @@ def createMediaDetailsDic(url: str,language: str) -> dict:
                      "languages": [language],
                      "attributes": []
                     }
+
         return media_dic
+
     else:
         return {}
 
