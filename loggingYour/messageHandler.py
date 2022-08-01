@@ -5,14 +5,14 @@ class messageHandler:
         self.level = level
         self.labels = labels
 
-
     def logStruct(self,
-                       topic: str,
-                       data: dict = None,
-                       level: str = None,
-                       error_message: str = None,
-                       status_code: int = None,
-                       response_text: str = None) -> None:
+                  topic: str,
+                  data: dict = None,
+                  level: str = None,
+                  error_message: str = None,
+                  status_code: int = None,
+                  response_text: str = None,
+                  labels: dict = {}) -> None:
 
         json_payload = {"topic": topic,
                         "labels": self.labels,
@@ -27,6 +27,9 @@ class messageHandler:
         if status_code:
             json_payload.update({"status_code": status_code,
                                  "response_text": response_text})
+
+        if labels:
+            json_payload.update({"labels": labels})
 
         if level:
             self.level = level
