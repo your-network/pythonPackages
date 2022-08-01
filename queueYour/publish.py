@@ -14,12 +14,16 @@ def publishTopicMessage(publisher, topic_name, data):
 
     future = publisher.publish(topic, json.dumps(data).encode('utf-8'), spam='eggs')
 
-def publishTopicBatchMessages(batch_publisher, topic_name, batch_data, msg_handler) -> None:
+def publishTopicBatchMessages(batch_publisher: object,
+                              topic_name: str,
+                              batch_data: list,
+                              msg_handler: object) -> None:
+
     topic = f"{os.environ['TOPIC_CONSTRUCT']}{topic_name}"
 
     publish_futures = []
 
-    batch_list = list(splitList(batch_data, 500))
+    batch_list = list(splitList(batch_data, 250))
 
     for batch in batch_list:
         # Data must be a bytestring
