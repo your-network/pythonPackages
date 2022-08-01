@@ -12,7 +12,7 @@ class messageHandler:
                   error_message: str = None,
                   status_code: int = None,
                   response_text: str = None,
-                  labels: dict = {}) -> None:
+                  labels: dict = None) -> None:
 
         json_payload = {"topic": topic,
                         "labels": self.labels,
