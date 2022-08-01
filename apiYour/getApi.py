@@ -211,27 +211,37 @@ def getAllSeries(logger: object) -> list:
     next_page = True
     page = 1
     series = []
-    while next_page:
-        r = requests.get(f"https://api.yourcontent.io/Series?resultsPerPage=10000&page={page}",
-                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+    try:
+        while next_page:
+            r = requests.get(f"https://api.yourcontent.io/Series?resultsPerPage=10000&page={page}",
+                             headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
-        if r.status_code == 200:
-            result = json.loads(r.text)
-            data = result.get('data')
-            if data.get('results'):
-                series = series + data['results']
-                page += 1
+            ## logging
+            msg_handler.logStruct(topic="getAllSeries: get request finished",
+                                  status_code=r.status_code,
+                                  response_text=r.text)
+
+            if r.status_code == 200:
+                result = json.loads(r.text)
+                data = result.get('data')
+                if data.get('results'):
+                    series = series + data['results']
+                    page += 1
+                else:
+                    msg_handler.logStruct(topic="getAllSeries: No new data so all categories gathered",
+                                   status_code=r.status_code,
+                                   response_text=r.text)
+                    break
             else:
-                msg_handler.logStruct(topic="getAllSeries: No new data so all categories gathered",
-                               status_code=r.status_code,
-                               response_text=r.text)
+                msg_handler.logStruct(level="ERROR",
+                                      topic="getAllSeries: Error in the get all function",
+                                status_code=r.status_code,
+                                response_text=r.text)
                 break
-        else:
-            msg_handler.logStruct(level="ERROR",
-                                  topic="getAllSeries: Error in the get all function",
-                            status_code=r.status_code,
-                            response_text=r.text)
-            break
+
+    except Exception as e:
+        msg_handler.logStruct(topic="getAllSeries: Error getting all series",
+                              error_message=str(e))
 
     msg_handler.logStruct(topic=f"getAllSeries: Finish get all series. Length: {len(series)}.\n processing time: {datetime.now()-start_time}",
                    data=series[:10])
