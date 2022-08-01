@@ -1,4 +1,5 @@
 from PIL import Image
+import traceback
 Image.MAX_IMAGE_PIXELS = None
 from helpersYour.settings import HEADER
 from io import BytesIO
@@ -17,8 +18,7 @@ def getIpfsImageDetails(logger: object, ipfs_url: str) -> dict:
         ## logging
         msg_handler.logStruct(topic=f"getIpfsImageDetails: get ipfs image through cloudflare",
                               data=ipfs_url,
-                       status_code=response.status_code,
-                       response_text=response.text)
+                       status_code=response.status_code)
 
         im = Image.open(BytesIO(response.content))
         w, h = im.size
@@ -33,11 +33,12 @@ def getIpfsImageDetails(logger: object, ipfs_url: str) -> dict:
                 'fileSize': len(response.content),
                 'extension': im.get_format_mimetype().split('/')[-1]}
 
-    except Exception as e:
+    except:
         ## logging
+        error = traceback.format_exc()
         msg_handler.logStruct(level="ERROR",
                               topic=f"getIpfsImageDetails: ipfs image reading error",
-                              error_message=e)
+                              error_message=str(error))
         return {}
 
 def createImageDetailsDic(details: dict,language: str) -> dict:
@@ -82,8 +83,7 @@ def imageDetailsUrl(logger: object, image_url: str =None) -> dict:
         ## logging
         msg_handler.logStruct(topic=f"imageDetailsUrl: get image with request",
                               data=image_url,
-                              status_code=response.status_code,
-                              response_text=response.text)
+                              status_code=response.status_code)
 
         content = response.content
 
@@ -111,11 +111,12 @@ def imageDetailsUrl(logger: object, image_url: str =None) -> dict:
                 'fileSize': len(content),
                 'extension': extension}
 
-    except Exception as e:
+    except:
         ## logging
+        error = traceback.format_exc()
         msg_handler.logStruct(level="ERROR",
                               topic=f"imageDetailsUrl: image reading error",
-                              error_message=e)
+                              error_message=str(error))
         return {}
 
 def getMediaFileUrl(logger: object, url: str=None) -> dict:
@@ -129,8 +130,7 @@ def getMediaFileUrl(logger: object, url: str=None) -> dict:
         ## logging
         msg_handler.logStruct(topic=f"getMediaFileUrl: get media with request",
                               data=url,
-                              status_code=r.status_code,
-                              response_text=r.text)
+                              status_code=r.status_code)
 
         content = r.content
         header = r.headers
@@ -145,10 +145,11 @@ def getMediaFileUrl(logger: object, url: str=None) -> dict:
                 'fileSize': len(content),
                 'extension': content_type.lower().split('/')[-1]}
 
-    except Exception as e:
+    except:
         ## logging
+        error = traceback.format_exc()
         msg_handler.logStruct(level="ERROR",
                               topic=f"getMediaFileUrl: media reading error",
-                              error_message=e)
+                              error_message=str(error))
 
         return {}
