@@ -1,6 +1,6 @@
 from apiYour.settingsApi import SOURCE_IDS, PURPOSE_IDS
 
-def createCategoryIdLookup(your_categories: list) -> dict:
+def createCategoryIdLookup(message_handler: object, your_categories: list) -> dict:
     category_lookup = {}
 
     ## setting sources
@@ -20,7 +20,10 @@ def createCategoryIdLookup(your_categories: list) -> dict:
             for source in category['externalIDs'].keys():
                 category_lookup[str(source)][str(category['purpose'])].update({str(category['externalIDs'][source][0]): category['id']})
         else:
-            print(f"Category without externalIds: {category}")
+            ## logging
+            message_handler.logStruct(topic=f"createCategoryIdLookup: Category without externalIds",
+                                      data=category,
+                                      level="DEBUG")
 
     return category_lookup
 
