@@ -78,6 +78,11 @@ def createAttributeNameLookup(your_attributes: list) -> dict:
 
 def createBrandIdLookup(your_brands: list) -> dict:
     brand_lookup = {}
+
+    ## setting sources
+    for source_row in SOURCE_IDS:
+        brand_lookup.update({source_row['id']: {}})
+
     for brand in your_brands:
         if brand.get('externalIDs'):
             for source in brand['externalIDs'].keys():
