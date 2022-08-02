@@ -231,6 +231,7 @@ def createAttribute(logger: object, data: dict) -> int:
 
 def createBrand(logger: object, data: dict) -> int:
     brand_id = None
+    duplicate_media = []
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'createBrand',
@@ -248,6 +249,7 @@ def createBrand(logger: object, data: dict) -> int:
     if r.status_code == 200:
         resp_data = json.loads(r.text)
         brand_id = resp_data['data']['id']
+        duplicate_media = resp_data['data']['duplicates']
 
         ## logging
         msg_handler.logStruct(
@@ -266,7 +268,7 @@ def createBrand(logger: object, data: dict) -> int:
     ## logging
     msg_handler.logStruct(topic=f"createBrand: Api brand create finished,\n processing time: {datetime.now() - start_time}")
 
-    return brand_id
+    return brand_id, duplicate_media
 
 def createSeries(logger: object, data=dict) -> int:
     serie_id = None
