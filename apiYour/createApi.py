@@ -264,7 +264,7 @@ def createBrand(logger: object, data: dict) -> int:
             response_text=r.text)
 
     ## logging
-    msg_handler.logStruct(topic=f"createAttribute: Api attribute create finished,\n processing time: {datetime.now() - start_time}")
+    msg_handler.logStruct(topic=f"createBrand: Api brand create finished,\n processing time: {datetime.now() - start_time}")
 
     return brand_id
 
