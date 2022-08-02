@@ -23,7 +23,7 @@ def createCategoryIdLookup(message_handler: object, your_categories: list) -> di
             ## logging
             message_handler.logStruct(topic=f"createCategoryIdLookup: Category without externalIds",
                                       data=category,
-                                      level="DEBUG")
+                                      level="WARNING")
 
     return category_lookup
 
