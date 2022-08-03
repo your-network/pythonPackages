@@ -6,11 +6,12 @@ from typing import Tuple
 from loggingYour.messageHandler import messageHandler
 
 def createCategory(payload: dict, logger: object) -> Tuple[int, dict]:
+    cat_id = None
+    media = []
     msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'createCategory', 'endpoint': '/Category/'})
     start_time = datetime.now()
-    resp_data = None
 
-    msg_handler.logStruct(topic=f"createCategory: start create category. start time: {start_time}", data=payload)
+    msg_handler.logStruct(topic=f"createCategory: start create category. start time: {start_time}", data=payload, level="DEBUG")
 
     r = requests.post('https://api.yourcontent.io/Category/',
                       json=payload,
@@ -31,19 +32,14 @@ def createCategory(payload: dict, logger: object) -> Tuple[int, dict]:
                                   response_text=r.text,
                                   level="DEBUG")
 
-            return cat_id, media
-
         elif code == 11:
             cat_id = resp_data.get('id')
             media = resp_data.get('duplicates', [])
             ## logging
-            msg_handler.logStruct(
-                topic=f"createCategory: category already existed, cat_id: {cat_id}, duplicate_media: {media}",
-                status_code=r.status_code,
-                response_text=r.text
-            )
-
-            return cat_id, media
+            msg_handler.logStruct(topic=f"createCategory: category already existed, cat_id: {cat_id}, duplicate_media: {media}",
+                                  status_code=r.status_code,
+                                  response_text=r.text,
+                                  level="DEBUG")
 
         else:
             ## logging
@@ -59,7 +55,7 @@ def createCategory(payload: dict, logger: object) -> Tuple[int, dict]:
                        status_code=r.status_code,
                        response_text=r.text)
 
-    return None, None
+    return cat_id, media
 
 def createProductBulk(logger: object, data_bulk: list):
     msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'createProductBulk', 'endpoint': '/Product/CreateOrUpdateBulk'})
@@ -252,7 +248,8 @@ def createBrand(logger: object, data: dict) -> int:
 
     ## logging
     msg_handler.logStruct(topic=f"createBrand: start create attribute.\n start time: {start_time}",
-                          data=data)
+                          data=data,
+                          level="DEBUG")
 
     ## request
     r = requests.post(f"https://api.yourcontent.io/Brand",
@@ -269,20 +266,20 @@ def createBrand(logger: object, data: dict) -> int:
             duplicate_media = resp_data['data']['duplicates']
 
             ## logging
-            msg_handler.logStruct(
-                topic=f"createBrand: finished create brand. brand id: {brand_id}",
-                status_code=r.status_code,
-                response_text=r.text)
+            msg_handler.logStruct(topic=f"createBrand: finished create brand. brand id: {brand_id}",
+                                  status_code=r.status_code,
+                                  response_text=r.text,
+                                  level="DEBUG")
 
         elif code == 11:
             brand_id = resp_data.get('id')
             duplicate_media = resp_data.get('duplicates', [])
 
             ## logging
-            msg_handler.logStruct(
-                topic=f"createBrand: brand already existed, cat_id: {brand_id}, duplicate_media: {duplicate_media}",
-                status_code=r.status_code,
-                response_text=r.text)
+            msg_handler.logStruct(topic=f"createBrand: brand already existed, cat_id: {brand_id}, duplicate_media: {duplicate_media}",
+                                  status_code=r.status_code,
+                                  response_text=r.text,
+                                  level="DEBUG")
 
         else:
             ## logging
