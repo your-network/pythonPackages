@@ -16,19 +16,32 @@ def createCategory(payload: dict, logger: object) -> Tuple[int, dict]:
                       json=payload,
                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
-    if r.status_code == 200:
+    if r.status_code in [200,400]:
         resp_data = json.loads(r.text).get('data')
+        success = resp_data.get('success', False)
+        code = resp_data.get('code')
 
-        if resp_data:
+        if success:
             cat_id = resp_data.get('id')
             media = resp_data.get('duplicates')
 
             ## logging
+            msg_handler.logStruct(topic=f"createCategory: category created finished, cat_id: {cat_id}, duplicate_media: {media}",
+                                  status_code=r.status_code,
+                                  response_text=r.text,
+                                  level="DEBUG")
+
+            return cat_id, media
+
+        elif code == 11:
+            cat_id = resp_data.get('id')
+            media = resp_data.get('duplicates', [])
+            ## logging
             msg_handler.logStruct(
-                           topic=f"createCategory: category created finished, cat_id: {cat_id}, duplicate_media: {media}",
-                           status_code=r.status_code,
-                           response_text=r.text
-                           )
+                topic=f"createCategory: category already existed, cat_id: {cat_id}, duplicate_media: {media}",
+                status_code=r.status_code,
+                response_text=r.text
+            )
 
             return cat_id, media
 
@@ -36,7 +49,8 @@ def createCategory(payload: dict, logger: object) -> Tuple[int, dict]:
             ## logging
             msg_handler.logStruct(topic=f"createCategory: no response data",
                                   status_code=r.status_code,
-                                  response_text=r.text)
+                                  response_text=r.text,
+                                  level="WARNING")
 
     else:
         ## logging
@@ -215,7 +229,6 @@ def createAttribute(logger: object, data: dict) -> int:
             topic=f"createAttributeType: finished create attribute type. attribute id: {attribute_id}",
             status_code=r.status_code,
             response_text=r.text)
-
     else:
         ## logging
         msg_handler.logStruct(
@@ -246,16 +259,37 @@ def createBrand(logger: object, data: dict) -> int:
                      json=data,
                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
-    if r.status_code == 200:
-        resp_data = json.loads(r.text)
-        brand_id = resp_data['data']['id']
-        duplicate_media = resp_data['data']['duplicates']
+    if r.status_code in [200,400]:
+        resp_data = json.loads(r.text).get('data')
+        success = resp_data.get('success', False)
+        code = resp_data.get('code')
 
-        ## logging
-        msg_handler.logStruct(
-            topic=f"createBrand: finished create brand. brand id: {brand_id}",
-            status_code=r.status_code,
-            response_text=r.text)
+        if success:
+            brand_id = resp_data['data']['id']
+            duplicate_media = resp_data['data']['duplicates']
+
+            ## logging
+            msg_handler.logStruct(
+                topic=f"createBrand: finished create brand. brand id: {brand_id}",
+                status_code=r.status_code,
+                response_text=r.text)
+
+        elif code == 11:
+            brand_id = resp_data.get('id')
+            duplicate_media = resp_data.get('duplicates', [])
+
+            ## logging
+            msg_handler.logStruct(
+                topic=f"createBrand: brand already existed, cat_id: {brand_id}, duplicate_media: {duplicate_media}",
+                status_code=r.status_code,
+                response_text=r.text)
+
+        else:
+            ## logging
+            msg_handler.logStruct(topic=f"createBrand: no response data",
+                                  status_code=r.status_code,
+                                  response_text=r.text,
+                                  level="WARNING")
 
     else:
         ## logging
