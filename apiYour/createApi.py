@@ -17,14 +17,15 @@ def createCategory(payload: dict, logger: object) -> Tuple[int, dict]:
                       json=payload,
                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
-    if r.status_code in [200,400]:
-        resp_data = json.loads(r.text).get('data')
-        success = resp_data.get('success', False)
-        code = resp_data.get('code')
+    if r.status_code in [200, 400]:
+        resp_body = json.loads(r.text)
+        resp_data = resp_body.get('data')
+        success = resp_body.get('success')
+        code = resp_body.get('code')
 
         if success:
             cat_id = resp_data.get('id')
-            media = resp_data.get('duplicates')
+            media = resp_data.get('duplicates',[])
 
             ## logging
             msg_handler.logStruct(topic=f"createCategory: category created finished, cat_id: {cat_id}, duplicate_media: {media}",
@@ -256,14 +257,15 @@ def createBrand(logger: object, data: dict) -> int:
                      json=data,
                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
-    if r.status_code in [200,400]:
-        resp_data = json.loads(r.text).get('data')
-        success = resp_data.get('success', False)
-        code = resp_data.get('code')
+    if r.status_code in [200, 400]:
+        resp_body = json.loads(r.text)
+        resp_data = resp_body.get('data')
+        success = resp_body.get('success')
+        code = resp_body.get('code')
 
         if success:
-            brand_id = resp_data['data']['id']
-            duplicate_media = resp_data['data']['duplicates']
+            brand_id = resp_data['id']
+            duplicate_media = resp_data.get('duplicates',[])
 
             ## logging
             msg_handler.logStruct(topic=f"createBrand: finished create brand. brand id: {brand_id}",
@@ -346,7 +348,7 @@ def createCategoryCategoryRelation(logger: object, data: dict) -> bool:
                                          'endpoint': '/Relation/CreateCategoryCategory'})
 
     ## logging
-    msg_handler.logStruct(topic=f"createCategoryCategoryRelation: Start create category category relation,\n start time: {datetime.now()}")
+    msg_handler.logStruct(topic=f"createCategoryCategoryRelation: Start create category category relation,\n start time: {datetime.now()}", data=data)
 
     ## request
     r = requests.post(f"https://api.yourcontent.io/Relation/CreateCategoryCategory",
@@ -378,7 +380,7 @@ def createBrandCategoryRelation(logger: object, data: dict) -> bool:
                                          'endpoint': '/Relation/CreateBrandCategory'})
 
     ## logging
-    msg_handler.logStruct(topic=f"createBrandCategoryRelation: Start create brand category relation,\n start time: {datetime.now()}")
+    msg_handler.logStruct(topic=f"createBrandCategoryRelation: Start create brand category relation,\n start time: {datetime.now()}", data=data)
 
     ## request
     r = requests.post(f"https://api.yourcontent.io/Relation/CreateBrandCategory",
@@ -409,7 +411,7 @@ def createCategoryAttributeRelation(logger: object, data: dict) -> bool:
 
     ## logging
     msg_handler.logStruct(
-        topic=f"createCategoryAttributeRelation: Start create category attribute relation,\n start time: {datetime.now()}")
+        topic=f"createCategoryAttributeRelation: Start create category attribute relation,\n start time: {datetime.now()}", data=data)
 
     ## request
     r = requests.post(f"https://api.yourcontent.io/Relation/CreateAttributeCategory",
@@ -439,7 +441,7 @@ def createProductProductRelation(logger: object, data: dict) -> bool:
                                          'endpoint': '/Relation/CreateProductProduct'})
 
     ## logging
-    msg_handler.logStruct(topic=f"createProductProductRelation: Start create product product relation,\n start time: {datetime.now()}")
+    msg_handler.logStruct(topic=f"createProductProductRelation: Start create product product relation,\n start time: {datetime.now()}", data=data)
 
     ## request
     r = requests.post(f"https://api.yourcontent.io/Relation/CreateProductProduct",
