@@ -30,3 +30,7 @@ def stripHtml(value):
 
 def sanitizeHtml(html_text):
     return sanitizer.sanitize(html_text)
+
+def textMarkDown(text):
+    from markdownify import markdownify as md
+    return md(text, strip=['a'])
