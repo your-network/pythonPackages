@@ -1,6 +1,6 @@
 from html.parser import HTMLParser
 from html_sanitizer import Sanitizer
-sanitizer = Sanitizer()
+sanitizer = Sanitizer({'attributes': {}})
 
 class MLRemover(HTMLParser):
     def __init__(self):
