@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pythonPackages",
-    version='0.4.7.5',
+    version='0.4.7.6',
     author='Thijmen Francken',
     author_email='thijmen@your.io',
     description='All packages used for YOUR development',
@@ -22,6 +22,14 @@ setup(
                       'numpy',
                       'python-dateutil',
                       'mariadb',
-                      'requests'],
+                      'requests',
+                      'markdownify',
+                      'google-cloud',
+                      'google-api-core',
+                      'google-auth',
+                      'google-cloud-logging',
+                      'google-cloud-core',
+                      'google-cloud-pubsub',
+                      'html-sanitizer'],
     zip_safe=False,
 )
