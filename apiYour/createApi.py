@@ -375,7 +375,7 @@ def createCategoryCategoryRelation(logger: object, data: dict) -> bool:
 
         return False
 
-def createBrandCategoryRelation(logger: object, data: dict) -> bool:
+def createBrandCategoryRelation(logger: object, data: dict):
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'createBrandCategoryRelation',
                                          'endpoint': '/Relation/CreateBrandCategory'})
@@ -400,15 +400,13 @@ def createBrandCategoryRelation(logger: object, data: dict) -> bool:
                 topic=f"createBrandCategoryRelation: finished create relation brand category",
                 status_code=r.status_code,
                 response_text=r.text)
-            return True
 
-        if code in [10,11]:
+        if code in [10, 11]:
             ## logging
             msg_handler.logStruct(
                 topic=f"createBrandCategoryRelation: relation already exist",
                 status_code=r.status_code,
                 response_text=r.text)
-            return True
 
     else:
         ## logging
@@ -417,7 +415,6 @@ def createBrandCategoryRelation(logger: object, data: dict) -> bool:
             topic=f"createBrandCategoryRelation: error create relation brand category",
             status_code=r.status_code,
             response_text=r.text)
-        return False
 
 def createCategoryAttributeRelation(logger: object, data: dict) -> bool:
     msg_handler = messageHandler(logger=logger, level="DEBUG",
