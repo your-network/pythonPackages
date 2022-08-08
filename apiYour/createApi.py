@@ -402,7 +402,7 @@ def createBrandCategoryRelation(logger: object, data: dict) -> bool:
                 response_text=r.text)
             return True
 
-        elif code == 10:
+        if code in [10,11]:
             ## logging
             msg_handler.logStruct(
                 topic=f"createBrandCategoryRelation: relation already exist",
