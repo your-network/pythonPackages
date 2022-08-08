@@ -5,6 +5,70 @@ from datetime import datetime
 from typing import Tuple
 from loggingYour.messageHandler import messageHandler
 
+def createBrand(logger: object, data: dict) -> int:
+    brand_id = None
+    duplicate_media = []
+    start_time = datetime.now()
+    msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                 labels={'function': 'createBrand',
+                                         'endpoint': '/Brand'})
+
+    ## logging
+    msg_handler.logStruct(topic=f"createBrand: start create brand.\n start time: {start_time}",
+                          data=data,
+                          level="DEBUG")
+
+    ## request
+    r = requests.post(f"https://api.yourcontent.io/Brand",
+                     json=data,
+                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+
+    if r.status_code in [200, 400]:
+        resp_body = json.loads(r.text)
+        resp_data = resp_body.get('data')
+        success = resp_body.get('success')
+        code = resp_body.get('code')
+
+        if success:
+            brand_id = resp_data['id']
+            duplicate_media = resp_data.get('duplicates',[])
+
+            ## logging
+            msg_handler.logStruct(topic=f"createBrand: finished create brand. brand id: {brand_id}",
+                                  status_code=r.status_code,
+                                  response_text=r.text,
+                                  level="DEBUG")
+
+        elif code == 11:
+            brand_id = resp_data.get('id')
+            duplicate_media = resp_data.get('duplicates', [])
+
+            ## logging
+            msg_handler.logStruct(topic=f"createBrand: brand already existed, cat_id: {brand_id}, duplicate_media: {duplicate_media}",
+                                  status_code=r.status_code,
+                                  response_text=r.text,
+                                  level="DEBUG")
+
+        else:
+            ## logging
+            msg_handler.logStruct(topic=f"createBrand: no response data",
+                                  status_code=r.status_code,
+                                  response_text=r.text,
+                                  level="WARNING")
+
+    else:
+        ## logging
+        msg_handler.logStruct(
+            level="ERROR",
+            topic=f"createBrand: error create brand",
+            status_code=r.status_code,
+            response_text=r.text)
+
+    ## logging
+    msg_handler.logStruct(topic=f"createBrand: Api brand create finished,\n processing time: {datetime.now() - start_time}")
+
+    return brand_id, duplicate_media
+
 def createCategory(payload: dict, logger: object) -> Tuple[int, dict]:
     cat_id = None
     media = []
@@ -239,69 +303,6 @@ def createAttribute(logger: object, data: dict) -> int:
 
     return attribute_id
 
-def createBrand(logger: object, data: dict) -> int:
-    brand_id = None
-    duplicate_media = []
-    start_time = datetime.now()
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'createBrand',
-                                         'endpoint': '/Brand'})
-
-    ## logging
-    msg_handler.logStruct(topic=f"createBrand: start create attribute.\n start time: {start_time}",
-                          data=data,
-                          level="DEBUG")
-
-    ## request
-    r = requests.post(f"https://api.yourcontent.io/Brand",
-                     json=data,
-                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-
-    if r.status_code in [200, 400]:
-        resp_body = json.loads(r.text)
-        resp_data = resp_body.get('data')
-        success = resp_body.get('success')
-        code = resp_body.get('code')
-
-        if success:
-            brand_id = resp_data['id']
-            duplicate_media = resp_data.get('duplicates',[])
-
-            ## logging
-            msg_handler.logStruct(topic=f"createBrand: finished create brand. brand id: {brand_id}",
-                                  status_code=r.status_code,
-                                  response_text=r.text,
-                                  level="DEBUG")
-
-        elif code == 11:
-            brand_id = resp_data.get('id')
-            duplicate_media = resp_data.get('duplicates', [])
-
-            ## logging
-            msg_handler.logStruct(topic=f"createBrand: brand already existed, cat_id: {brand_id}, duplicate_media: {duplicate_media}",
-                                  status_code=r.status_code,
-                                  response_text=r.text,
-                                  level="DEBUG")
-
-        else:
-            ## logging
-            msg_handler.logStruct(topic=f"createBrand: no response data",
-                                  status_code=r.status_code,
-                                  response_text=r.text,
-                                  level="WARNING")
-
-    else:
-        ## logging
-        msg_handler.logStruct(
-            level="ERROR",
-            topic=f"createBrand: error create brand",
-            status_code=r.status_code,
-            response_text=r.text)
-
-    ## logging
-    msg_handler.logStruct(topic=f"createBrand: Api brand create finished,\n processing time: {datetime.now() - start_time}")
-
-    return brand_id, duplicate_media
 
 def createSeries(logger: object, data=dict) -> int:
     serie_id = None
@@ -387,13 +388,27 @@ def createBrandCategoryRelation(logger: object, data: dict) -> bool:
                      json=data,
                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
-    if r.status_code == 200:
-        ## logging
-        msg_handler.logStruct(
-            topic=f"createBrandCategoryRelation: finished create relation brand category",
-            status_code=r.status_code,
-            response_text=r.text)
-        return True
+    resp_body = json.loads(r.text)
+    success = resp_body.get('success')
+    code = resp_body.get('code')
+
+    if r.status_code == [200, 400]:
+
+        if success:
+            ## logging
+            msg_handler.logStruct(
+                topic=f"createBrandCategoryRelation: finished create relation brand category",
+                status_code=r.status_code,
+                response_text=r.text)
+            return True
+
+        elif code == 10:
+            ## logging
+            msg_handler.logStruct(
+                topic=f"createBrandCategoryRelation: relation already exist",
+                status_code=r.status_code,
+                response_text=r.text)
+            return True
 
     else:
         ## logging
