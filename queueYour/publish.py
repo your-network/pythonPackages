@@ -29,14 +29,14 @@ def publishTopicBatchMessages(batch_publisher: object,
     for batch in batch_list:
         # Data must be a bytestring
         for data in batch:
-            data = json.dumps(data).encode('utf-8')
+            data_dump = json.dumps(data).encode('utf-8')
 
             msg_handler.logStruct(topic=f"publishTopicBatchMessages: size: {sys.getsizeof(data)} bytes",
                                   level="DEBUG",
                                   data=data,
                                   labels={'function': 'publishTopicBatchMessages'})
 
-            publish_future = batch_publisher.publish(topic, data)
+            publish_future = batch_publisher.publish(topic, data_dump)
             # Non-blocking. Allow the publisher client to batch multiple messages.
             publish_future.add_done_callback(callback)
             publish_futures.append(publish_future)
