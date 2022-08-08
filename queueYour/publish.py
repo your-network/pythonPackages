@@ -24,24 +24,21 @@ def publishTopicBatchMessages(batch_publisher: object,
 
     publish_futures = []
 
-    batch_list = list(splitList(batch_data, 150))
+    batch_list = list(splitList(batch_data, 50))
 
     for batch in batch_list:
+        size = 0
         # Data must be a bytestring
         for data in batch:
             data_dump = json.dumps(data).encode('utf-8')
-
-            msg_handler.logStruct(topic=f"publishTopicBatchMessages: size: {sys.getsizeof(data)} bytes",
-                                  level="DEBUG",
-                                  data=data,
-                                  labels={'function': 'publishTopicBatchMessages'})
+            size += sys.getsizeof(data)
 
             publish_future = batch_publisher.publish(topic, data_dump)
             # Non-blocking. Allow the publisher client to batch multiple messages.
             publish_future.add_done_callback(callback)
             publish_futures.append(publish_future)
 
-        msg_handler.logStruct(topic=f"publishTopicBatchMessages: total futures size: {sys.getsizeof(publish_futures)} bytes",
+        msg_handler.logStruct(topic=f"publishTopicBatchMessages: total batch publish size: {size} bytes",
                               level="DEBUG")
 
         futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
