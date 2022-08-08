@@ -44,8 +44,7 @@ def publishTopicBatchMessages(batch_publisher: object,
         futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
 
         msg_handler.logStruct(
-            topic=f"publishTopicBatchMessages: Queue Batch insert finished",
-            data=batch,
+            topic=f"publishTopicBatchMessages: Queue Batch insert finished. length message: {len(batch)}",
             level="DEBUG")
 
     msg_handler.logStruct(
