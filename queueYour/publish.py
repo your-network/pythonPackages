@@ -3,6 +3,7 @@ import os
 from concurrent import futures
 from google.cloud import pubsub_v1
 from helpersYour.functions import splitList
+import sys
 
 # Resolve the publish future in a separate thread.
 def callback(future: pubsub_v1.publisher.futures.Future) -> None:
@@ -29,10 +30,19 @@ def publishTopicBatchMessages(batch_publisher: object,
         # Data must be a bytestring
         for data in batch:
             data = json.dumps(data).encode('utf-8')
+
+            msg_handler.logStruct(topic=f"publishTopicBatchMessages: size: {sys.getsizeof(data)} bytes",
+                                  level="DEBUG",
+                                  data=data,
+                                  labels={'function': 'publishTopicBatchMessages'})
+
             publish_future = batch_publisher.publish(topic, data)
             # Non-blocking. Allow the publisher client to batch multiple messages.
             publish_future.add_done_callback(callback)
             publish_futures.append(publish_future)
+
+        msg_handler.logStruct(topic=f"publishTopicBatchMessages: total futures size: {sys.getsizeof(publish_futures)} bytes",
+                              level="DEBUG")
 
         futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
 
