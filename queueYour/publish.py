@@ -23,7 +23,7 @@ def publishTopicBatchMessages(batch_publisher: object,
 
     publish_futures = []
 
-    batch_list = list(splitList(batch_data, 100))
+    batch_list = list(splitList(batch_data, 75))
 
     for batch in batch_list:
         # Data must be a bytestring
