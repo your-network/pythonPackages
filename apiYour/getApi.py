@@ -38,8 +38,7 @@ def getAllCategories(logger: object) -> list:
                             response_text=r.text)
             break
 
-    msg_handler.logStruct(topic=f"getAllCategories: Finish get all categories. Length: {len(categories)}.\n processing time: {datetime.now()-start_time}",
-                   data=categories[:10])
+    msg_handler.logStruct(topic=f"getAllCategories: Finish get all categories. Length: {len(categories)}.\n processing time: {datetime.now()-start_time}")
 
     return categories
 
@@ -78,8 +77,7 @@ def getAllAttributes(logger: object) -> list:
                            response_text=r.text)
             break
 
-    msg_handler.logStruct(topic=f"getAllAttributes: Finish get all attributes. Length: {len(attributes)}. Processing time: {datetime.now()-start_time}",
-                          data=attributes[:10])
+    msg_handler.logStruct(topic=f"getAllAttributes: Finish get all attributes. Length: {len(attributes)}. Processing time: {datetime.now()-start_time}")
 
     return attributes
 
@@ -116,8 +114,7 @@ def getAllAttributeTypes(logger: object) -> list:
                            response_text=r.text)
             break
 
-    msg_handler.logStruct(topic=f"getAllAttributeTypes: Finish get all attributes types. Length: {len(attributeTypes)}.\n Process time: {datetime.now()-start_time}",
-                   data=attributeTypes[:10])
+    msg_handler.logStruct(topic=f"getAllAttributeTypes: Finish get all attributes types. Length: {len(attributeTypes)}.\n Process time: {datetime.now()-start_time}")
 
     return attributeTypes
 
@@ -156,7 +153,7 @@ def getAllBrands(logger: object) -> list:
                            response_text=r.text)
             break
 
-    msg_handler.logStruct(topic=f"getAllBrands: Finish get all brands. Length: {len(brands)}", data=brands[:10])
+    msg_handler.logStruct(topic=f"getAllBrands: Finish get all brands. Length: {len(brands)}")
 
     return brands
 
@@ -194,8 +191,7 @@ def getAllAttributeTypeUnit(logger: object) -> list:
                            response_text=r.text)
             break
 
-    msg_handler.logStruct(topic=f"getAllAttributeTypeUnit: Finish get all attribute type units. Length: {len(attributeTypeUnits)}.\n Processing time: {datetime.now()-start_time}",
-                   data=attributeTypeUnits[:10])
+    msg_handler.logStruct(topic=f"getAllAttributeTypeUnit: Finish get all attribute type units. Length: {len(attributeTypeUnits)}.\n Processing time: {datetime.now()-start_time}")
 
     return attributeTypeUnits
 
@@ -243,8 +239,7 @@ def getAllSeries(logger: object) -> list:
         msg_handler.logStruct(topic="getAllSeries: Error getting all series",
                               error_message=str(e))
 
-    msg_handler.logStruct(topic=f"getAllSeries: Finish get all series. Length: {len(series)}.\n processing time: {datetime.now()-start_time}",
-                   data=series[:10])
+    msg_handler.logStruct(topic=f"getAllSeries: Finish get all series. Length: {len(series)}.\n processing time: {datetime.now()-start_time}")
 
     return series
 
