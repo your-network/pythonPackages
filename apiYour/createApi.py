@@ -280,26 +280,44 @@ def createAttribute(logger: object, data: dict) -> int:
                      json=data,
                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
-    if r.status_code == 200:
-        # print(f"Attribute create Success")
-        resp_data = json.loads(r.text)
-        attribute_id = resp_data['data']['id']
+    allowed_codes = [200, 400]
 
-        ## logging
-        msg_handler.logStruct(
-            topic=f"createAttributeType: finished create attribute type. attribute id: {attribute_id}",
-            status_code=r.status_code,
-            response_text=r.text)
+    if r.status_code in allowed_codes:
+        resp_body = json.loads(r.text)
+        resp_data = resp_body.get('data')
+        success = resp_body.get('success')
+        code = resp_body.get('code')
+
+        if success:
+            attribute_id = resp_data['id']
+
+            ## logging
+            msg_handler.logStruct(topic=f"createAttribute: finished create attribute type. attribute id: {attribute_id}",
+                                  status_code=r.status_code,
+                                  response_text=r.text,
+                                  level="DEBUG")
+
+        elif code == 11:
+            attribute_id = resp_data.get('id')
+
+            ## logging
+            msg_handler.logStruct(topic=f"createAttribute: attribute already existed, attribute_id: {attribute_id}",
+                                  status_code=r.status_code,
+                                  response_text=r.text,
+                                  level="DEBUG")
+
+        else:
+            ## logging
+            msg_handler.logStruct(topic=f"createAttribute: no response data",
+                                  status_code=r.status_code,
+                                  response_text=r.text,
+                                  level="WARNING")
     else:
         ## logging
-        msg_handler.logStruct(
-            level="ERROR",
-            topic=f"createAttribute: error create attribute",
-            status_code=r.status_code,
-            response_text=r.text)
-
-    ## logging
-    msg_handler.logStruct(topic=f"createAttribute: Api attribute create finished,\n processing time: {datetime.now() - start_time}")
+        msg_handler.logStruct(topic=f"createAttribute: status code not {allowed_codes}",
+                              status_code=r.status_code,
+                              response_text=r.text,
+                              level="ERROR")
 
     return attribute_id
 
