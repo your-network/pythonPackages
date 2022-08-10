@@ -494,3 +494,33 @@ def createProductProductRelation(logger: object, data: dict) -> bool:
             status_code=r.status_code,
             response_text=r.text)
         return False
+
+def createCategoryProductRelation(logger: object, data: dict) -> bool:
+    msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                 labels={'function': 'createCategoryProductRelation',
+                                         'endpoint': '/Relation/CreateCategoryProduct'})
+
+    ## logging
+    msg_handler.logStruct(topic=f"createCategoryProductRelation: Start create category product relation,\n start time: {datetime.now()}", data=data)
+
+    ## request
+    r = requests.post(f"https://api.yourcontent.io/Relation/CreateCategoryProduct",
+                     json=data,
+                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+
+    if r.status_code == 200:
+        ## logging
+        msg_handler.logStruct(
+            topic=f"createCategoryProductRelation: finished create relation category product",
+            status_code=r.status_code,
+            response_text=r.text)
+        return True
+
+    else:
+        ## logging
+        msg_handler.logStruct(
+            level="ERROR",
+            topic=f"createCategoryProductRelation: error create relation category product",
+            status_code=r.status_code,
+            response_text=r.text)
+        return False
