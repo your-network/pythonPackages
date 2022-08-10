@@ -185,6 +185,7 @@ def createProductQueue(logger: object, data_bulk: list):
         ## logging
         msg_handler.logStruct(topic="createProductQueue: Error product bulk insert",
                               level="WARNING",
+                              data=data_bulk,
                        status_code=r.status_code,
                        response_text=r.text)
 
