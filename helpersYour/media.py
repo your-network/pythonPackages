@@ -51,6 +51,7 @@ def createImageDetailsDic(details: dict,language: str) -> dict:
                  "width": details['width'],
                  "shA256": details['shA256'],
                  "languages": [language],
+                 "ranking": details['ranking'],
                  "attributes": []
                 }
     return image_dic
