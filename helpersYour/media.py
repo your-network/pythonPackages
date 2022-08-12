@@ -51,9 +51,12 @@ def createImageDetailsDic(details: dict,language: str) -> dict:
                  "width": details['width'],
                  "shA256": details['shA256'],
                  "languages": [language],
-                 "ranking": details['ranking'],
                  "attributes": []
                 }
+
+    if details.get('ranking'):
+        image_dic.update({"ranking": details['ranking']})
+
     return image_dic
 
 def createMediaDetailsDic(logger: object, url: str,language: str) -> dict:
@@ -69,6 +72,9 @@ def createMediaDetailsDic(logger: object, url: str,language: str) -> dict:
                      "languages": [language],
                      "attributes": []
                     }
+
+        if details.get('ranking'):
+            media_dic.update({"ranking": details['ranking']})
 
         return media_dic
 
