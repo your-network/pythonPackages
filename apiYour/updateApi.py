@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 from loggingYour.messageHandler import messageHandler
 
-def updateCategory(logger: object, payload: dict, category_id: int):
+def updateCategory(logger: object, payload: dict, category_id: int) -> list:
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'updateCategory', 'endpoint': '/Category/{category_id}'})
@@ -20,7 +20,7 @@ def updateCategory(logger: object, payload: dict, category_id: int):
     if r.status_code == 200:
         resp_data = json.loads(r.text).get('data')
         if resp_data:
-            media = resp_data.get('duplicates')
+            media = resp_data.get('duplicates', [])
 
             ## logging
             msg_handler.logStruct(topic="updateCategory: update category success",
@@ -34,4 +34,4 @@ def updateCategory(logger: object, payload: dict, category_id: int):
                               topic="updateCategory: update category error",
                               status_code=r.status_code,
                               response_text=r.text)
-        return None, None
+        return []
