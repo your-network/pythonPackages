@@ -2,8 +2,25 @@ import json
 import os
 from concurrent import futures
 from google.cloud import pubsub_v1
+from google import api_core
 from helpersYour.functions import splitList
 import sys
+
+custom_retry = api_core.retry.Retry(
+    initial=0.250,  # seconds (default: 0.1)
+    maximum=90.0,  # seconds (default: 60.0)
+    multiplier=1.45,  # default: 1.3
+    deadline=300.0,  # seconds (default: 60.0)
+    predicate=api_core.retry.if_exception_type(
+        api_core.exceptions.Aborted,
+        api_core.exceptions.DeadlineExceeded,
+        api_core.exceptions.InternalServerError,
+        api_core.exceptions.ResourceExhausted,
+        api_core.exceptions.ServiceUnavailable,
+        api_core.exceptions.Unknown,
+        api_core.exceptions.Cancelled,
+    ),
+)
 
 # Resolve the publish future in a separate thread.
 def callback(future: pubsub_v1.publisher.futures.Future) -> None:
@@ -13,7 +30,10 @@ def callback(future: pubsub_v1.publisher.futures.Future) -> None:
 def publishTopicMessage(publisher, topic_name, data):
     topic = f"{os.environ['TOPIC_CONSTRUCT']}{topic_name}"
 
-    future = publisher.publish(topic, json.dumps(data).encode('utf-8'), spam='eggs')
+    future = publisher.publish(topic=topic,
+                               data=json.dumps(data).encode('utf-8'),
+                               spam='eggs',
+                               retry=custom_retry)
 
 def publishTopicBatchMessages(batch_publisher: object,
                               topic_name: str,
@@ -33,7 +53,9 @@ def publishTopicBatchMessages(batch_publisher: object,
             data_dump = json.dumps(data).encode('utf-8')
             size += sys.getsizeof(data)
 
-            publish_future = batch_publisher.publish(topic, data_dump)
+            publish_future = batch_publisher.publish(topic=topic,
+                                                     data=data_dump,
+                                                     retry=custom_retry)
             # Non-blocking. Allow the publisher client to batch multiple messages.
             publish_future.add_done_callback(callback)
             publish_futures.append(publish_future)
