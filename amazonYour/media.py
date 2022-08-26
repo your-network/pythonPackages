@@ -7,8 +7,8 @@ def mediaUrlS3BucketUpload(amazonS3Client: object, media_url: str, internal_path
     response = requests.get(media_url)
 
     ## logging
-    msg_handler.logStruct(topic=f"mediaUrlS3BucketUpload: url: {media_url}, request made",
-                          data=response.text,
+    msg_handler.logStruct(topic=f"mediaUrlS3BucketUpload: url: {media_url}, request made. Status code: {response.status_code}",
+                          data=response.status_code,
                           level="DEBUG",
                           labels={"function": "mediaUrlS3BucketUpload"})
 
@@ -24,4 +24,11 @@ def mediaUrlS3BucketUpload(amazonS3Client: object, media_url: str, internal_path
                                 msg_handler)
 
     else:
+        ## logging
+        msg_handler.logStruct(
+            topic=f"mediaUrlS3BucketUpload: url: {media_url}, request made. Status code: {response.status_code}",
+            data=response.text,
+            level="WARNING",
+            labels={"function": "mediaUrlS3BucketUpload"})
+
         return False
