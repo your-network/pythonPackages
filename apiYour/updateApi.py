@@ -10,7 +10,7 @@ def updateCategory(logger: object, payload: dict, category_id: int) -> list:
                                  labels={'function': 'updateCategory', 'endpoint': '/Category/{category_id}'})
 
     ## logging
-    msg_handler.logStruct(topic=f"updateCategory: start updating product. Start time: {start_time}", data=payload)
+    msg_handler.logStruct(topic=f"updateCategory: categoryId: {category_id}, start updating product.", data=payload)
 
     ## request
     r = requests.put(f"https://api.yourcontent.io/Category/{category_id}",
@@ -23,7 +23,7 @@ def updateCategory(logger: object, payload: dict, category_id: int) -> list:
             media = resp_data.get('duplicates', [])
 
             ## logging
-            msg_handler.logStruct(topic="updateCategory: update category success",
+            msg_handler.logStruct(topic=f"updateCategory: categoryId: {category_id}, update category success",
                                   status_code=r.status_code,
                                   response_text=r.text)
             return media
@@ -31,7 +31,7 @@ def updateCategory(logger: object, payload: dict, category_id: int) -> list:
     else:
         ## logging
         msg_handler.logStruct(level="ERROR",
-                              topic="updateCategory: update category error",
+                              topic=f"updateCategory:  categoryId: {category_id}, update category error",
                               status_code=r.status_code,
                               response_text=r.text)
         return []
