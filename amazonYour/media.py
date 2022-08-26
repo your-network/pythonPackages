@@ -8,7 +8,7 @@ def mediaUrlS3BucketUpload(amazonS3Client: object, media_url: str, internal_path
 
     ## logging
     msg_handler.logStruct(topic=f"mediaUrlS3BucketUpload: url: {media_url}, request made",
-                          data=response,
+                          data=response.text,
                           level="DEBUG",
                           labels={"function": "mediaUrlS3BucketUpload"})
 
