@@ -4,7 +4,7 @@ from amazonYour.upload import uploadBytesMedia
 import requests
 
 def mediaUrlS3BucketUpload(amazonS3Client: object, media_url: str, internal_path: str, msg_handler: object):
-    response = requests.get(media_url)
+    response = requests.get(media_url, timeout=15)
 
     ## logging
     msg_handler.logStruct(topic=f"mediaUrlS3BucketUpload: url: {media_url}, request made. Status code: {response.status_code}",
