@@ -39,13 +39,13 @@ def updateCategory(logger: object, payload: dict, category_id: int) -> list:
 def updateBrand(logger: object, payload: dict, brand_id: int) -> list:
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'updateBrand', 'endpoint': '/Category/{category_id}'})
+                                 labels={'function': 'updateBrand', 'endpoint': '/Brand/{brand_id}'})
 
     ## logging
     msg_handler.logStruct(topic=f"updateBrand: brandId: {brand_id}, start updating brand.", data=payload)
 
     ## request
-    r = requests.put(f"https://api.yourcontent.io/Category/{brand_id}",
+    r = requests.put(f"https://api.yourcontent.io/Brand/{brand_id}",
                       json=payload,
                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
