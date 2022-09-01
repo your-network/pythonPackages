@@ -17,7 +17,7 @@ def getAllCategories(logger: object) -> list:
     page = 1
     categories = []
     while next_page:
-        r = requests.get(f"https://api.yourcontent.io/Category/GetAll?resultsPerPage=10000&page={page}",
+        r = requests.get(f"https://api.yourcontent.io/Category/GetAll?resultsPerPage=10000&page={page}&includeServiceCategories=true",
                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
         if r.status_code == 200:
