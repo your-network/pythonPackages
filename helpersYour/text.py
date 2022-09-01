@@ -1,4 +1,5 @@
 from html.parser import HTMLParser
+from re import sub
 from html_sanitizer import Sanitizer
 sanitizer = Sanitizer({'attributes': {}})
 
@@ -34,3 +35,7 @@ def sanitizeHtml(html_text):
 def textMarkDown(text):
     from markdownify import markdownify as md
     return md(text, strip=['a'])
+
+def camel_case(s):
+    s = sub(r"(_|-)+", " ", s).title().replace(" ", "")
+    return ''.join([s[0].lower(), s[1:]])
