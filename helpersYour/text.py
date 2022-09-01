@@ -36,6 +36,10 @@ def textMarkDown(text):
     from markdownify import markdownify as md
     return md(text, strip=['a'])
 
-def camel_case(s):
+def camelCase(s):
     s = sub(r"(_|-)+", " ", s).title().replace(" ", "")
     return ''.join([s[0].lower(), s[1:]])
+
+def nameNotation(text):
+    notation = text.lower().replace(" ", "_")
+    return notation
