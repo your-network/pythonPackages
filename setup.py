@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pythonPackages",
-    version='0.5.0.8',
+    version='0.5.0.9',
     author='Thijmen Francken',
     author_email='thijmen@your.io',
     description='All packages used for YOUR development',
@@ -21,7 +21,6 @@ setup(
                       'botocore',
                       'numpy',
                       'python-dateutil',
-                      'mariadb',
                       'requests',
                       'markdownify',
                       'google-cloud',

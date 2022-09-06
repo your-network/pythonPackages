@@ -74,7 +74,7 @@ def updateAttribute(logger: object, payload: dict, attribute_id: int) -> list:
                                  labels={'function': 'updateAttribute', 'endpoint': '/Attribute/{attributeId}'})
 
     ## logging
-    msg_handler.logStruct(topic=f"updateAttribute: attributeId: {attribute_id}, start updating brand.", data=payload)
+    msg_handler.logStruct(topic=f"updateAttribute: attributeId: {attribute_id}, start updating attribute.", data=payload)
 
     ## request
     r = requests.put(f"https://api.yourcontent.io/Attribute/{attribute_id}",
@@ -99,3 +99,4 @@ def updateAttribute(logger: object, payload: dict, attribute_id: int) -> list:
                               status_code=r.status_code,
                               response_text=r.text)
         return []
+

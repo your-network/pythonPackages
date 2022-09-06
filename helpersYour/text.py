@@ -43,3 +43,6 @@ def camelCase(s):
 def nameNotation(text):
     notation = text.lower().replace(" ", "_")
     return notation
+
+def has_numbers(text):
+    return any(char.isdigit() for char in text)
