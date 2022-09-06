@@ -279,7 +279,7 @@ def getAllProducts(logger: object,
     products = []
     try:
         while next_page:
-            if products < max_results:
+            if len(products) < max_results:
                 params = base_params.update({"page": page})
                 r = requests.get(request_url,
                                  headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]},
