@@ -243,3 +243,75 @@ def getAllSeries(logger: object) -> list:
 
     return series
 
+def getAllProducts(logger: object,
+                   max_results: int = 100000000,
+                   page_results: int = 1000,
+                   category_id: int = None,
+                   brand_id: int = None,
+                   language: str = "en",
+                   sorting: str = "Popularity",
+                   optional_fields: list = [],
+                   query: str = None) -> list:
+
+    start_time = datetime.now()
+    msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                 labels={'function': 'getAllProducts',
+                                         'endpoint': '/Product'})
+    ## construct request
+    request_url = "https://api.yourcontent.io/Product"
+    page = 1
+    base_params = {"resultsPerPage": page_results,
+                   "sortBy": sorting,
+                   "lang": language}
+    if category_id:
+        base_params.update({"categoryId": category_id})
+    if brand_id:
+        base_params.update({"brandId": brand_id})
+    if query:
+        base_params.update({"query": query})
+    if optional_fields:
+        base_params.update({"optionalFields": optional_fields})
+
+    ## logging
+    msg_handler.logStruct(topic=f"getAllProducts: Request: {base_params}, Start get all products,\n start time: {start_time}")
+
+    next_page = True
+    products = []
+    try:
+        while next_page:
+            if products < max_results:
+                params = base_params.update({"page": page})
+                r = requests.get(request_url,
+                                 headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]},
+                                 params=params)
+
+                if r.status_code == 200:
+                    result = json.loads(r.text)
+                    data = result.get('data')
+                    if data.get('results'):
+                        products = products + data['results']
+                        page += 1
+                    else:
+                        msg_handler.logStruct(topic="getAllProducts: No new data so all products gathered",
+                                       status_code=r.status_code,
+                                       response_text=r.text)
+                        break
+                else:
+                    msg_handler.logStruct(level="ERROR",
+                                          topic="getAllProducts: Error in the get all function",
+                                    status_code=r.status_code,
+                                    response_text=r.text)
+                    break
+            else:
+                msg_handler.logStruct(level="DEBUG",
+                                      topic=f"getAllProducts: max results reached. max: {max_results}")
+                break
+
+    except Exception as e:
+        msg_handler.logStruct(topic="getAllProducts: Error getting all products",
+                              error_message=str(e))
+
+    msg_handler.logStruct(topic=f"getAllProducts: Finish get all products. Length: {len(products)}.\n processing time: {datetime.now()-start_time}")
+
+    return products
+
