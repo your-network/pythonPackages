@@ -280,10 +280,14 @@ def getAllProducts(logger: object,
     try:
         while next_page:
             if len(products) < max_results:
-                params = base_params.update({"page": page})
+                base_params.update({"page": page})
+
+                ## logging
+                msg_handler.logStruct(topic=f"getAllProducts: Request {request_url} with params: {base_params}")
+
                 r = requests.get(request_url,
                                  headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]},
-                                 params=params)
+                                 params=base_params)
 
                 if r.status_code == 200:
                     result = json.loads(r.text)
