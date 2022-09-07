@@ -1,16 +1,19 @@
 from botocore.exceptions import ClientError
-import boto3
 import csv
 from io import StringIO, BytesIO
 
-def uploadCsv(s3_client, bucket, file_name, data):
+def uploadCsv(storageClient: object,
+              bucket: str,
+              file_name: str,
+              data) -> bool:
+
     field_separator = ","
     csv_buffer = StringIO()
     data.to_csv(csv_buffer, sep=field_separator, quotechar='"', doublequote=True, quoting=csv.QUOTE_ALL,
                 escapechar=None, index=False)
     # Upload the file
     try:
-        response = s3_client.put_object(ACL='public-read',
+        response = storageClient.put_object(ACL='public-read',
                                              Body=csv_buffer.getvalue(),
                                              Bucket=bucket,
                                              Key=file_name)
@@ -20,11 +23,16 @@ def uploadCsv(s3_client, bucket, file_name, data):
         return False
 
 
-def uploadBytesMedia(amazonS3Client, bucket, media_bytes, media_name, content_type, msg_handler):
+def uploadBytesMedia(storageClient: object,
+                     bucket: str, media_bytes,
+                     media_name: str,
+                     content_type: str,
+                     msg_handler: object) -> bool:
+
     try:
         media_bytes.seek(0)
         # Upload image to s3
-        amazonS3Client.upload_fileobj(
+        storageClient.upload_fileobj(
             media_bytes,
             bucket,
             media_name,

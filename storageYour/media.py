@@ -1,9 +1,8 @@
-from PIL import Image
 from io import BytesIO
-from amazonYour.upload import uploadBytesMedia
+from storageYour.upload import uploadBytesMedia
 import requests
 
-def mediaUrlS3BucketUpload(amazonS3Client: object, media_url: str, internal_path: str, msg_handler: object):
+def mediaUrlS3BucketUpload(storageClient: object, media_url: str, internal_path: str, msg_handler: object):
     response = requests.get(media_url, timeout=15)
 
     ## logging
@@ -16,7 +15,7 @@ def mediaUrlS3BucketUpload(amazonS3Client: object, media_url: str, internal_path
         bytes_content = BytesIO(response.content)
         content_type = response.headers['Content-Type']
         ## upload details
-        return uploadBytesMedia(amazonS3Client,
+        return uploadBytesMedia(storageClient,
                                 "yourcontent-dev",
                                 bytes_content,
                                 internal_path,
