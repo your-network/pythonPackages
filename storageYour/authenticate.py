@@ -1,7 +1,10 @@
 import boto3
 
 def getStorageClient(ACCESS_KEY, SECRET_KEY):
-    storage_client = boto3.client('s3', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY)
+    storage_client = boto3.client('s3',
+                                  endpoint_url='https://s3.wasabisys.com',
+                                  aws_access_key_id=ACCESS_KEY,
+                                  aws_secret_access_key=SECRET_KEY)
     return storage_client
 
 def getAmazonClient(S3_ACCESS_KEY,S3_SECRET_KEY):
