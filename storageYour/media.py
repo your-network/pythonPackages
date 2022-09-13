@@ -2,7 +2,7 @@ from io import BytesIO
 from storageYour.upload import uploadBytesMedia
 import requests
 
-def mediaUrlS3BucketUpload(storageClient: object, media_url: str, internal_path: str, msg_handler: object):
+def mediaUrlS3BucketUpload(storageService: object, media_url: str, internal_path: str, msg_handler: object):
     response = requests.get(media_url, timeout=15)
 
     ## logging
@@ -13,14 +13,17 @@ def mediaUrlS3BucketUpload(storageClient: object, media_url: str, internal_path:
 
     if response.status_code == 200:
         bytes_content = BytesIO(response.content)
+        bytes_content.seek(0)
         content_type = response.headers['Content-Type']
+
         ## upload details
-        return uploadBytesMedia(storageClient,
-                                "yourcontent-dev",
-                                bytes_content,
-                                internal_path,
-                                content_type,
-                                msg_handler)
+        my_bucket = storageService.Bucket("yourcontent-dev")
+
+        response = my_bucket.upload_fileobj(bytes_content, internal_path, ExtraArgs={'ContentType': content_type, 'ACL': "public-read"})
+
+        print(response)
+
+        return True
 
     else:
         ## logging
