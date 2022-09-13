@@ -4,21 +4,57 @@ import json
 from datetime import datetime
 from loggingYour.messageHandler import messageHandler
 
-def getAllCategories(logger: object) -> list:
+def getAllCategories(logger: object,
+                     query: str = None,
+                     resultsPerPage: int = 1000,
+                     page: int = 1,
+                     categoryId: int = None,
+                     brandId: int = None,
+                     withImagesOnly: bool = False,
+                     withChildrenOnly: bool = False,
+                     withProductsOnly: bool = False,
+                     lang: str = "EN",
+                     sortBy: str = None,
+                     includeServiceCategories: bool = True) -> list:
+
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'getAllCategories',
                                          'endpoint': '/Category/GetAll'})
 
     ## logging
-    msg_handler.logStruct(topic=f"getAllCategories: Start get all categories,\n start time: {start_time}")
+    msg_handler.logStruct(topic=f"getAllCategories: Start get all categories.\n start time: {start_time}")
+
+    ## construct request
+    request_url = "https://api.yourcontent.io/Category/GetAll"
+    base_params = {"resultsPerPage": resultsPerPage,
+                   "withImagesOnly": withImagesOnly,
+                   "withChildrenOnly": withChildrenOnly,
+                   "withProductsOnly": withProductsOnly,
+                   "includeServiceCategories": includeServiceCategories,
+                   "lang": lang,
+                   "page": page}
+
+    if categoryId:
+        base_params.update({"categoryId": categoryId})
+    if brandId:
+        base_params.update({"brandId": brandId})
+    if query:
+        base_params.update({"query": query})
+    if sortBy:
+        base_params.update({"sortBy": sortBy})
 
     next_page = True
-    page = 1
     categories = []
     while next_page:
-        r = requests.get(f"https://api.yourcontent.io/Category/GetAll?resultsPerPage=10000&page={page}&includeServiceCategories=true",
-                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        base_params.update({"page": page})
+
+        ## logging
+        msg_handler.logStruct(topic=f"getAllCategories: Request {request_url} with params: {base_params}")
+
+        r = requests.get(request_url,
+                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]},
+                         params=base_params)
 
         if r.status_code == 200:
             result = json.loads(r.text)
