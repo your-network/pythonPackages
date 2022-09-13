@@ -1,7 +1,7 @@
 import boto3
 
 def getStorageResource(ACCESS_KEY, SECRET_KEY):
-    storage_resource = boto3.client('s3',
+    storage_resource = boto3.resource('s3',
                         endpoint_url='s3.eu-central-1.wasabisys.com',
                         aws_access_key_id=ACCESS_KEY,
                         aws_secret_access_key=SECRET_KEY)
