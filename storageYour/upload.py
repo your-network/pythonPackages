@@ -21,33 +21,3 @@ def uploadCsv(storageClient: object,
     except ClientError as e:
         print(e)
         return False
-
-
-def uploadBytesMedia(storageClient: object,
-                     bucket: str, media_bytes,
-                     media_name: str,
-                     content_type: str,
-                     msg_handler: object) -> bool:
-
-    try:
-        media_bytes.seek(0)
-        # Upload image to s3
-        storageClient.upload_fileobj(
-            media_bytes,
-            bucket,
-            media_name,
-            ExtraArgs={'ContentType': content_type, 'ACL': "public-read"}
-        )
-        ## logging
-        msg_handler.logStruct(topic=f"uploadBytesMedia: media name: {media_name}, object uploaded",
-                              level="DEBUG",
-                              labels={"function": "uploadBytesMedia"})
-        return True
-
-    except ClientError as e:
-        ## logging
-        msg_handler.logStruct(topic=f"uploadBytesMedia: media name: {media_name}, error",
-                              error_message=str(e),
-                              level="ERROR",
-                              labels={"function": "uploadBytesMedia"})
-        return False
