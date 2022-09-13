@@ -1,19 +1,27 @@
 import os
 import requests
 import json
-from datetime import datetime
 from loggingYour.messageHandler import messageHandler
+from apiYour.settingsApi import PRODUCTION_ADDRESS, DEVELOPMENT_ADDRESS
 
-def updateCategory(logger: object, payload: dict, category_id: int) -> list:
-    start_time = datetime.now()
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'updateCategory', 'endpoint': '/Category/{category_id}'})
+def updateCategory(logger: object,
+                   payload: dict,
+                   category_id: int,
+                   environment: str = "production") -> list:
 
     ## logging
+    msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                 labels={'function': 'updateCategory', 'endpoint': '/Category/{category_id}'})
     msg_handler.logStruct(topic=f"updateCategory: categoryId: {category_id}, start updating product.", data=payload)
 
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Category/{category_id}"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Category/{category_id}"
+
     ## request
-    r = requests.put(f"https://api.yourcontent.io/Category/{category_id}",
+    r = requests.put(request_url,
                       json=payload,
                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
@@ -36,16 +44,24 @@ def updateCategory(logger: object, payload: dict, category_id: int) -> list:
                               response_text=r.text)
         return []
 
-def updateBrand(logger: object, payload: dict, brand_id: int) -> list:
-    start_time = datetime.now()
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'updateBrand', 'endpoint': '/Brand/{brand_id}'})
+def updateBrand(logger: object,
+                payload: dict,
+                brand_id: int,
+                environment: str = "production") -> list:
 
     ## logging
+    msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                 labels={'function': 'updateBrand', 'endpoint': '/Brand/{brand_id}'})
     msg_handler.logStruct(topic=f"updateBrand: brandId: {brand_id}, start updating brand.", data=payload)
 
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Brand/{brand_id}"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Brand/{brand_id}"
+
     ## request
-    r = requests.put(f"https://api.yourcontent.io/Brand/{brand_id}",
+    r = requests.put(request_url,
                       json=payload,
                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
@@ -68,16 +84,24 @@ def updateBrand(logger: object, payload: dict, brand_id: int) -> list:
                               response_text=r.text)
         return []
 
-def updateAttribute(logger: object, payload: dict, attribute_id: int) -> list:
-    start_time = datetime.now()
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'updateAttribute', 'endpoint': '/Attribute/{attributeId}'})
+def updateAttribute(logger: object,
+                    payload: dict,
+                    attribute_id: int,
+                    environment: str = "production") -> list:
 
     ## logging
+    msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                 labels={'function': 'updateAttribute', 'endpoint': '/Attribute/{attributeId}'})
     msg_handler.logStruct(topic=f"updateAttribute: attributeId: {attribute_id}, start updating attribute.", data=payload)
 
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Attribute/{attribute_id}"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Attribute/{attribute_id}"
+
     ## request
-    r = requests.put(f"https://api.yourcontent.io/Attribute/{attribute_id}",
+    r = requests.put(request_url,
                       json=payload,
                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 

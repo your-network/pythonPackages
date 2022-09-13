@@ -3,6 +3,7 @@ import requests
 import json
 from datetime import datetime
 from loggingYour.messageHandler import messageHandler
+from apiYour.settingsApi import PRODUCTION_ADDRESS, DEVELOPMENT_ADDRESS
 
 def getAllCategories(logger: object,
                      query: str = None,
@@ -15,7 +16,8 @@ def getAllCategories(logger: object,
                      withProductsOnly: bool = False,
                      lang: str = "EN",
                      sortBy: str = None,
-                     includeServiceCategories: bool = True) -> list:
+                     includeServiceCategories: bool = True,
+                     environment: str = "production") -> list:
 
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
@@ -26,7 +28,11 @@ def getAllCategories(logger: object,
     msg_handler.logStruct(topic=f"getAllCategories: Start get all categories.\n start time: {start_time}")
 
     ## construct request
-    request_url = "https://api.yourcontent.io/Category/GetAll"
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Category/GetAll"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Category/GetAll"
+
     base_params = {"resultsPerPage": resultsPerPage,
                    "withImagesOnly": withImagesOnly,
                    "withChildrenOnly": withChildrenOnly,
@@ -78,7 +84,8 @@ def getAllCategories(logger: object,
 
     return categories
 
-def getAllAttributes(logger: object) -> list:
+def getAllAttributes(logger: object,
+                     environment: str = "production") -> list:
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'getAllAttributes',
@@ -87,11 +94,17 @@ def getAllAttributes(logger: object) -> list:
     ## logging
     msg_handler.logStruct(topic=f"getAllAttributes: Start get all attributes,\n start time: {start_time}")
 
+    ## construct request
+    if environment == "production":
+        request_url = PRODUCTION_ADDRESS
+    elif environment == "development":
+        request_url = DEVELOPMENT_ADDRESS
+
     next_page = True
     page = 1
     attributes = []
     while next_page:
-        r = requests.get(f"https://api.yourcontent.io/Attribute?resultsPerPage=10000&page={page}",
+        r = requests.get(f"{request_url}/Attribute?resultsPerPage=10000&page={page}",
                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
         if r.status_code == 200:
             result = json.loads(r.text)
@@ -117,7 +130,9 @@ def getAllAttributes(logger: object) -> list:
 
     return attributes
 
-def getAllAttributeTypes(logger: object) -> list:
+def getAllAttributeTypes(logger: object,
+                         environment: str = "production") -> list:
+
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'getAllAttributeTypes',
@@ -126,11 +141,17 @@ def getAllAttributeTypes(logger: object) -> list:
     ## logging
     msg_handler.logStruct(topic=f"getAllAttributeTypes: Start get all attribute types,\n start time: {start_time}")
 
+    ## construct request
+    if environment == "production":
+        request_url = PRODUCTION_ADDRESS
+    elif environment == "development":
+        request_url = DEVELOPMENT_ADDRESS
+
     next_page = True
     page = 1
     attributeTypes = []
     while next_page:
-        r = requests.get(f"https://api.yourcontent.io/AttributeType?resultsPerPage=10000&page={page}",
+        r = requests.get(f"{request_url}/AttributeType?resultsPerPage=10000&page={page}",
                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
         if r.status_code == 200:
             result = json.loads(r.text)
@@ -154,7 +175,16 @@ def getAllAttributeTypes(logger: object) -> list:
 
     return attributeTypes
 
-def getAllBrands(logger: object) -> list:
+def getAllBrands(logger: object,
+                 query: str = None,
+                 resultsPerPage: int = 1000,
+                 page: int = 1,
+                 withImagesOnly: bool = False,
+                 desc: bool = False,
+                 lang: str = "EN",
+                 sortBy: str = None,
+                 environment: str = "production") -> list:
+
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'getAllBrands',
@@ -163,12 +193,35 @@ def getAllBrands(logger: object) -> list:
     ## logging
     msg_handler.logStruct(topic=f"getAllBrands: Start get all brands,\n start time: {start_time}")
 
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Brand"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Brand"
+
+    base_params = {"resultsPerPage": resultsPerPage,
+                   "withImagesOnly": withImagesOnly,
+                   "desc": desc,
+                   "lang": lang,
+                   "page": page}
+
+    if query:
+        base_params.update({"query": query})
+    if sortBy:
+        base_params.update({"sortBy": sortBy})
+
     next_page = True
     page = 1
     brands = []
     while next_page:
-        r = requests.get(f"https://api.yourcontent.io/Brand?resultsPerPage=10000&page={page}",
-                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        base_params.update({"page": page})
+
+        ## logging
+        msg_handler.logStruct(topic=f"getAllBrands: Request {request_url} with params: {base_params}")
+
+        r = requests.get(request_url,
+                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]},
+                         params=base_params)
 
         if r.status_code == 200:
             result = json.loads(r.text)
@@ -193,7 +246,8 @@ def getAllBrands(logger: object) -> list:
 
     return brands
 
-def getAllAttributeTypeUnit(logger: object) -> list:
+def getAllAttributeTypeUnit(logger: object,
+                            environment: str = "production") -> list:
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'getAllAttributeTypeUnit',
@@ -202,11 +256,17 @@ def getAllAttributeTypeUnit(logger: object) -> list:
     ## logging
     msg_handler.logStruct(topic=f"getAllAttributeTypeUnit: Start get all attribute type units,\n start time: {start_time}")
 
+    ## construct request
+    if environment == "production":
+        request_url = PRODUCTION_ADDRESS
+    elif environment == "development":
+        request_url = DEVELOPMENT_ADDRESS
+
     next_page = True
     page = 1
     attributeTypeUnits = []
     while next_page:
-        r = requests.get(f"https://api.yourcontent.io/AttributeTypeUnit?resultsPerPage=10000&page={page}",
+        r = requests.get(f"{request_url}/AttributeTypeUnit?resultsPerPage=10000&page={page}",
                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
         if r.status_code == 200:
             result = json.loads(r.text)
@@ -231,7 +291,9 @@ def getAllAttributeTypeUnit(logger: object) -> list:
 
     return attributeTypeUnits
 
-def getAllSeries(logger: object) -> list:
+def getAllSeries(logger: object,
+                 environment: str = "production") -> list:
+
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'getAllSeries',
@@ -240,12 +302,18 @@ def getAllSeries(logger: object) -> list:
     ## logging
     msg_handler.logStruct(topic=f"getAllSeries: Start get all series,\n start time: {start_time}")
 
+    ## construct request
+    if environment == "production":
+        request_url = PRODUCTION_ADDRESS
+    elif environment == "development":
+        request_url = DEVELOPMENT_ADDRESS
+
     next_page = True
     page = 1
     series = []
     try:
         while next_page:
-            r = requests.get(f"https://api.yourcontent.io/Series?resultsPerPage=10000&page={page}",
+            r = requests.get(f"{request_url}/Series?resultsPerPage=10000&page={page}",
                              headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
             ## logging
@@ -287,18 +355,25 @@ def getAllProducts(logger: object,
                    language: str = "en",
                    sorting: str = "Popularity",
                    optional_fields: list = [],
-                   query: str = None) -> list:
+                   query: str = None,
+                   environment: str = "production") -> list:
 
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'getAllProducts',
                                          'endpoint': '/Product'})
     ## construct request
-    request_url = "https://api.yourcontent.io/Product"
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Product"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Product"
+
     page = 1
     base_params = {"resultsPerPage": page_results,
                    "sortBy": sorting,
                    "lang": language}
+
     if category_id:
         base_params.update({"categoryId": category_id})
     if brand_id:

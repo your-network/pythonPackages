@@ -10,3 +10,6 @@ PURPOSE_IDS = [{'name': 'Taxonomy', 'id': '1'},
                {'name': 'AttributeGroup', 'id': '2'},
                {'name': 'NFTCollection', 'id': '3'},
                {'name': 'ProductFamily', 'id': '4'}]
+
+PRODUCTION_ADDRESS = "https://api.your.io"
+DEVELOPMENT_ADDRESS = "https://api.yourcontent.io"

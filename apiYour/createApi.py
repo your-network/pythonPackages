@@ -4,8 +4,12 @@ import json
 from datetime import datetime
 from typing import Tuple
 from loggingYour.messageHandler import messageHandler
+from apiYour.settingsApi import PRODUCTION_ADDRESS, DEVELOPMENT_ADDRESS
 
-def createBrand(logger: object, data: dict) -> int:
+def createBrand(logger: object,
+                data: dict,
+                environment: str = "production") -> int:
+
     brand_id = None
     duplicate_media = []
     start_time = datetime.now()
@@ -18,8 +22,14 @@ def createBrand(logger: object, data: dict) -> int:
                           data=data,
                           level="DEBUG")
 
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Brand"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Brand"
+
     ## request
-    r = requests.post(f"https://api.yourcontent.io/Brand",
+    r = requests.post(request_url,
                      json=data,
                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
@@ -69,15 +79,25 @@ def createBrand(logger: object, data: dict) -> int:
 
     return brand_id, duplicate_media
 
-def createCategory(payload: dict, logger: object) -> Tuple[int, dict]:
+def createCategory(payload: dict,
+                   logger: object,
+                   environment: str = "production") -> Tuple[int, dict]:
+
     cat_id = None
     media = []
     msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'createCategory', 'endpoint': '/Category/'})
     start_time = datetime.now()
 
+    ## logging
     msg_handler.logStruct(topic=f"createCategory: start create category. start time: {start_time}", data=payload, level="DEBUG")
 
-    r = requests.post('https://api.yourcontent.io/Category/',
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Category"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Category"
+
+    r = requests.post(request_url,
                       json=payload,
                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
@@ -122,16 +142,25 @@ def createCategory(payload: dict, logger: object) -> Tuple[int, dict]:
 
     return cat_id, media
 
-def createProductBulk(logger: object, data_bulk: list):
-    msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'createProductBulk', 'endpoint': '/Product/CreateOrUpdateBulk'})
-    start_time = datetime.now()
+def createProductBulk(logger: object,
+                      data_bulk: list,
+                      environment: str = "production"):
 
     ## logging
+    start_time = datetime.now()
+    msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                 labels={'function': 'createProductBulk', 'endpoint': '/Product/CreateOrUpdateBulk'})
     msg_handler.logStruct(f"createProductBulk: start process product bulk insert, number products: {len(data_bulk)}. Start time: {start_time}",
                    data=data_bulk)
 
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Product/CreateOrUpdateBulk"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Product/CreateOrUpdateBulk"
+
     ## request
-    r = requests.post(f"https://api.yourcontent.io/Product/CreateOrUpdateBulk",
+    r = requests.post(request_url,
                      json=data_bulk,
                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
@@ -160,16 +189,26 @@ def createProductBulk(logger: object, data_bulk: list):
 
     return product_bulk_response
 
-def createProductQueue(logger: object, data_bulk: list):
-    product_bulk_response = None
-    msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'createProductQueue', 'endpoint': '/Product/QueueForCreateBulk'})
-    start_time = datetime.now()
+def createProductQueue(logger: object,
+                       data_bulk: list,
+                       environment: str = "production"):
 
     ## logging
+    start_time = datetime.now()
+    msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                 labels={'function': 'createProductQueue', 'endpoint': '/Product/QueueForCreateBulk'})
     msg_handler.logStruct(topic=f"createProductQueue: process product queue. Start time: {start_time}", data=data_bulk)
 
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Product/QueueForCreateBulk"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Product/QueueForCreateBulk"
+
+    product_bulk_response = None
+
     ## request
-    r = requests.post(f"https://api.yourcontent.io/Product/QueueForCreateBulk",
+    r = requests.post(request_url,
                      json=data_bulk,
                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
@@ -194,17 +233,27 @@ def createProductQueue(logger: object, data_bulk: list):
 
     return product_bulk_response
 
-def createAttributeUnit(logger: object, data: dict) -> int:
-    unit_id = None
-    start_time = datetime.now()
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'createAttributeUnit', 'endpoint': '/Attribute/CreateOrUpdateAttributeTypeUnit'})
+def createAttributeUnit(logger: object,
+                        data: dict,
+                        environment: str = "production") -> int:
 
     ## logging
+    start_time = datetime.now()
+    msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                 labels={'function': 'createAttributeUnit',
+                                         'endpoint': '/Attribute/CreateOrUpdateAttributeTypeUnit'})
     msg_handler.logStruct(topic=f"createAttributeUnit: start create attribute unit. Start time: {start_time}", data=data)
 
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Attribute/CreateOrUpdateAttributeTypeUnit"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Attribute/CreateOrUpdateAttributeTypeUnit"
+
+    unit_id = None
+
     ## request
-    r = requests.post(f"https://api.yourcontent.io/Attribute/CreateOrUpdateAttributeTypeUnit",
+    r = requests.post(request_url,
                      json=data,
                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
@@ -229,17 +278,27 @@ def createAttributeUnit(logger: object, data: dict) -> int:
 
     return unit_id
 
-def createAttributeType(logger: object, data: dict) -> int:
-    attribute_type_id = None
+def createAttributeType(logger: object,
+                        data: dict,
+                        environment: str = "production") -> int:
+
+    ## logging
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'CreateOrUpdateAttributeType',
                                          'endpoint': '/Attribute/CreateOrUpdateAttributeType'})
-    ## logging
     msg_handler.logStruct(topic=f"createAttributeType: start create attribute type.\n start time: {start_time}", data=data)
 
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Attribute/CreateOrUpdateAttributeType"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Attribute/CreateOrUpdateAttributeType"
+
+    attribute_type_id = None
+
     ## request
-    r = requests.post(f"https://api.yourcontent.io/Attribute/CreateOrUpdateAttributeType",
+    r = requests.post(request_url,
                      json=data,
                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
@@ -265,19 +324,28 @@ def createAttributeType(logger: object, data: dict) -> int:
 
     return attribute_type_id
 
-def createAttribute(logger: object, data: dict) -> int:
-    attribute_id = None
+def createAttribute(logger: object,
+                    data: dict,
+                    environment: str = "production") -> int:
+
+    ## logging
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'createAttribute',
                                          'endpoint': '/Attribute/CreateOrUpdate'})
-
-    ## logging
     msg_handler.logStruct(topic=f"createAttribute: start create attribute.\n start time: {start_time}",
                           data=data)
 
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Attribute/CreateOrUpdate"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Attribute/CreateOrUpdate"
+
+    attribute_id = None
+
     ## request
-    r = requests.post(f"https://api.yourcontent.io/Attribute/CreateOrUpdate",
+    r = requests.post(request_url,
                      json=data,
                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
@@ -323,19 +391,28 @@ def createAttribute(logger: object, data: dict) -> int:
     return attribute_id
 
 
-def createSeries(logger: object, data=dict) -> int:
-    serie_id = None
+def createSeries(logger: object,
+                 data=dict,
+                 environment: str = "production") -> int:
+
+    ## logging
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'createSeries',
                                          'endpoint': '/Series'})
-
-    ## logging
     msg_handler.logStruct(topic=f"createSeries: start create serie.\n start time: {start_time}",
                           data=data)
 
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Series"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Series"
+
+    serie_id = None
+
     ## request
-    r = requests.post(f"https://api.yourcontent.io/Series",
+    r = requests.post(request_url,
                      json=data,
                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
@@ -362,16 +439,24 @@ def createSeries(logger: object, data=dict) -> int:
 
     return serie_id
 
-def createCategoryCategoryRelation(logger: object, data: dict) -> bool:
+def createCategoryCategoryRelation(logger: object,
+                                   data: dict,
+                                   environment: str = "production") -> bool:
+
+    ## logging
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'createCategoryCategoryRelation',
                                          'endpoint': '/Relation/CreateCategoryCategory'})
-
-    ## logging
     msg_handler.logStruct(topic=f"createCategoryCategoryRelation: Start create category category relation,\n start time: {datetime.now()}", data=data)
 
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Relation/CreateCategoryCategory"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Relation/CreateCategoryCategory"
+
     ## request
-    r = requests.post(f"https://api.yourcontent.io/Relation/CreateCategoryCategory",
+    r = requests.post(request_url,
                      json=data,
                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
@@ -394,16 +479,24 @@ def createCategoryCategoryRelation(logger: object, data: dict) -> bool:
 
         return False
 
-def createBrandCategoryRelation(logger: object, data: dict):
+def createBrandCategoryRelation(logger: object,
+                                data: dict,
+                                environment: str = "production") -> None:
+
+    ## logging
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'createBrandCategoryRelation',
                                          'endpoint': '/Relation/CreateBrandCategory'})
-
-    ## logging
     msg_handler.logStruct(topic=f"createBrandCategoryRelation: Start create brand category relation,\n start time: {datetime.now()}", data=data)
 
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Relation/CreateBrandCategory"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Relation/CreateBrandCategory"
+
     ## request
-    r = requests.post(f"https://api.yourcontent.io/Relation/CreateBrandCategory",
+    r = requests.post(request_url,
                      json=data,
                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
@@ -435,17 +528,25 @@ def createBrandCategoryRelation(logger: object, data: dict):
             status_code=r.status_code,
             response_text=r.text)
 
-def createCategoryAttributeRelation(logger: object, data: dict) -> bool:
+def createCategoryAttributeRelation(logger: object,
+                                    data: dict,
+                                    environment: str = "production") -> bool:
+
+    ## logging
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'createCategoryAttributeRelation',
                                          'endpoint': '/Relation/CreateAttributeCategory'})
-
-    ## logging
     msg_handler.logStruct(
         topic=f"createCategoryAttributeRelation: Start create category attribute relation,\n start time: {datetime.now()}", data=data)
 
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Relation/CreateAttributeCategory"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Relation/CreateAttributeCategory"
+
     ## request
-    r = requests.post(f"https://api.yourcontent.io/Relation/CreateAttributeCategory",
+    r = requests.post(request_url,
                      json=data,
                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
@@ -466,16 +567,24 @@ def createCategoryAttributeRelation(logger: object, data: dict) -> bool:
             response_text=r.text)
         return False
 
-def createProductProductRelation(logger: object, data: dict) -> bool:
+def createProductProductRelation(logger: object,
+                                 data: dict,
+                                 environment: str = "production") -> bool:
+
+    ## logging
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'createProductProductRelation',
                                          'endpoint': '/Relation/CreateProductProduct'})
-
-    ## logging
     msg_handler.logStruct(topic=f"createProductProductRelation: Start create product product relation,\n start time: {datetime.now()}", data=data)
 
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Relation/CreateProductProduct"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Relation/CreateProductProduct"
+
     ## request
-    r = requests.post(f"https://api.yourcontent.io/Relation/CreateProductProduct",
+    r = requests.post(request_url,
                      json=data,
                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
@@ -496,16 +605,24 @@ def createProductProductRelation(logger: object, data: dict) -> bool:
             response_text=r.text)
         return False
 
-def createCategoryProductRelation(logger: object, data: dict) -> bool:
+def createCategoryProductRelation(logger: object,
+                                  data: dict,
+                                  environment: str = "production") -> bool:
+
+    ## logging
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'createCategoryProductRelation',
                                          'endpoint': '/Relation/CreateCategoryProduct'})
-
-    ## logging
     msg_handler.logStruct(topic=f"createCategoryProductRelation: Start create category product relation,\n start time: {datetime.now()}", data=data)
 
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Relation/CreateCategoryProduct"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Relation/CreateCategoryProduct"
+
     ## request
-    r = requests.post(f"https://api.yourcontent.io/Relation/CreateCategoryProduct",
+    r = requests.post(request_url,
                      json=data,
                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
