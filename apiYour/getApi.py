@@ -16,7 +16,7 @@ def getAllCategories(logger: object,
                      withProductsOnly: bool = False,
                      lang: str = "EN",
                      sortBy: str = None,
-                     includeServiceCategories: bool = True,
+                     includeServiceCategories: bool = False,
                      environment: str = "production") -> list:
 
     start_time = datetime.now()
@@ -84,28 +84,112 @@ def getAllCategories(logger: object,
 
     return categories
 
+def getCategoryChilds(logger: object,
+                      categoryId: int,
+                      resultsPerPage: int = 1000,
+                      page: int = 1,
+                      lang: str = "EN",
+                      sortBy: str = None,
+                      includeServiceCategories: bool = False,
+                      environment: str = "production") -> list:
+
+    start_time = datetime.now()
+    msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                 labels={'function': 'getCategoryChilds',
+                                         'endpoint': '/Category/{categoryId}/Categories'})
+
+    ## logging
+    msg_handler.logStruct(topic=f"getCategoryChilds: Start get all category childs")
+
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Category/{categoryId}/Categories"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Category/{categoryId}/Categories"
+
+    base_params = {"resultsPerPage": resultsPerPage,
+                   "includeServiceCategories": includeServiceCategories,
+                   "lang": lang,
+                   "page": page}
+
+    if sortBy:
+        base_params.update({"sortBy": sortBy})
+
+    next_page = True
+    category_childs = []
+    while next_page:
+        base_params.update({"page": page})
+
+        ## logging
+        msg_handler.logStruct(topic=f"getCategoryChilds: Request {request_url} with params: {base_params}")
+
+        r = requests.get(request_url,
+                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]},
+                         params=base_params)
+
+        if r.status_code == 200:
+            result = json.loads(r.text)
+            data = result.get('data')
+            if data.get('results'):
+                category_childs = category_childs + data['results']
+                page += 1
+            else:
+                msg_handler.logStruct(topic="getCategoryChilds: No new data so all categories childs gathered",
+                                      status_code=r.status_code,
+                                      response_text=r.text)
+                break
+        else:
+            msg_handler.logStruct(level="ERROR",
+                                  topic="getCategoryChilds: Error in the get all function",
+                                  status_code=r.status_code,
+                                  response_text=r.text)
+            break
+
+    msg_handler.logStruct(
+        topic=f"getAllCategories: Finish get all category childs. Length: {len(category_childs)}.\n processing time: {datetime.now() - start_time}")
+
+    return category_childs
+
 def getAllAttributes(logger: object,
-                     environment: str = "production") -> list:
+                     resultsPerPage: int = 1000,
+                     environment: str = "production",
+                     page: int = 1,
+                     lang: str = "EN",
+                     categoryId: int = None) -> list:
+
+    ## logging
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'getAllAttributes',
                                          'endpoint': '/Attribute'})
-
-    ## logging
-    msg_handler.logStruct(topic=f"getAllAttributes: Start get all attributes,\n start time: {start_time}")
+    msg_handler.logStruct(topic=f"getAllAttributes: Start get all attributes")
 
     ## construct request
     if environment == "production":
-        request_url = PRODUCTION_ADDRESS
+        request_url = f"{PRODUCTION_ADDRESS}/Attribute"
     elif environment == "development":
-        request_url = DEVELOPMENT_ADDRESS
+        request_url = f"{DEVELOPMENT_ADDRESS}/Attribute"
+
+    base_params = {"resultsPerPage": resultsPerPage,
+                   "lang": lang,
+                   "page": page}
+
+    if categoryId:
+        base_params.update({"categoryId": categoryId})
 
     next_page = True
-    page = 1
     attributes = []
     while next_page:
-        r = requests.get(f"{request_url}/Attribute?resultsPerPage=10000&page={page}",
-                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        base_params.update({"page": page})
+
+        ## logging
+        msg_handler.logStruct(topic=f"getAllAttributes: Request {request_url} with params: {base_params}")
+
+        ## request
+        r = requests.get(request_url,
+                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]},
+                         params=base_params)
+
         if r.status_code == 200:
             result = json.loads(r.text)
             data = result.get('data')
@@ -126,7 +210,8 @@ def getAllAttributes(logger: object,
                            response_text=r.text)
             break
 
-    msg_handler.logStruct(topic=f"getAllAttributes: Finish get all attributes. Length: {len(attributes)}. Processing time: {datetime.now()-start_time}")
+    msg_handler.logStruct(topic=f"getAllAttributes: Finish get all attributes. Length: {len(attributes)}."
+                                f"Processing time: {datetime.now()-start_time}")
 
     return attributes
 
@@ -429,4 +514,6 @@ def getAllProducts(logger: object,
     msg_handler.logStruct(topic=f"getAllProducts: Finish get all products. Length: {len(products)}.\n processing time: {datetime.now()-start_time}")
 
     return products
+
+
 
