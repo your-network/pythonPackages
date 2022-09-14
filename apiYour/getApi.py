@@ -192,8 +192,8 @@ def getAllAttributes(logger: object,
 
         if r.status_code == 200:
             result = json.loads(r.text)
-            data = result.get('data')
-            if len(data) > 0:
+            data = result['data'].get('results', [])
+            if data:
                 attributes = attributes + data
                 page += 1
             else:
