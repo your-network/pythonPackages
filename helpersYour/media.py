@@ -41,12 +41,12 @@ def getIpfsImageDetails(logger: object, ipfs_url: str) -> dict:
                               error_message=str(error))
         return {}
 
-def createImageDetailsDic(details: dict,language: str) -> dict:
+def createImageDetailsDic(details: dict,language: str = "EN") -> dict:
     image_dic = {"url": details['url'],
                  "internalPath": f"/{details['shA256']}.{details['extension']}",
                  "downloadNeeded": False,
                  "contentType": details['format'],
-                 "imageType": details['imageType'],
+                 "imageType": details.get('imageType', None),
                  "fileSize": details['fileSize'],
                  "height": details['heigth'],
                  "width": details['width'],
