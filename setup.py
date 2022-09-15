@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pythonPackages",
-    version='0.5.2.4',
+    version='0.5.2.5',
     author='Thijmen Francken',
     author_email='thijmen@your.io',
     description='All packages used for YOUR development',
@@ -29,6 +29,7 @@ setup(
                       'google-cloud-logging',
                       'google-cloud-core',
                       'google-cloud-pubsub',
-                      'html-sanitizer'],
+                      'html-sanitizer',
+                      'rootpath'],
     zip_safe=False,
 )
