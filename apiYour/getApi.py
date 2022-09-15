@@ -5,6 +5,45 @@ from datetime import datetime
 from loggingYour.messageHandler import messageHandler
 from apiYour.settingsApi import PRODUCTION_ADDRESS, DEVELOPMENT_ADDRESS
 
+def getCategory(logger: object,
+                categoryId: int,
+                lang: str = "EN",
+                environment: str = "production") -> dict:
+    ## logging
+    msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                 labels={'function': 'getCategory',
+                                         'endpoint': '/Category/{categoryId'})
+    msg_handler.logStruct(topic=f"getCategory: Start get category", data=categoryId)
+
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Category/{categoryId}"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Category/{categoryId}"
+
+    base_params = {"lang": lang}
+
+    r = requests.get(request_url,
+                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]},
+                     params=base_params)
+
+    if r.status_code == 200:
+        result = json.loads(r.text)
+        data = result.get('data')
+        if data:
+            return data
+        else:
+            msg_handler.logStruct(topic="getCategory: No data on category get",
+                                  status_code=r.status_code,
+                                  response_text=r.text)
+            return {}
+    else:
+        msg_handler.logStruct(level="ERROR",
+                              topic="getCategory: Error in the get category function",
+                              status_code=r.status_code,
+                              response_text=r.text)
+        return {}
+
 def getAllCategories(logger: object,
                      query: str = None,
                      resultsPerPage: int = 1000,
