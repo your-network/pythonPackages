@@ -46,6 +46,7 @@ def createImageDetailsDic(details: dict,language: str) -> dict:
                  "internalPath": f"/{details['shA256']}.{details['extension']}",
                  "downloadNeeded": False,
                  "contentType": details['format'],
+                 "imageType": details['imageType'],
                  "fileSize": details['fileSize'],
                  "height": details['heigth'],
                  "width": details['width'],
@@ -81,7 +82,43 @@ def createMediaDetailsDic(logger: object, url: str,language: str) -> dict:
     else:
         return {}
 
-def imageDetailsUrl(logger: object, image_url: str =None) -> dict:
+def getImageFromFile(logger: object,
+                     file_path: str,
+                     extension: str) -> dict:
+    ## logging
+    msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'getImageFromFile'})
+    msg_handler.logStruct(topic=f"getImageFromFile: get image from file",
+                          data=file_path)
+
+    try:
+        with open(file_path, "rb") as f:
+            bytes = f.read()  # read entire file as bytes
+            sha256 = hashlib.sha256(bytes).hexdigest();
+            im = Image.open(BytesIO(bytes))
+            size = len(bytes)
+            w, h = im.size
+            # print(f"sha256: {sha256}, size: {len(bytes)}, w: {w}, h: {h}")
+
+        return {'url': None,
+                'width': w,
+                'heigth': h,
+                'format': extension,
+                'shA256': sha256,
+                'fileSize': size,
+                'extension': extension}
+
+    except:
+        ## logging
+        error = traceback.format_exc()
+        msg_handler.logStruct(level="ERROR",
+                              topic=f"getImageFromFile: image file reading error",
+                              error_message=str(error))
+
+        return {}
+
+def imageDetailsUrl(logger: object,
+                    image_url: str =None) -> dict:
+
     msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'imageDetailsUrl'})
 
     try:
