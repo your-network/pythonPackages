@@ -83,16 +83,15 @@ def createMediaDetailsDic(logger: object, url: str,language: str) -> dict:
         return {}
 
 def getImageFromFile(logger: object,
-                     file_path: str,
-                     extension: str) -> dict:
+                     image_file_dic: dict) -> dict:
     ## logging
     msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'getImageFromFile'})
     msg_handler.logStruct(topic=f"getImageFromFile: get image from file",
-                          data=file_path)
+                          data=image_file_dic["file_path"])
 
     try:
-        with open(file_path, "rb") as f:
-            bytes = f.read()  # read entire file as bytes
+        with open(image_file_dic["file_path"], "rb") as f:
+            bytes = f.read()
             sha256 = hashlib.sha256(bytes).hexdigest();
             im = Image.open(BytesIO(bytes))
             size = len(bytes)
@@ -102,10 +101,10 @@ def getImageFromFile(logger: object,
         return {'url': None,
                 'width': w,
                 'heigth': h,
-                'format': extension,
+                'format': image_file_dic["extension"],
                 'shA256': sha256,
                 'fileSize': size,
-                'extension': extension}
+                'extension': image_file_dic["extension"]}
 
     except:
         ## logging
