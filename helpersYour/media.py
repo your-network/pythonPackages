@@ -98,7 +98,7 @@ def getImageFromFile(logger: object,
             w, h = im.size
             # print(f"sha256: {sha256}, size: {len(bytes)}, w: {w}, h: {h}")
 
-        return {'url': None,
+        return {'url': "https://your.io",
                 'width': w,
                 'heigth': h,
                 'format': image_file_dic["extension"],
