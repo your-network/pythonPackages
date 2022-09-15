@@ -12,7 +12,7 @@ def updateCategory(logger: object,
     ## logging
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'updateCategory', 'endpoint': '/Category/{category_id}'})
-    msg_handler.logStruct(topic=f"updateCategory: categoryId: {category_id}, start updating product.", data=payload)
+    msg_handler.logStruct(topic=f"updateCategory: categoryId: {category_id}, start updating category.", data=payload)
 
     ## construct request
     if environment == "production":

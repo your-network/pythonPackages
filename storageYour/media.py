@@ -1,33 +1,30 @@
 
 def imageFileS3BucketUpload(storageService: object,
-                            external_path: str,
+                            content_bytes: object,
                             extension: str,
+                            shA256: str,
                             msg_handler: object):
     import hashlib
     import traceback
 
     ## logging
     msg_handler.logStruct(
-        topic=f"imageFileS3BucketUpload: file: {external_path}, to media bucket",
+        topic=f"imageFileS3BucketUpload: file: {shA256}, to media bucket",
         level="DEBUG",
         labels={"function": "imageFileS3BucketUpload"})
 
     try:
-        with open(external_path, "rb") as f:
-            bytes_content = f.read()
-            sha256 = hashlib.sha256(bytes_content).hexdigest();
-
-        final_path = f"m/{sha256}.{extension}"
+        final_path = f"m/{shA256}.{extension}"
 
         ## upload object
         my_bucket = storageService.Bucket("yourcontent-dev")
-        my_bucket.upload_fileobj(bytes_content,
+        my_bucket.upload_fileobj(content_bytes,
                                  final_path,
                                  ExtraArgs={'ACL': "public-read"})
 
         ## logging
         msg_handler.logStruct(
-            topic=f"imageFileS3BucketUpload: internal path: {final_path}, sha256: {sha256} object uploaded",
+            topic=f"imageFileS3BucketUpload: internal path: {final_path}, sha256: {shA256} object uploaded",
             level="DEBUG",
             labels={"function": "imageFileS3BucketUpload"})
 
@@ -36,7 +33,7 @@ def imageFileS3BucketUpload(storageService: object,
     except:
         ## logging
         error = traceback.format_exc()
-        msg_handler.logStruct(topic=f"imageFileS3BucketUpload: file: {external_path}, error",
+        msg_handler.logStruct(topic=f"imageFileS3BucketUpload: file: {shA256}, error",
                               error_message=str(error),
                               level="ERROR",
                               labels={"function": "imageFileS3BucketUpload"})
