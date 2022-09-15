@@ -43,7 +43,7 @@ def getIpfsImageDetails(logger: object, ipfs_url: str) -> dict:
 
 def createImageDetailsDic(details: dict,language: str = "EN") -> dict:
     image_dic = {"url": details['url'],
-                 "internalPath": f"/{details['shA256']}.{details['extension']}",
+                 "internalPath": f"/m/{details['shA256']}.{details['extension']}",
                  "downloadNeeded": False,
                  "contentType": details['format'],
                  "imageType": details.get('imageType', None),
@@ -65,7 +65,7 @@ def createMediaDetailsDic(logger: object, url: str,language: str) -> dict:
 
     if details:
         media_dic = {"url": details['url'],
-                     'internalPath': f"/{details['shA256']}.{details['extension']}",
+                     'internalPath': f"/m/{details['shA256']}.{details['extension']}",
                      "downloadNeeded": False,
                      "contentType": details['contentType'],
                      "fileSize": details['fileSize'],
