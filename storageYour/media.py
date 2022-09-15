@@ -2,6 +2,7 @@
 def imageFileS3BucketUpload(storageService: object,
                             external_path: str,
                             extension: str,
+                            content_type: str,
                             msg_handler: object):
     import hashlib
     import traceback
@@ -24,7 +25,7 @@ def imageFileS3BucketUpload(storageService: object,
         my_bucket = storageService.Bucket("yourcontent-dev")
         my_bucket.upload_fileobj(BytesIO(bytes_content),
                                  final_path,
-                                 ExtraArgs={'ACL': "public-read"})
+                                 ExtraArgs={'ContentType': content_type, 'ACL': "public-read"})
 
         ## logging
         msg_handler.logStruct(
