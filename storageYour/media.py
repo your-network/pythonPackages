@@ -13,7 +13,7 @@ def imageFileS3BucketUpload(storageService: object,
         labels={"function": "imageFileS3BucketUpload"})
 
     try:
-        with open(external_path, "rb") as f:
+        with open(external_path, "r") as f:
             bytes_content = f.read()
             sha256 = hashlib.sha256(bytes_content).hexdigest();
 
