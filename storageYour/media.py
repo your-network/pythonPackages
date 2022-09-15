@@ -5,6 +5,7 @@ def imageFileS3BucketUpload(storageService: object,
                             msg_handler: object):
     import hashlib
     import traceback
+    from io import BytesIO
 
     ## logging
     msg_handler.logStruct(
@@ -13,7 +14,7 @@ def imageFileS3BucketUpload(storageService: object,
         labels={"function": "imageFileS3BucketUpload"})
 
     try:
-        with open(external_path, "r") as f:
+        with open(external_path, "rb") as f:
             bytes_content = f.read()
             sha256 = hashlib.sha256(bytes_content).hexdigest();
 
@@ -21,7 +22,7 @@ def imageFileS3BucketUpload(storageService: object,
 
         ## upload object
         my_bucket = storageService.Bucket("yourcontent-dev")
-        my_bucket.upload_fileobj(bytes_content,
+        my_bucket.upload_fileobj(BytesIO(bytes_content),
                                  final_path,
                                  ExtraArgs={'ACL': "public-read"})
 

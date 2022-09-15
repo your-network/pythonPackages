@@ -6,6 +6,7 @@ from io import BytesIO
 import hashlib
 import requests
 from loggingYour.messageHandler import messageHandler
+import magic
 
 def getIpfsImageDetails(logger: object, ipfs_url: str) -> dict:
     msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'getIpfsImageDetails'})
@@ -84,6 +85,7 @@ def createMediaDetailsDic(logger: object, url: str,language: str) -> dict:
 
 def getImageFromFile(logger: object,
                      image_file_dic: dict) -> dict:
+
     ## logging
     msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'getImageFromFile'})
     msg_handler.logStruct(topic=f"getImageFromFile: get image from file",
@@ -96,12 +98,13 @@ def getImageFromFile(logger: object,
             im = Image.open(BytesIO(bytes))
             size = len(bytes)
             w, h = im.size
-            # print(f"sha256: {sha256}, size: {len(bytes)}, w: {w}, h: {h}")
+
+        content_type = magic.from_file(image_file_dic["file_path"], mime=True)
 
         return {'url': "https://your.io",
                 'width': w,
                 'heigth': h,
-                'format': image_file_dic["extension"],
+                'format': content_type,
                 'shA256': sha256,
                 'fileSize': size,
                 'extension': image_file_dic["extension"]}

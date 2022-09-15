@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pythonPackages",
-    version='0.5.3.5',
+    version='0.5.3.6',
     author='Thijmen Francken',
     author_email='thijmen@your.io',
     description='All packages used for YOUR development',
@@ -30,6 +30,8 @@ setup(
                       'google-cloud-core',
                       'google-cloud-pubsub',
                       'html-sanitizer',
-                      'rootpath'],
+                      'rootpath',
+                      'python-magic',
+                      'libmagic'],
     zip_safe=False,
 )
