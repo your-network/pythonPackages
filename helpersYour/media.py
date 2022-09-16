@@ -6,7 +6,7 @@ from io import BytesIO
 import hashlib
 import requests
 from loggingYour.messageHandler import messageHandler
-import magic
+import mimetypes
 
 def getIpfsImageDetails(logger: object, ipfs_url: str) -> dict:
     msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'getIpfsImageDetails'})
@@ -99,7 +99,7 @@ def getImageFromFile(logger: object,
             size = len(bytes)
             w, h = im.size
 
-        content_type = magic.from_file(image_file_dic["file_path"], mime=True)
+        content_type = mimetypes.guess_type(image_file_dic["file_path"])
 
         return {'url': "https://your.io",
                 'width': w,
