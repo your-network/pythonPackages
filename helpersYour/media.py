@@ -47,7 +47,7 @@ def createImageDetailsDic(details: dict,language: str = "EN") -> dict:
                  "internalPath": f"/m/{details['shA256']}.{details['extension']}",
                  "downloadNeeded": False,
                  "contentType": details['format'],
-                 "imageType": details.get('imageType', None),
+                 "imageType": details['imageType'],
                  "fileSize": details['fileSize'],
                  "height": details['heigth'],
                  "width": details['width'],
