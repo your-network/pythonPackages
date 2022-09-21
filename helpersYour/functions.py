@@ -127,7 +127,7 @@ def splitList(list_a, chunk_size):
     yield list_a[i:i + chunk_size]
 
 def chunkIt(my_list, n_chunks):
-    chunks = np.array_split(my_list, n_chunks)
+    chunks = list(np.array_split(my_list, n_chunks))
     return chunks
 
 class PathResolver:
