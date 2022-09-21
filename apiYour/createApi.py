@@ -191,10 +191,15 @@ def createProductBulk(logger: object,
 
 def createProductQueue(logger: object,
                        data_bulk: list,
-                       environment: str = "production"):
+                       environment: str = "production",
+                       additional_labels: dict = {}):
 
     ## logging
     start_time = datetime.now()
+    labels = {'function': 'createProductQueue', 'endpoint': '/Product/QueueForCreateBulk'}
+    if additional_labels:
+        labels.update(additional_labels)
+
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'createProductQueue', 'endpoint': '/Product/QueueForCreateBulk'})
     msg_handler.logStruct(topic=f"createProductQueue: process product queue. Start time: {start_time}", data=data_bulk)
