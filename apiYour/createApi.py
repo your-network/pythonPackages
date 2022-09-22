@@ -201,7 +201,7 @@ def createProductQueue(logger: object,
         labels.update(additional_labels)
 
     msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'createProductQueue', 'endpoint': '/Product/QueueForCreateBulk'})
+                                 labels=labels)
     msg_handler.logStruct(topic=f"createProductQueue: process product queue. Start time: {start_time}", data=data_bulk)
 
     ## construct request
