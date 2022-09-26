@@ -477,8 +477,8 @@ def getAllSeries(logger: object,
             if r.status_code == 200:
                 result = json.loads(r.text)
                 data = result.get('data')
-                if data.get('results'):
-                    series = series + data['results']
+                if data:
+                    series = series + data
                     page += 1
                 else:
                     msg_handler.logStruct(topic="getAllSeries: No new data so all categories gathered",
