@@ -77,6 +77,9 @@ def createBrand(logger: object,
     ## logging
     msg_handler.logStruct(topic=f"createBrand: Api brand create finished,\n processing time: {datetime.now() - start_time}")
 
+    # closing the connection
+    r.close()
+
     return brand_id, duplicate_media
 
 def createCategory(payload: dict,
@@ -140,6 +143,9 @@ def createCategory(payload: dict,
                        status_code=r.status_code,
                        response_text=r.text)
 
+    # closing the connection
+    r.close()
+
     return cat_id, media
 
 def createProductBulk(logger: object,
@@ -186,6 +192,9 @@ def createProductBulk(logger: object,
         msg_handler.logStruct(topic=f"createProductBulk: Api product bulk insert finished, processing time: {datetime.now() - start_time}",
                    status_code=r.status_code,
                    response_text=r.text)
+
+    # closing the connection
+    r.close()
 
     return product_bulk_response
 
@@ -236,6 +245,9 @@ def createProductQueue(logger: object,
     ## logging
     msg_handler.logStruct(topic=f"createProductBulk: Api product queue insert finished, processing time: {datetime.now() - start_time}")
 
+    # closing the connection
+    r.close()
+
     return product_bulk_response
 
 def createAttributeUnit(logger: object,
@@ -280,6 +292,9 @@ def createAttributeUnit(logger: object,
 
     ## logging
     msg_handler.logStruct(topic=f"createAttributeUnit: Api attribute unit insert finished, processing time: {datetime.now() - start_time}")
+
+    # closing the connection
+    r.close()
 
     return unit_id
 
@@ -326,6 +341,9 @@ def createAttributeType(logger: object,
 
     ## logging
     msg_handler.logStruct(topic=f"createAttributeUnit: Api attribute unit create finished,\n processing time: {datetime.now() - start_time}")
+
+    # closing the connection
+    r.close()
 
     return attribute_type_id
 
@@ -393,6 +411,9 @@ def createAttribute(logger: object,
                               response_text=r.text,
                               level="ERROR")
 
+    # closing the connection
+    r.close()
+
     return attribute_id
 
 
@@ -441,6 +462,9 @@ def createSeries(logger: object,
 
     ## logging
     msg_handler.logStruct(topic=f"createSeries: Api create serie finished,\n processing time: {datetime.now() - start_time}")
+
+    # closing the connection
+    r.close()
 
     return serie_id
 

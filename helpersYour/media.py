@@ -148,6 +148,10 @@ def imageDetailsUrl(logger: object,
             sha256 = hashlib.sha256(response.content).hexdigest()
             extension = im.get_format_mimetype().split('/')[-1]
             file_format = im.get_format_mimetype()
+            im.close()
+
+        # closing the connection
+        response.close()
 
         return {'url': image_url,
                 'width': w,
@@ -171,18 +175,21 @@ def getMediaFileUrl(logger: object, url: str=None) -> dict:
     try:
         file_name = url.split("/")[-1]
 
-        r = requests.get(url)
+        response = requests.get(url)
 
         ## logging
         msg_handler.logStruct(topic=f"getMediaFileUrl: get media with request",
                               data=url,
-                              status_code=r.status_code)
+                              status_code=response.status_code)
 
-        content = r.content
-        header = r.headers
+        content = response.content
+        header = response.headers
 
         content_type = header.get('content-type')
         sha256 = hashlib.sha256(content).hexdigest()
+
+        # closing the connection
+        response.close()
 
         return {'url': url,
                 'contentType': content_type,

@@ -23,25 +23,37 @@ def getCategory(logger: object,
 
     base_params = {"lang": lang}
 
-    r = requests.get(request_url,
+    response = requests.get(request_url,
                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]},
                      params=base_params)
 
-    if r.status_code == 200:
-        result = json.loads(r.text)
+    if response.status_code == 200:
+        result = json.loads(response.text)
         data = result.get('data')
+
         if data:
+            # closing the connection
+            response.close()
+
             return data
         else:
             msg_handler.logStruct(topic="getCategory: No data on category get",
-                                  status_code=r.status_code,
-                                  response_text=r.text)
+                                  status_code=response.status_code,
+                                  response_text=response.text)
+
+            # closing the connection
+            response.close()
+
             return {}
     else:
         msg_handler.logStruct(level="ERROR",
                               topic="getCategory: Error in the get category function",
-                              status_code=r.status_code,
-                              response_text=r.text)
+                              status_code=response.status_code,
+                              response_text=response.text)
+
+        # closing the connection
+        response.close()
+
         return {}
 
 def getAllCategories(logger: object,
@@ -121,6 +133,9 @@ def getAllCategories(logger: object,
 
     msg_handler.logStruct(topic=f"getAllCategories: Finish get all categories. Length: {len(categories)}.\n processing time: {datetime.now()-start_time}")
 
+    # closing the connection
+    r.close()
+
     return categories
 
 def getCategoryChilds(logger: object,
@@ -187,6 +202,9 @@ def getCategoryChilds(logger: object,
     msg_handler.logStruct(
         topic=f"getAllCategories: Finish get all category childs. Length: {len(category_childs)}.\n processing time: {datetime.now() - start_time}")
 
+    # closing the connection
+    r.close()
+
     return category_childs
 
 def getAllAttributes(logger: object,
@@ -252,6 +270,9 @@ def getAllAttributes(logger: object,
     msg_handler.logStruct(topic=f"getAllAttributes: Finish get all attributes. Length: {len(attributes)}."
                                 f"Processing time: {datetime.now()-start_time}")
 
+    # closing the connection
+    r.close()
+
     return attributes
 
 def getAllAttributeTypes(logger: object,
@@ -296,6 +317,9 @@ def getAllAttributeTypes(logger: object,
             break
 
     msg_handler.logStruct(topic=f"getAllAttributeTypes: Finish get all attributes types. Length: {len(attributeTypes)}.\n Process time: {datetime.now()-start_time}")
+
+    # closing the connection
+    r.close()
 
     return attributeTypes
 
@@ -368,6 +392,9 @@ def getAllBrands(logger: object,
 
     msg_handler.logStruct(topic=f"getAllBrands: Finish get all brands. Length: {len(brands)}")
 
+    # closing the connection
+    r.close()
+
     return brands
 
 def getAllAttributeTypeUnit(logger: object,
@@ -412,6 +439,9 @@ def getAllAttributeTypeUnit(logger: object,
             break
 
     msg_handler.logStruct(topic=f"getAllAttributeTypeUnit: Finish get all attribute type units. Length: {len(attributeTypeUnits)}.\n Processing time: {datetime.now()-start_time}")
+
+    # closing the connection
+    r.close()
 
     return attributeTypeUnits
 
@@ -468,6 +498,9 @@ def getAllSeries(logger: object,
                               error_message=str(e))
 
     msg_handler.logStruct(topic=f"getAllSeries: Finish get all series. Length: {len(series)}.\n processing time: {datetime.now()-start_time}")
+
+    # closing the connection
+    r.close()
 
     return series
 
@@ -551,6 +584,9 @@ def getAllProducts(logger: object,
                               error_message=str(e))
 
     msg_handler.logStruct(topic=f"getAllProducts: Finish get all products. Length: {len(products)}.\n processing time: {datetime.now()-start_time}")
+
+    # closing the connection
+    r.close()
 
     return products
 
