@@ -472,8 +472,7 @@ def getAllSeries(logger: object,
 
             ## logging
             msg_handler.logStruct(topic="getAllSeries: get request finished",
-                                  status_code=r.status_code,
-                                  response_text=r.text)
+                                  status_code=r.status_code)
 
             if r.status_code == 200:
                 result = json.loads(r.text)
@@ -486,6 +485,7 @@ def getAllSeries(logger: object,
                                    status_code=r.status_code,
                                    response_text=r.text)
                     break
+
             else:
                 msg_handler.logStruct(level="ERROR",
                                       topic="getAllSeries: Error in the get all function",
