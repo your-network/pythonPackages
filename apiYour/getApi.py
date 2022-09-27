@@ -590,5 +590,66 @@ def getAllProducts(logger: object,
 
     return products
 
+def getAllExternalProductIds(logger:object,
+                             sourceId: int = None,
+                             environment: str = "production") -> dict:
+
+    start_time = datetime.now()
+    msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                 labels={'function': 'getAllExternalProductIds',
+                                         'endpoint': '/Product/GetAllExternalIDs'})
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Product/GetAllExternalIDs"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Product/GetAllExternalIDs"
+
+    if sourceId:
+        base_params = {"sourceId": sourceId}
+    else:
+        base_params = {}
+
+    ## logging
+    msg_handler.logStruct(
+        topic=f"getAllExternalProductIds: Request get all external product ids",
+        data=base_params)
+
+    ## request variables
+    products = {}
+    try:
+
+        ## request to endpoint
+        r = requests.get(request_url,
+                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]},
+                         params=base_params)
+
+        if r.status_code == 200:
+            result = json.loads(r.text)
+            data = result.get('data')
+            if data:
+                products = data
+            else:
+                msg_handler.logStruct(topic="getAllExternalProductIds: No data in request",
+                                      status_code=r.status_code,
+                                      response_text=r.text)
+        else:
+            msg_handler.logStruct(level="ERROR",
+                                  topic="getAllExternalProductIds: Error in the get all function",
+                                  status_code=r.status_code,
+                                  response_text=r.text)
+
+    except Exception as e:
+        msg_handler.logStruct(topic="getAllExternalProductIds: Error getting all external product ids",
+                              error_message=str(e))
+
+    msg_handler.logStruct(
+        topic=f"getAllExternalProductIds: Finish get all products external ids. Length: {len(products)}.\n processing time: {datetime.now() - start_time}")
+
+    # closing the connection
+    r.close()
+
+    return products
+
+
 
 
