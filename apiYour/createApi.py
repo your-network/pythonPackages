@@ -151,7 +151,7 @@ def createCategory(payload: dict,
 def createProductBulk(logger: object,
                       data_bulk: list,
                       environment: str = "production",
-                      labels: dict = None):
+                      labels: dict = {}):
 
     ## logging
     log_labels = {'function': 'createProductBulk', 'endpoint': '/Product/CreateOrUpdateBulk'}
@@ -207,23 +207,23 @@ def createProductQueue(logger: object,
                        environment: str = "production",
                        additional_labels: dict = {}):
 
-    ## logging
-    start_time = datetime.now()
-    labels = {'function': 'createProductQueue', 'endpoint': '/Product/QueueForCreateBulk'}
-    if additional_labels:
-        labels.update(additional_labels)
-
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels=labels)
-    msg_handler.logStruct(topic=f"createProductQueue: process product queue. Start time: {start_time}", data=data_bulk)
-
     ## construct request
     if environment == "production":
         request_url = f"{PRODUCTION_ADDRESS}/Product/QueueForCreateBulk"
     elif environment == "development":
         request_url = f"{DEVELOPMENT_ADDRESS}/Product/QueueForCreateBulk"
 
-    product_bulk_response = None
+    ## logging
+    start_time = datetime.now()
+    labels = {'function': 'createProductQueue', 'endpoint': request_url}
+    if additional_labels:
+        labels.update(additional_labels)
+
+    msg_handler = messageHandler(logger=logger,
+                                 level="DEBUG",
+                                 labels=labels)
+    msg_handler.logStruct(topic=f"createProductQueue: process product queue",
+                          data=data_bulk)
 
     ## request
     r = requests.post(request_url,
@@ -232,13 +232,13 @@ def createProductQueue(logger: object,
 
     if r.status_code == 200:
         resp_data = json.loads(r.text)
-        product_bulk_response = resp_data
 
         ## logging
-        msg_handler.logStruct(topic=f"createProductQueue: Success in product queue insert. Number products: {len(data_bulk)}",
+        msg_handler.logStruct(topic=f"createProductQueue: Success in product queue insert",
                        status_code=r.status_code,
                        response_text=r.text)
     else:
+        resp_data = None
         ## logging
         msg_handler.logStruct(topic="createProductQueue: Error product bulk insert",
                               level="WARNING",
@@ -247,12 +247,12 @@ def createProductQueue(logger: object,
                        response_text=r.text)
 
     ## logging
-    msg_handler.logStruct(topic=f"createProductBulk: Api product queue insert finished, processing time: {datetime.now() - start_time}")
+    msg_handler.logStruct(topic=f"createProductBulk: Api product queue insert finished, processing time: {datetime.now()-start_time}")
 
     # closing the connection
     r.close()
 
-    return product_bulk_response
+    return resp_data
 
 def createAttributeUnit(logger: object,
                         data: dict,
