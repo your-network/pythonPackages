@@ -124,3 +124,43 @@ def updateAttribute(logger: object,
                               response_text=r.text)
         return []
 
+def updateProduct(logger: object,
+                  productId: int,
+                  payload: dict,
+                  environment: str = "production") -> list:
+
+    ## logging
+    msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                 labels={'function': 'updateProduct', 'endpoint': '/Product/{productId}'})
+    msg_handler.logStruct(topic=f"updateProduct: productId: {productId}.",
+                          data=payload)
+
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Product/{productId}"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Product/{productId}"
+
+    ## request
+    r = requests.put(request_url,
+                      json=payload,
+                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+
+    if r.status_code == 200:
+        resp_data = json.loads(r.text).get('data')
+        if resp_data:
+            media = resp_data.get('duplicates', [])
+
+            ## logging
+            msg_handler.logStruct(topic=f"updateProduct: productId: {productId}, update product success",
+                                  status_code=r.status_code,
+                                  response_text=r.text)
+            return media
+
+    else:
+        ## logging
+        msg_handler.logStruct(level="ERROR",
+                              topic=f"updateProduct:  productId: {productId}, update product error",
+                              status_code=r.status_code,
+                              response_text=r.text)
+        return []
