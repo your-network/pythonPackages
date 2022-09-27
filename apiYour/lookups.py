@@ -38,7 +38,7 @@ def createSerieIdLookup(series: list) -> dict:
     ## process series for lookup
     for serie in series:
         if serie.get('externalIDs'):
-            for source in serie_lookup['externalIDs'].keys():
+            for source in serie['externalIDs'].keys():
                 serie_lookup[str(source)].update({str(serie['externalIDs'][source][0]): serie['id']})
         else:
             print(f"Serie without externalIds: {serie}")
