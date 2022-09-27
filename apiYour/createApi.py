@@ -150,13 +150,17 @@ def createCategory(payload: dict,
 
 def createProductBulk(logger: object,
                       data_bulk: list,
-                      environment: str = "production"):
+                      environment: str = "production",
+                      labels: dict = None):
 
     ## logging
+    log_labels = {'function': 'createProductBulk', 'endpoint': '/Product/CreateOrUpdateBulk'}
+    if labels:
+        log_labels.update(labels)
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'createProductBulk', 'endpoint': '/Product/CreateOrUpdateBulk'})
-    msg_handler.logStruct(f"createProductBulk: start process product bulk insert, number products: {len(data_bulk)}. Start time: {start_time}",
+                                 labels=log_labels)
+    msg_handler.logStruct(f"createProductBulk: start process product bulk insert",
                    data=data_bulk)
 
     ## construct request
@@ -175,7 +179,7 @@ def createProductBulk(logger: object,
         product_bulk_response = resp_data
 
         ## logging
-        msg_handler.logStruct(topic=f"createProductBulk: Success in product bulk insert. Number products: {len(data_bulk)}",
+        msg_handler.logStruct(topic=f"createProductBulk: Success in product bulk insert. Number products",
                        status_code=r.status_code,
                        response_text=r.text)
 
