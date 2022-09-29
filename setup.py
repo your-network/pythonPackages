@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pythonPackages",
-    version='0.5.6.1',
+    version='0.5.6.2',
     author='Thijmen Francken',
     author_email='thijmen@your.io',
     description='All packages used for YOUR development',
@@ -13,6 +13,7 @@ setup(
     license='LICENSE',
     packages=find_packages(),
     install_requires=['selenium',
+                      'urllib3',
                       'pandas',
                       'selenium_stealth',
                       'Pillow',
