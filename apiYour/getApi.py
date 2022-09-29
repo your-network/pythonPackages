@@ -386,6 +386,7 @@ def getAllBrands(logger: object,
         ## handle request through session or normal
         if connection:
             r = connection.request(method="GET",
+                                   url=request_url,
                                    fields=base_params,
                                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
         else:
