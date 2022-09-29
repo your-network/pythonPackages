@@ -384,37 +384,53 @@ def getAllBrands(logger: object,
         msg_handler.logStruct(topic=f"getAllBrands: Request {request_url} with params: {base_params}")
 
         ## handle request through session or normal
+        no_error = True
         if connection:
+            ## process request from connection pool
             r = connection.request(method="GET",
                                    url=request_url,
                                    fields=base_params,
                                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
             response_code = r.status
+            response_text = r.data
+            if response_code == 200:
+                json.loads(r.data.decode('utf-8'))
+
+            else:
+                no_error = False
+
         else:
+            ## process request with requests library. Single connection & request
             r = requests.get(url=request_url,
                              params=base_params,
                              headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
             response_code = r.status_code
+            response_text = r.text
+            if response_code == 200:
+                result = json.loads(r.text)
+            else:
+                no_error = False
 
-        if response_code == 200:
-            result = json.loads(r.text)
+        if no_error:
+            ## process data
             data = result.get('data')
             if data.get('results'):
                 brands = brands + data['results']
                 page += 1
             else:
                 msg_handler.logStruct(topic="getAllBrands: No new data so all brands gathered",
-                               status_code=r.status_code,
-                               response_text=r.text)
+                               status_code=response_code,
+                               response_text=response_text)
                 break
 
-        else:
+        elif no_error == False:
+            ## process if error was in call
             msg_handler.logStruct(level="ERROR",
                            topic="getAllBrands: status code not 200",
-                           status_code=r.status_code,
-                           response_text=r.text)
+                           status_code=response_code,
+                           response_text=response_text)
             break
 
     msg_handler.logStruct(topic=f"getAllBrands: Finish get all brands. Length: {len(brands)}")
