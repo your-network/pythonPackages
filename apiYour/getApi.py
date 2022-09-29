@@ -505,16 +505,16 @@ def getAllSeries(logger: object,
                                  params=base_params,
                                  headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
-            ## logging
-            msg_handler.logStruct(topic="getAllSeries: get request finished",
-                                  status_code=r.status_code)
-
             if r.status_code == 200:
                 result = json.loads(r.text)
                 data = result.get('data')
                 if data:
+                    ## logging
+                    msg_handler.logStruct(topic="getAllSeries: get request finished with data present")
+
                     series = series + data
                     page += 1
+
                 else:
                     msg_handler.logStruct(topic="getAllSeries: No new data so all categories gathered",
                                    status_code=r.status_code,
