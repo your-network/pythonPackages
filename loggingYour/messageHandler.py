@@ -26,7 +26,7 @@ class messageHandler:
 
         if status_code:
             json_payload.update({"status_code": status_code,
-                                 "response_text": response_text})
+                                 "response_text": str(response_text)})
 
         if labels:
             json_payload.update({"labels": labels})
