@@ -389,12 +389,16 @@ def getAllBrands(logger: object,
                                    url=request_url,
                                    fields=base_params,
                                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+
+            response_code = r.status
         else:
             r = requests.get(url=request_url,
                              params=base_params,
                              headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
-        if r.status_code == 200:
+            response_code = r.status_code
+
+        if response_code == 200:
             result = json.loads(r.text)
             data = result.get('data')
             if data.get('results'):
