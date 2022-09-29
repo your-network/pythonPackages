@@ -128,12 +128,16 @@ def updateProduct(logger: object,
                   productId: int,
                   payload: dict,
                   environment: str = "production",
-                  session: object = None) -> list:
+                  session: object = None,
+                  additional_labels: dict = {}) -> list:
 
     ## logging
+    labels = {'function': 'updateProduct', 'endpoint': '/Product/{productId}'}
+    if additional_labels:
+        labels.update(additional_labels)
     msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'updateProduct', 'endpoint': '/Product/{productId}'})
-    msg_handler.logStruct(topic=f"updateProduct: productId: {productId}.",
+                                 labels=labels)
+    msg_handler.logStruct(topic=f"updateProduct: update product",
                           data=payload)
 
     ## construct request
