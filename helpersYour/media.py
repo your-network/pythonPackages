@@ -1,5 +1,6 @@
 from PIL import Image
 import traceback
+import os
 Image.MAX_IMAGE_PIXELS = None
 from helpersYour.settings import HEADER
 from io import BytesIO
@@ -61,8 +62,13 @@ def createImageDetailsDic(details: dict,language: str = "EN") -> dict:
 
     return image_dic
 
-def createMediaDetailsDic(logger: object, url: str,language: str) -> dict:
-    details = getMediaFileUrl(logger, url)
+def createMediaDetailsDic(logger: object, url: str,
+                          language: str,
+                          connection: object = None) -> dict:
+
+    details = getMediaFileUrl(logger=logger,
+                              url=url,
+                              connection=connection)
 
     if details:
         media_dic = {"url": details['url'],
@@ -119,21 +125,33 @@ def getImageFromFile(logger: object,
         return {}
 
 def imageDetailsUrl(logger: object,
-                    image_url: str =None) -> dict:
+                    image_url: str =None,
+                    connection: object = None) -> dict:
 
     msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'imageDetailsUrl'})
 
     try:
-        response = requests.get(image_url, headers=HEADER)
+        if connection:
+            ## process request from connection pool
+            r = connection.request(method="GET",
+                                   url=image_url,
+                                   headers=HEADER)
+            response_code = r.status
+            header = r.headers
+            content = r.data
+
+        else:
+            ## process request with requests library. Single connection & request
+            response = requests.get(image_url, headers=HEADER)
+            response_code = response.status_code
+            content = response.content
+            header = response.headers
 
         ## logging
         msg_handler.logStruct(topic=f"imageDetailsUrl: get image with request",
                               data=image_url,
-                              status_code=response.status_code)
+                              status_code=response_code)
 
-        content = response.content
-
-        header = response.headers
         content_type = header.get('content-type')
 
         if 'svg' in content_type:
@@ -150,8 +168,9 @@ def imageDetailsUrl(logger: object,
             file_format = im.get_format_mimetype()
             im.close()
 
-        # closing the connection
-        response.close()
+        if connection == None:
+            # closing the connection
+            response.close()
 
         return {'url': image_url,
                 'width': w,
@@ -169,27 +188,41 @@ def imageDetailsUrl(logger: object,
                               error_message=str(error))
         return {}
 
-def getMediaFileUrl(logger: object, url: str=None) -> dict:
+def getMediaFileUrl(logger: object,
+                    url: str=None,
+                    connection: object = None) -> dict:
+
     msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'getMediaFileUrl'})
 
     try:
         file_name = url.split("/")[-1]
 
-        response = requests.get(url)
+        if connection:
+            ## process request from connection pool
+            r = connection.request(method="GET",
+                                   url=url)
+            response_code = r.status
+            header = r.headers
+            content = r.data
+
+        else:
+            ## process request with requests library. Single connection & request
+            response = requests.get(url=url)
+            response_code = response.status_code
+            content = response.content
+            header = response.headers
 
         ## logging
         msg_handler.logStruct(topic=f"getMediaFileUrl: get media with request",
                               data=url,
-                              status_code=response.status_code)
-
-        content = response.content
-        header = response.headers
+                              status_code=response_code)
 
         content_type = header.get('content-type')
         sha256 = hashlib.sha256(content).hexdigest()
 
-        # closing the connection
-        response.close()
+        if connection == None:
+            # closing the connection
+            response.close()
 
         return {'url': url,
                 'contentType': content_type,
