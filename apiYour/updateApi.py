@@ -127,7 +127,8 @@ def updateAttribute(logger: object,
 def updateProduct(logger: object,
                   productId: int,
                   payload: dict,
-                  environment: str = "production") -> list:
+                  environment: str = "production",
+                  session: object = None) -> list:
 
     ## logging
     msg_handler = messageHandler(logger=logger, level="DEBUG",
@@ -141,10 +142,15 @@ def updateProduct(logger: object,
     elif environment == "development":
         request_url = f"{DEVELOPMENT_ADDRESS}/Product/{productId}"
 
-    ## request
-    r = requests.put(request_url,
+    ## handle request through session or normal
+    if session:
+        r = session.put(url=request_url,
                       json=payload,
                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+    else:
+        r = requests.put(url=request_url,
+                          json=payload,
+                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
     if r.status_code == 200:
         resp_data = json.loads(r.text).get('data')

@@ -68,7 +68,8 @@ def getAllCategories(logger: object,
                      lang: str = "EN",
                      sortBy: str = None,
                      includeServiceCategories: bool = False,
-                     environment: str = "production") -> list:
+                     environment: str = "production",
+                     session: object = None) -> list:
 
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
@@ -109,9 +110,15 @@ def getAllCategories(logger: object,
         ## logging
         msg_handler.logStruct(topic=f"getAllCategories: Request {request_url} with params: {base_params}")
 
-        r = requests.get(request_url,
-                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]},
-                         params=base_params)
+        ## handle request through session or normal
+        if session:
+            r = session.get(url=request_url,
+                            params=base_params,
+                            headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        else:
+            r = requests.get(url=request_url,
+                             params=base_params,
+                             headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
         if r.status_code == 200:
             result = json.loads(r.text)
@@ -133,8 +140,9 @@ def getAllCategories(logger: object,
 
     msg_handler.logStruct(topic=f"getAllCategories: Finish get all categories. Length: {len(categories)}.\n processing time: {datetime.now()-start_time}")
 
-    # closing the connection
-    r.close()
+    if session == None:
+        # closing the connection
+        r.close()
 
     return categories
 
@@ -212,7 +220,8 @@ def getAllAttributes(logger: object,
                      environment: str = "production",
                      page: int = 1,
                      lang: str = "EN",
-                     categoryId: int = None) -> list:
+                     categoryId: int = None,
+                     session: object = None) -> list:
 
     ## logging
     start_time = datetime.now()
@@ -242,10 +251,15 @@ def getAllAttributes(logger: object,
         ## logging
         msg_handler.logStruct(topic=f"getAllAttributes: Request {request_url} with params: {base_params}")
 
-        ## request
-        r = requests.get(request_url,
-                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]},
-                         params=base_params)
+        ## handle request through session or normal
+        if session:
+            r = session.get(url=request_url,
+                            params=base_params,
+                            headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        else:
+            r = requests.get(url=request_url,
+                             params=base_params,
+                             headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
         if r.status_code == 200:
             result = json.loads(r.text)
@@ -270,8 +284,9 @@ def getAllAttributes(logger: object,
     msg_handler.logStruct(topic=f"getAllAttributes: Finish get all attributes. Length: {len(attributes)}."
                                 f"Processing time: {datetime.now()-start_time}")
 
-    # closing the connection
-    r.close()
+    if session == None:
+        # closing the connection
+        r.close()
 
     return attributes
 
@@ -331,7 +346,8 @@ def getAllBrands(logger: object,
                  desc: bool = False,
                  lang: str = "EN",
                  sortBy: str = None,
-                 environment: str = "production") -> list:
+                 environment: str = "production",
+                 session: object = None) -> list:
 
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
@@ -367,9 +383,15 @@ def getAllBrands(logger: object,
         ## logging
         msg_handler.logStruct(topic=f"getAllBrands: Request {request_url} with params: {base_params}")
 
-        r = requests.get(request_url,
-                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]},
-                         params=base_params)
+        ## handle request through session or normal
+        if session:
+            r = session.get(url=request_url,
+                            params=base_params,
+                            headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        else:
+            r = requests.get(url=request_url,
+                             params=base_params,
+                             headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
         if r.status_code == 200:
             result = json.loads(r.text)
@@ -392,8 +414,9 @@ def getAllBrands(logger: object,
 
     msg_handler.logStruct(topic=f"getAllBrands: Finish get all brands. Length: {len(brands)}")
 
-    # closing the connection
-    r.close()
+    if session == None:
+        # closing the connection
+        r.close()
 
     return brands
 
@@ -446,7 +469,10 @@ def getAllAttributeTypeUnit(logger: object,
     return attributeTypeUnits
 
 def getAllSeries(logger: object,
-                 environment: str = "production") -> list:
+                 resultsPerPage: int = 1000,
+                 page: int = 1,
+                 environment: str = "production",
+                 session: object = None) -> list:
 
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
@@ -458,17 +484,26 @@ def getAllSeries(logger: object,
 
     ## construct request
     if environment == "production":
-        request_url = PRODUCTION_ADDRESS
+        request_url = f"{PRODUCTION_ADDRESS}/Series"
     elif environment == "development":
-        request_url = DEVELOPMENT_ADDRESS
+        request_url = f"{DEVELOPMENT_ADDRESS}/Series"
+
+    base_params = {"resultsPerPage": resultsPerPage}
 
     next_page = True
-    page = 1
     series = []
     try:
         while next_page:
-            r = requests.get(f"{request_url}/Series?resultsPerPage=10000&page={page}",
-                             headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+            base_params.update({"page": page})
+            ## handle request through session or normal
+            if session:
+                r = session.get(url=request_url,
+                                params=base_params,
+                                headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+            else:
+                r = requests.get(url=request_url,
+                                 params=base_params,
+                                 headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
             ## logging
             msg_handler.logStruct(topic="getAllSeries: get request finished",
@@ -499,8 +534,9 @@ def getAllSeries(logger: object,
 
     msg_handler.logStruct(topic=f"getAllSeries: Finish get all series. Length: {len(series)}.\n processing time: {datetime.now()-start_time}")
 
-    # closing the connection
-    r.close()
+    if session == None:
+        # closing the connection
+        r.close()
 
     return series
 
@@ -592,13 +628,15 @@ def getAllProducts(logger: object,
 
 def getAllExternalProductIds(logger:object,
                              sourceId: int = None,
-                             environment: str = "production") -> dict:
+                             environment: str = "production",
+                             session: object = None) -> dict:
 
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'getAllExternalProductIds',
                                          'endpoint': '/Product/GetAllExternalIDs'})
     ## construct request
+    base_params = {}
     if environment == "production":
         request_url = f"{PRODUCTION_ADDRESS}/Product/GetAllExternalIDs"
     elif environment == "development":
@@ -606,8 +644,6 @@ def getAllExternalProductIds(logger:object,
 
     if sourceId:
         base_params = {"sourceId": sourceId}
-    else:
-        base_params = {}
 
     ## logging
     msg_handler.logStruct(
@@ -617,11 +653,15 @@ def getAllExternalProductIds(logger:object,
     ## request variables
     products = {}
     try:
-
-        ## request to endpoint
-        r = requests.get(request_url,
-                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]},
-                         params=base_params)
+        ## handle request through session or normal
+        if session:
+            r = session.get(url=request_url,
+                            params=base_params,
+                            headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        else:
+            r = requests.get(url=request_url,
+                             params=base_params,
+                             headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
         if r.status_code == 200:
             result = json.loads(r.text)
@@ -645,8 +685,9 @@ def getAllExternalProductIds(logger:object,
     msg_handler.logStruct(
         topic=f"getAllExternalProductIds: Finish get all products external ids. Length: {len(products)}.\n processing time: {datetime.now() - start_time}")
 
-    # closing the connection
-    r.close()
+    if session == None:
+        # closing the connection
+        r.close()
 
     return products
 
