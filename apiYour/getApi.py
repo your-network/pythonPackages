@@ -347,7 +347,7 @@ def getAllBrands(logger: object,
                  lang: str = "EN",
                  sortBy: str = None,
                  environment: str = "production",
-                 session: object = None) -> list:
+                 connection: object = None) -> list:
 
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
@@ -384,10 +384,10 @@ def getAllBrands(logger: object,
         msg_handler.logStruct(topic=f"getAllBrands: Request {request_url} with params: {base_params}")
 
         ## handle request through session or normal
-        if session:
-            r = session.get(url=request_url,
-                            params=base_params,
-                            headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        if connection:
+            r = connection.request(method="GET",
+                                   fields=base_params,
+                                   headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
         else:
             r = requests.get(url=request_url,
                              params=base_params,
@@ -414,7 +414,7 @@ def getAllBrands(logger: object,
 
     msg_handler.logStruct(topic=f"getAllBrands: Finish get all brands. Length: {len(brands)}")
 
-    if session == None:
+    if connection == None:
         # closing the connection
         r.close()
 
@@ -472,7 +472,7 @@ def getAllSeries(logger: object,
                  resultsPerPage: int = 1000,
                  page: int = 1,
                  environment: str = "production",
-                 session: object = None) -> list:
+                 connection: object = None) -> list:
 
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
@@ -496,8 +496,8 @@ def getAllSeries(logger: object,
         while next_page:
             base_params.update({"page": page})
             ## handle request through session or normal
-            if session:
-                r = session.get(url=request_url,
+            if connection:
+                r = connection.get(url=request_url,
                                 params=base_params,
                                 headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
             else:
@@ -534,7 +534,7 @@ def getAllSeries(logger: object,
 
     msg_handler.logStruct(topic=f"getAllSeries: Finish get all series. Length: {len(series)}.\n processing time: {datetime.now()-start_time}")
 
-    if session == None:
+    if connection == None:
         # closing the connection
         r.close()
 
@@ -629,7 +629,7 @@ def getAllProducts(logger: object,
 def getAllExternalProductIds(logger:object,
                              sourceId: int = None,
                              environment: str = "production",
-                             session: object = None) -> dict:
+                             connection: object = None) -> dict:
 
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
@@ -654,8 +654,8 @@ def getAllExternalProductIds(logger:object,
     products = {}
     try:
         ## handle request through session or normal
-        if session:
-            r = session.get(url=request_url,
+        if connection:
+            r = connection.get(url=request_url,
                             params=base_params,
                             headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
         else:
@@ -685,7 +685,7 @@ def getAllExternalProductIds(logger:object,
     msg_handler.logStruct(
         topic=f"getAllExternalProductIds: Finish get all products external ids. Length: {len(products)}.\n processing time: {datetime.now() - start_time}")
 
-    if session == None:
+    if connection == None:
         # closing the connection
         r.close()
 

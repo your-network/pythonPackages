@@ -14,7 +14,7 @@ class HTTPConnections:
                            host: str,
                            maxsize: int = 100):
 
-        self.http_connection = urllib3.HTTPConnectionPool('google.com', maxsize=10)
+        self.http_connection = urllib3.HTTPConnectionPool(host, maxsize=maxsize)
 
         return self.http_connection
 
