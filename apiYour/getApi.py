@@ -390,7 +390,8 @@ def getAllBrands(logger: object,
             r = connection.request(method="GET",
                                    url=request_url,
                                    fields=base_params,
-                                   headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+                                   headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                            'Content-Type': 'application/json'})
 
             response_code = r.status
             response_text = r.data
