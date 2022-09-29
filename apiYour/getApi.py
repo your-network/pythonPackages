@@ -396,8 +396,7 @@ def getAllBrands(logger: object,
             response_text = r.data
             print(f"code: {response_code}, text: {response_text}")
             if response_code == 200:
-                json.loads(r.data.decode('utf-8'))
-
+                result = json.loads(r.data.decode('utf-8'))
             else:
                 no_error = False
 
