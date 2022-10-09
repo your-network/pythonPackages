@@ -7,7 +7,7 @@ from apiYour.settingsApi import PRODUCTION_ADDRESS, DEVELOPMENT_ADDRESS
 
 def getCategory(logger: object,
                 categoryId: int,
-                lang: str = "EN",
+                lang: str = "en",
                 environment: str = "production") -> dict:
     ## logging
     msg_handler = messageHandler(logger=logger, level="DEBUG",
@@ -65,7 +65,7 @@ def getAllCategories(logger: object,
                      withImagesOnly: bool = False,
                      withChildrenOnly: bool = False,
                      withProductsOnly: bool = False,
-                     lang: str = "EN",
+                     lang: str = "en",
                      sortBy: str = None,
                      includeServiceCategories: bool = False,
                      environment: str = "production",
@@ -169,7 +169,7 @@ def getCategoryChilds(logger: object,
                       categoryId: int,
                       resultsPerPage: int = 1000,
                       page: int = 1,
-                      lang: str = "EN",
+                      lang: str = "en",
                       sortBy: str = None,
                       includeServiceCategories: bool = False,
                       environment: str = "production",
@@ -265,7 +265,7 @@ def getAllAttributes(logger: object,
                      resultsPerPage: int = 1000,
                      environment: str = "production",
                      page: int = 1,
-                     lang: str = "EN",
+                     lang: str = "en",
                      categoryId: int = None,
                      connection: object = None) -> list:
 
@@ -407,9 +407,10 @@ def getAllBrands(logger: object,
                  query: str = None,
                  resultsPerPage: int = 1000,
                  page: int = 1,
+                 categoryId: int = None,
                  withImagesOnly: bool = False,
                  desc: bool = False,
-                 lang: str = "EN",
+                 lang: str = "en",
                  sortBy: str = None,
                  environment: str = "production",
                  connection: object = None) -> list:
@@ -438,6 +439,8 @@ def getAllBrands(logger: object,
         base_params.update({"query": query})
     if sortBy:
         base_params.update({"sortBy": sortBy})
+    if categoryId:
+        base_params.update({"categoryId": categoryId})
 
     next_page = True
     page = 1
