@@ -163,7 +163,7 @@ def imageDetailsUrl(logger: object,
         else:
             im = Image.open(BytesIO(content))
             w, h = im.size
-            sha256 = hashlib.sha256(response.content).hexdigest()
+            sha256 = hashlib.sha256(content).hexdigest()
             extension = im.get_format_mimetype().split('/')[-1]
             file_format = im.get_format_mimetype()
             im.close()
