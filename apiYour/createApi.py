@@ -365,9 +365,9 @@ def createAttribute(logger: object,
 
     ## construct request
     if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Attribute/CreateOrUpdate"
+        request_url = f"{PRODUCTION_ADDRESS}/Attribute"
     elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Attribute/CreateOrUpdate"
+        request_url = f"{DEVELOPMENT_ADDRESS}/Attribute"
 
     attribute_id = None
 
