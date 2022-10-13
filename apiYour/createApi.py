@@ -84,15 +84,20 @@ def createBrand(logger: object,
 
 def createCategory(payload: dict,
                    logger: object,
-                   environment: str = "production") -> Tuple[int, dict]:
+                   environment: str = "production",
+                   additional_labels: dict = None):
 
     cat_id = None
     media = []
-    msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'createCategory', 'endpoint': '/Category/'})
+    labels = {'function': 'createCategory', 'endpoint': '/Category/'}
+    if additional_labels:
+        labels.update(additional_labels)
+
+    msg_handler = messageHandler(logger=logger, level="DEBUG", labels=labels)
     start_time = datetime.now()
 
     ## logging
-    msg_handler.logStruct(topic=f"createCategory: start create category. start time: {start_time}", data=payload, level="DEBUG")
+    msg_handler.logStruct(topic=f"createCategory: start create category. start time: {start_time}", data=payload)
 
     ## construct request
     if environment == "production":
@@ -117,8 +122,7 @@ def createCategory(payload: dict,
             ## logging
             msg_handler.logStruct(topic=f"createCategory: category created finished, cat_id: {cat_id}, duplicate_media: {media}",
                                   status_code=r.status_code,
-                                  response_text=r.text,
-                                  level="DEBUG")
+                                  response_text=r.text)
 
         elif code == 11:
             cat_id = resp_data.get('id')
@@ -126,8 +130,7 @@ def createCategory(payload: dict,
             ## logging
             msg_handler.logStruct(topic=f"createCategory: category already existed, cat_id: {cat_id}, duplicate_media: {media}",
                                   status_code=r.status_code,
-                                  response_text=r.text,
-                                  level="DEBUG")
+                                  response_text=r.text)
 
         else:
             ## logging
@@ -139,7 +142,7 @@ def createCategory(payload: dict,
     else:
         ## logging
         msg_handler.logStruct(level="ERROR",
-                       topic="getAllCategories: Error in the get all function",
+                       topic="createCategory: Error create category",
                        status_code=r.status_code,
                        response_text=r.text)
 
@@ -474,13 +477,18 @@ def createSeries(logger: object,
 
 def createCategoryCategoryRelation(logger: object,
                                    data: dict,
+                                   additional_labels: dict = None,
                                    environment: str = "production") -> bool:
 
     ## logging
+    labels = {'function': 'createCategoryCategoryRelation',
+                                         'endpoint': '/Relation/CreateCategoryCategory'}
+    if additional_labels:
+        labels.update(additional_labels)
     msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'createCategoryCategoryRelation',
-                                         'endpoint': '/Relation/CreateCategoryCategory'})
-    msg_handler.logStruct(topic=f"createCategoryCategoryRelation: Start create category category relation,\n start time: {datetime.now()}", data=data)
+                                 labels=labels)
+    msg_handler.logStruct(topic=f"createCategoryCategoryRelation: Start create category category relation",
+                          data=data)
 
     ## construct request
     if environment == "production":
@@ -514,13 +522,19 @@ def createCategoryCategoryRelation(logger: object,
 
 def createBrandCategoryRelation(logger: object,
                                 data: dict,
+                                additional_labels: dict = None,
                                 environment: str = "production") -> None:
 
     ## logging
+    labels = {'function': 'createBrandCategoryRelation',
+                                         'endpoint': '/Relation/CreateBrandCategory'}
+    if additional_labels:
+        labels.update(additional_labels)
+
     msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'createBrandCategoryRelation',
-                                         'endpoint': '/Relation/CreateBrandCategory'})
-    msg_handler.logStruct(topic=f"createBrandCategoryRelation: Start create brand category relation,\n start time: {datetime.now()}", data=data)
+                                 labels=labels)
+    msg_handler.logStruct(topic=f"createBrandCategoryRelation: Start create brand category relation",
+                          data=data)
 
     ## construct request
     if environment == "production":
@@ -563,14 +577,20 @@ def createBrandCategoryRelation(logger: object,
 
 def createCategoryAttributeRelation(logger: object,
                                     data: dict,
+                                    additional_labels: dict = None,
                                     environment: str = "production") -> bool:
-
     ## logging
+    labels = {'function': 'createCategoryAttributeRelation',
+                                         'endpoint': '/Relation/CreateAttributeCategory'}
+    if additional_labels:
+        labels.update(additional_labels)
+
     msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'createCategoryAttributeRelation',
-                                         'endpoint': '/Relation/CreateAttributeCategory'})
+                                 labels=labels)
+
     msg_handler.logStruct(
-        topic=f"createCategoryAttributeRelation: Start create category attribute relation,\n start time: {datetime.now()}", data=data)
+        topic=f"createCategoryAttributeRelation: Start create category attribute relation",
+        data=data)
 
     ## construct request
     if environment == "production":
