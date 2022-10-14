@@ -475,14 +475,15 @@ def createSeries(logger: object,
 
     return serie_id
 
-def createCategoryCategoryRelation(logger: object,
-                                   data: dict,
-                                   additional_labels: dict = None,
-                                   environment: str = "production") -> bool:
 
+def createCategoryCategoryRelation(logger: object,
+                                    data: dict,
+                                    connection: object = None,
+                                    additional_labels: dict = None,
+                                    environment: str = "production") -> bool:
     ## logging
     labels = {'function': 'createCategoryCategoryRelation',
-                                         'endpoint': '/Relation/CreateCategoryCategory'}
+              'endpoint': '/Relation/CreateCategoryCategory'}
     if additional_labels:
         labels.update(additional_labels)
     msg_handler = messageHandler(logger=logger, level="DEBUG",
@@ -496,29 +497,46 @@ def createCategoryCategoryRelation(logger: object,
     elif environment == "development":
         request_url = f"{DEVELOPMENT_ADDRESS}/Relation/CreateCategoryCategory"
 
-    ## request
-    r = requests.post(request_url,
-                     json=data,
-                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+    ## handle request through session or normal
+    no_error = True
+    if connection:
+        ## process request from connection pool
+        encoded_data = json.dumps(data).encode('utf-8')
+        r = connection.request(method="POST",
+                               url=request_url,
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
 
-    if r.status_code == 200:
+        response_code = r.status
+        response_text = r.data
+
+    else:
+        ## process request with requests library. Single connection & request
+        r = requests.post(request_url,
+                          json=data,
+                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+
+        response_code = r.status_code
+        response_text = r.text
+
+    if response_code == 200:
         ## logging
         msg_handler.logStruct(
             topic=f"createCategoryCategoryRelation: finished create relation category category",
-            status_code=r.status_code,
-            response_text=r.text)
-
+            status_code=response_code,
+            response_text=response_text)
         return True
 
     else:
         ## logging
         msg_handler.logStruct(
-            level="ERROR",
+            level="WARNING",
             topic=f"createCategoryCategoryRelation: error create relation category category",
-            status_code=r.status_code,
-            response_text=r.text)
-
+            status_code=response_code,
+            response_text=response_text)
         return False
+
 
 def createBrandCategoryRelation(logger: object,
                                 data: dict,
@@ -575,8 +593,10 @@ def createBrandCategoryRelation(logger: object,
             status_code=r.status_code,
             response_text=r.text)
 
+
 def createCategoryAttributeRelation(logger: object,
                                     data: dict,
+                                    connection: object = None,
                                     additional_labels: dict = None,
                                     environment: str = "production") -> bool:
     ## logging
@@ -598,27 +618,46 @@ def createCategoryAttributeRelation(logger: object,
     elif environment == "development":
         request_url = f"{DEVELOPMENT_ADDRESS}/Relation/CreateAttributeCategory"
 
-    ## request
-    r = requests.post(request_url,
-                     json=data,
-                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+    ## handle request through session or normal
+    no_error = True
+    if connection:
+        ## process request from connection pool
+        encoded_data = json.dumps(data).encode('utf-8')
+        r = connection.request(method="POST",
+                               url=request_url,
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
 
-    if r.status_code == 200:
+        response_code = r.status
+        response_text = r.data
+
+    else:
+        ## process request with requests library. Single connection & request
+        r = requests.post(request_url,
+                          json=data,
+                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+
+        response_code = r.status_code
+        response_text = r.text
+
+    if response_code == 200:
         ## logging
         msg_handler.logStruct(
             topic=f"createCategoryAttributeRelation: finished create relation category attribute",
-            status_code=r.status_code,
-            response_text=r.text)
+            status_code=response_code,
+            response_text=response_text)
         return True
 
     else:
         ## logging
         msg_handler.logStruct(
-            level="ERROR",
+            level="WARNING",
             topic=f"createCategoryAttributeRelation: error create relation category attribute",
-            status_code=r.status_code,
-            response_text=r.text)
+            status_code=response_code,
+            response_text=response_text)
         return False
+
 
 def createProductProductRelation(logger: object,
                                  data: dict,
