@@ -261,7 +261,7 @@ def getCategoryChilds(logger: object,
 
     return category_childs
 
-def getAllAttributes(logger: object,
+def getAllAttributes(logger: object = None,
                      resultsPerPage: int = 1000,
                      environment: str = "production",
                      page: int = 1,
@@ -270,11 +270,12 @@ def getAllAttributes(logger: object,
                      connection: object = None) -> list:
 
     ## logging
-    start_time = datetime.now()
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'getAllAttributes',
-                                         'endpoint': '/Attribute'})
-    msg_handler.logStruct(topic=f"getAllAttributes: Start get all attributes")
+    if logger:
+        start_time = datetime.now()
+        msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                     labels={'function': 'getAllAttributes',
+                                             'endpoint': '/Attribute'})
+        msg_handler.logStruct(topic=f"getAllAttributes: Start get all attributes")
 
     ## construct request
     if environment == "production":
@@ -295,7 +296,8 @@ def getAllAttributes(logger: object,
         base_params.update({"page": page})
 
         ## logging
-        msg_handler.logStruct(topic=f"getAllAttributes: Request {request_url} with params: {base_params}")
+        if logger:
+            msg_handler.logStruct(topic=f"getAllAttributes: Request {request_url} with params: {base_params}")
 
         ## handle request through session or normal
         no_error = True
@@ -333,21 +335,27 @@ def getAllAttributes(logger: object,
                 attributes = attributes + data
                 page += 1
             else:
-                msg_handler.logStruct(
-                               topic="getAllAttributes: No new data so all attributes gathered",
-                               status_code=response_code,
-                               response_text=response_text)
+                ## logging
+                if logger:
+                    msg_handler.logStruct(
+                                   topic="getAllAttributes: No new data so all attributes gathered",
+                                   status_code=response_code,
+                                   response_text=response_text)
                 break
         else:
-            msg_handler.logStruct(
-                           level="ERROR",
-                           topic="getAllAttributes: status code not 200",
-                           status_code=response_code,
-                           response_text=response_text)
+            ## logging
+            if logger:
+                msg_handler.logStruct(
+                               level="ERROR",
+                               topic="getAllAttributes: status code not 200",
+                               status_code=response_code,
+                               response_text=response_text)
             break
 
-    msg_handler.logStruct(topic=f"getAllAttributes: Finish get all attributes. Length: {len(attributes)}."
-                                f"Processing time: {datetime.now()-start_time}")
+    ## logging
+    if logger:
+        msg_handler.logStruct(topic=f"getAllAttributes: Finish get all attributes. Length: {len(attributes)}."
+                                    f"Processing time: {datetime.now()-start_time}")
 
     if connection == None:
         # closing the connection
@@ -646,7 +654,6 @@ def getAllProducts(logger: object,
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'getAllProducts',
                                          'endpoint': '/Product'})
-    ## construct request
     ## construct request
     if environment == "production":
         request_url = f"{PRODUCTION_ADDRESS}/Product"
