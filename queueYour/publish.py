@@ -38,9 +38,18 @@ def publishTopicMessage(publisher, topic_name, data):
 def publishTopicBatchMessages(batch_publisher: object,
                               topic_name: str,
                               batch_data: list,
-                              msg_handler: object) -> None:
+                              msg_handler: object,
+                              additional_labels: None) -> None:
 
     topic = f"{os.environ['TOPIC_CONSTRUCT']}{topic_name}"
+
+    ## logging
+    labels = {"function": "publishTopicBatchMessages"}
+    if additional_labels:
+        labels.update(additional_labels)
+    msg_handler.logStruct(topic=f"publishTopicBatchMessages: start batch queue upload",
+                          labels=labels,
+                          level="DEBUG")
 
     publish_futures = []
 
@@ -59,9 +68,6 @@ def publishTopicBatchMessages(batch_publisher: object,
             # Non-blocking. Allow the publisher client to batch multiple messages.
             publish_future.add_done_callback(callback)
             publish_futures.append(publish_future)
-
-        msg_handler.logStruct(topic=f"publishTopicBatchMessages: total batch publish size: {size} bytes",
-                              level="DEBUG")
 
         futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
 
