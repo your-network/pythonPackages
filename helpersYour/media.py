@@ -125,10 +125,17 @@ def getImageFromFile(logger: object,
         return {}
 
 def imageDetailsUrl(logger: object,
+                    additional_labels: dict = {},
                     image_url: str =None,
                     connection: object = None) -> dict:
 
-    msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'imageDetailsUrl'})
+    ## logging
+    labels = {'function': 'imageDetailsUrl'}
+    if additional_labels:
+        labels.update({additional_labels})
+    msg_handler = messageHandler(logger=logger,
+                                 level="DEBUG",
+                                 labels=labels)
 
     try:
         if connection:
@@ -150,6 +157,7 @@ def imageDetailsUrl(logger: object,
         ## logging
         msg_handler.logStruct(topic=f"imageDetailsUrl: get image with request",
                               data=image_url,
+                              labels=labels,
                               status_code=response_code)
 
         content_type = header.get('content-type')
@@ -185,6 +193,7 @@ def imageDetailsUrl(logger: object,
         error = traceback.format_exc()
         msg_handler.logStruct(level="ERROR",
                               topic=f"imageDetailsUrl: image reading error",
+                              labels=labels,
                               error_message=str(error))
         return {}
 
