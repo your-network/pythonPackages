@@ -73,8 +73,10 @@ def publishTopicBatchMessages(batch_publisher: object,
 
         msg_handler.logStruct(
             topic=f"publishTopicBatchMessages: Queue Batch insert finished. length message: {len(batch)}",
+            labels=labels,
             level="DEBUG")
 
     msg_handler.logStruct(
         topic=f"publishTopicBatchMessages: All messages published. Number messages: {len(batch_data)}",
+        labels=labels,
         level="DEBUG")
