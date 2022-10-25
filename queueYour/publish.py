@@ -39,7 +39,7 @@ def publishTopicBatchMessages(batch_publisher: object,
                               topic_name: str,
                               batch_data: list,
                               msg_handler: object,
-                              additional_labels: None) -> None:
+                              additional_labels: dict = None) -> None:
 
     topic = f"{os.environ['TOPIC_CONSTRUCT']}{topic_name}"
 
