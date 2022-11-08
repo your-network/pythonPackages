@@ -33,9 +33,11 @@ class messageHandler:
 
         if level:
             self.level = level
-
-        ## cloud logger
-        self.logger.log_struct(json_payload, severity=self.level)
+        try:
+            ## cloud logger
+            self.logger.log_struct(json_payload, severity=self.level)
+        except:
+            print(f"")
 
         ## console log
         print(json_payload)
