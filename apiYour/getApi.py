@@ -640,7 +640,7 @@ def getAllSeries(logger: object,
 def getAllProducts(logger: object,
                    max_results: int = 100000000,
                    page_results: int = 1000,
-                   page: int = 1,
+                   page: int = None,
                    category_id: int = None,
                    brand_id: int = None,
                    language: str = "en",
@@ -672,17 +672,20 @@ def getAllProducts(logger: object,
         base_params.update({"query": query})
     if optional_fields:
         base_params.update({"optionalFields": optional_fields})
+    if page:
+        base_params.update({"page": page})
+        pagination = False
+    else:
+        base_params.update({"page": 1})
+        pagination = True
 
     ## logging
     msg_handler.logStruct(topic=f"getAllProducts: Request: {base_params}, Start get all products,\n start time: {start_time}")
 
-    next_page = True
     products = []
     try:
-        while next_page:
+        while True:
             if len(products) < max_results:
-                base_params.update({"page": page})
-
                 ## logging
                 msg_handler.logStruct(topic=f"getAllProducts: Request {request_url} with params: {base_params}")
 
@@ -720,7 +723,12 @@ def getAllProducts(logger: object,
                     data = result.get('data')
                     if data.get('results'):
                         products = products + data['results']
-                        page += 1
+
+                        if pagination:
+                            page += 1
+                            base_params.update({"page": page})
+                        else:
+                            break
                     else:
                         msg_handler.logStruct(topic="getAllProducts: No new data so all products gathered",
                                        status_code=response_code,
