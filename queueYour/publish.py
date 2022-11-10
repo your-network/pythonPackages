@@ -55,14 +55,14 @@ def publishTopicBatchMessages(batch_publisher: object,
         local_logger.createDebugLog(message=f"Start batch queue upload, labels: {labels}, length: {len(batch_data)}")
 
     publish_futures = []
-    length = len(batch_data)
+    end_length = len(batch_data) - 1
     for i, data in enumerate(batch_data):
         data_dump = json.dumps(data)
         data = data_dump.encode("utf-8")
         publish_future = batch_publisher.publish(topic, data)
         publish_futures.append(publish_future)
 
-        if len(publish_futures) >= 50 or i >= length:
+        if len(publish_futures) >= 50 or i == end_length:
             ## logging
             if local_logger:
                 local_logger.createDebugLog(message=f"Batch import {len(publish_futures)}, labels: {labels}, data: {publish_futures}")
