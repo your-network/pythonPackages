@@ -1,10 +1,7 @@
 import json
 import os
 from concurrent import futures
-from google.cloud import pubsub_v1
 from google import api_core
-from helpersYour.functions import splitList
-import sys
 
 custom_retry = api_core.retry.Retry(
     initial=0.250,  # seconds (default: 0.1)
@@ -21,11 +18,6 @@ custom_retry = api_core.retry.Retry(
         api_core.exceptions.Cancelled,
     ),
 )
-
-# Resolve the publish future in a separate thread.
-def callback(future: pubsub_v1.publisher.futures.Future) -> None:
-    message_id = future.result()
-    # print(message_id)
 
 def publishTopicMessage(publisher, topic_name, data):
     topic = f"{os.environ['TOPIC_CONSTRUCT']}{topic_name}"
@@ -57,7 +49,7 @@ def publishTopicBatchMessages(batch_publisher: object,
     publish_futures = []
     end_length = len(batch_data) - 1
     for i, data in enumerate(batch_data):
-        data_dump = json.dumps(data)
+        data_dump = str(json.dumps(data))
         data = data_dump.encode("utf-8")
         publish_future = batch_publisher.publish(topic, data)
         publish_futures.append(publish_future)
@@ -70,7 +62,7 @@ def publishTopicBatchMessages(batch_publisher: object,
             publish_futures = []
 
         msg_handler.logStruct(
-            topic=f"publishTopicBatchMessages: Queue Batch insert finished. length message: {len(batch)}",
+            topic=f"publishTopicBatchMessages: Queue Batch insert finished. length message: {len(batch_data)}",
             labels=labels,
             level="DEBUG")
 
