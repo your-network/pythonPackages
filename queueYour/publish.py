@@ -39,7 +39,8 @@ def publishTopicBatchMessages(batch_publisher: object,
                               topic_name: str,
                               batch_data: list,
                               msg_handler: object,
-                              additional_labels: dict = None) -> None:
+                              additional_labels: dict = None,
+                              local_logger: object = None) -> None:
 
     topic = f"{os.environ['TOPIC_CONSTRUCT']}{topic_name}"
 
@@ -50,26 +51,23 @@ def publishTopicBatchMessages(batch_publisher: object,
     msg_handler.logStruct(topic=f"publishTopicBatchMessages: start batch queue upload",
                           labels=labels,
                           level="DEBUG")
+    if local_logger:
+        local_logger.createDebugLog(message=f"Start batch queue upload, labels: {labels}, length: {len(batch_data)}")
 
     publish_futures = []
+    length = len(batch_data)
+    for i, data in enumerate(batch_data):
+        data_dump = json.dumps(data)
+        data = data_dump.encode("utf-8")
+        publish_future = batch_publisher.publish(topic, data)
+        publish_futures.append(publish_future)
 
-    batch_list = list(splitList(batch_data, 50))
-
-    for batch in batch_list:
-        size = 0
-        # Data must be a bytestring
-        for data in batch:
-            data_dump = json.dumps(data).encode('utf-8')
-            size += sys.getsizeof(data)
-
-            publish_future = batch_publisher.publish(topic=topic,
-                                                     data=data_dump,
-                                                     retry=custom_retry)
-            # Non-blocking. Allow the publisher client to batch multiple messages.
-            publish_future.add_done_callback(callback)
-            publish_futures.append(publish_future)
-
-        futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
+        if len(publish_futures) >= 50 or i >= length:
+            ## logging
+            if local_logger:
+                local_logger.createDebugLog(message=f"Batch import {len(publish_futures)}, labels: {labels}, data: {publish_futures}")
+            futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
+            publish_futures = []
 
         msg_handler.logStruct(
             topic=f"publishTopicBatchMessages: Queue Batch insert finished. length message: {len(batch)}",
