@@ -49,7 +49,7 @@ def publishTopicBatchMessages(batch_publisher: object,
     publish_futures = []
     end_length = len(batch_data) - 1
     for i, data in enumerate(batch_data):
-        data_dump = str(json.dumps(data))
+        data_dump = json.dumps(data)
         data = data_dump.encode("utf-8")
         publish_future = batch_publisher.publish(topic, data)
         publish_futures.append(publish_future)
