@@ -1,5 +1,14 @@
 from apiYour.settingsApi import SOURCE_IDS, PURPOSE_IDS
 
+def createInternalIdLookup(items: list) -> dict:
+    item_lookup = {}
+
+    ## process series for lookup
+    for item in items:
+        item_lookup.update({str(item['id']): item})
+
+    return item_lookup
+
 def createCategoryIdLookup(message_handler: object, your_categories: list) -> dict:
     category_lookup = {}
 
