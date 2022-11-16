@@ -3,9 +3,11 @@ from logging.handlers import TimedRotatingFileHandler
 
 class LocalLogger:
 
-    def __init__(self, log_path: str):
+    def __init__(self, log_path: str,
+                 logger_name: str):
+
         # create logger with 'spam_application'
-        self.local_logger = logging.getLogger('LocalLogger')
+        self.local_logger = logging.getLogger(logger_name)
         self.local_logger.setLevel(logging.DEBUG)
         # create file handler which logs even debug messages
         ih_handler = TimedRotatingFileHandler(filename=f"{log_path}/info.log", when='D',
