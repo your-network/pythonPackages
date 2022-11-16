@@ -1,7 +1,7 @@
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
-class ApplicationLogger:
+class LocalLogger:
 
     def __init__(self, log_path: str):
         # create logger with 'spam_application'
