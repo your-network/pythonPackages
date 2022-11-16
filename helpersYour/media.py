@@ -106,6 +106,8 @@ def getImageFromFile(logger: object,
             w, h = im.size
 
         content_type = mimetypes.guess_type(image_file_dic["file_path"])
+        if isinstance(content_type, tuple):
+            content_type = content_type[0]
 
         return {'url': "https://your.io",
                 'width': w,
