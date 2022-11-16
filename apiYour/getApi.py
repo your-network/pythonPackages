@@ -660,18 +660,23 @@ def getAllProducts(logger: object,
     elif environment == "development":
         request_url = f"{DEVELOPMENT_ADDRESS}/Product"
 
-    base_params = {"resultsPerPage": page_results,
-                   "sortBy": sorting,
-                   "lang": language}
+    # base_params = {"resultsPerPage": page_results,
+    #                "sortBy": sorting,
+    #                "lang": language}
+    base_params = {}
 
+    parameters = f"?resultsPerPage:{page_results}&sortBy:{sorting}&lang:{language}"
     if category_id:
-        base_params.update({"categoryId": category_id})
+        parameters = parameters + f"&categoryId:{category_id}"
+        # base_params.update({"categoryId": category_id})
     if brand_id:
         base_params.update({"brandId": brand_id})
     if query:
         base_params.update({"query": query})
     if optional_fields:
-        base_params.update({"optionalFields": optional_fields})
+        for optional_field in optional_fields:
+            parameters = parameters + f"&optionalFields:{optional_field}"
+            # base_params.update({"optionalFields": optional_fields})
     if page:
         base_params.update({"page": page})
         pagination = False
@@ -694,7 +699,7 @@ def getAllProducts(logger: object,
                 if connection:
                     ## process request from connection pool
                     r = connection.request(method="GET",
-                                           url=request_url,
+                                           url=f"{request_url}{parameters}",
                                            fields=base_params,
                                            headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                                     'Content-Type': 'application/json'})
