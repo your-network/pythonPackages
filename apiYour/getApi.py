@@ -637,6 +637,7 @@ def getAllSeries(logger: object,
 
     return series
 
+
 def getAllProducts(logger: object,
                    max_results: int = 100000000,
                    page_results: int = 1000,
@@ -649,7 +650,6 @@ def getAllProducts(logger: object,
                    query: str = None,
                    environment: str = "production",
                    connection: object = None) -> list:
-
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'getAllProducts',
@@ -660,14 +660,11 @@ def getAllProducts(logger: object,
     elif environment == "development":
         request_url = f"{DEVELOPMENT_ADDRESS}/Product"
 
-    # base_params = {"resultsPerPage": page_results,
-    #                "sortBy": sorting,
-    #                "lang": language}
     base_params = {}
 
-    parameters = f"?resultsPerPage:{page_results}&sortBy:{sorting}&lang:{language}"
+    parameters = f"?resultsPerPage={page_results}&sortBy={sorting}&lang={language}"
     if category_id:
-        parameters = parameters + f"&categoryId:{category_id}"
+        parameters = parameters + f"&categoryId={category_id}"
         # base_params.update({"categoryId": category_id})
     if brand_id:
         base_params.update({"brandId": brand_id})
@@ -675,17 +672,20 @@ def getAllProducts(logger: object,
         base_params.update({"query": query})
     if optional_fields:
         for optional_field in optional_fields:
-            parameters = parameters + f"&optionalFields:{optional_field}"
+            parameters = parameters + f"&optionalFields={optional_field}"
             # base_params.update({"optionalFields": optional_fields})
     if page:
-        base_params.update({"page": page})
+        parameters = parameters + f"&page={page}"
+        # base_params.update({"page": page})
         pagination = False
     else:
-        base_params.update({"page": 1})
+        parameters = parameters + f"&page=1"
+        # base_params.update({"page": 1})
         pagination = True
 
     ## logging
-    msg_handler.logStruct(topic=f"getAllProducts: Request: {base_params}, Start get all products,\n start time: {start_time}")
+    msg_handler.logStruct(
+        topic=f"getAllProducts: Request: {base_params}, Start get all products,\n start time: {start_time}")
 
     products = []
     try:
@@ -697,10 +697,10 @@ def getAllProducts(logger: object,
                 ## handle request through session or normal
                 no_error = True
                 if connection:
+                    url = f"{request_url}{parameters}"
                     ## process request from connection pool
                     r = connection.request(method="GET",
                                            url=f"{request_url}{parameters}",
-                                           fields=base_params,
                                            headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                                     'Content-Type': 'application/json'})
 
@@ -731,19 +731,21 @@ def getAllProducts(logger: object,
 
                         if pagination:
                             page += 1
-                            base_params.update({"page": page})
+                            parameters = parameters.split("&page")[0]
+                            parameters = parameters + f"page={page}"
+                            # base_params.update({"page": page})
                         else:
                             break
                     else:
                         msg_handler.logStruct(topic="getAllProducts: No new data so all products gathered",
-                                       status_code=response_code,
-                                       response_text=response_text)
+                                              status_code=response_code,
+                                              response_text=response_text)
                         break
                 else:
                     msg_handler.logStruct(level="ERROR",
                                           topic="getAllProducts: Error in the get all function",
-                                    status_code=response_code,
-                                    response_text=response_text)
+                                          status_code=response_code,
+                                          response_text=response_text)
                     break
             else:
                 msg_handler.logStruct(level="DEBUG",
@@ -754,13 +756,15 @@ def getAllProducts(logger: object,
         msg_handler.logStruct(topic="getAllProducts: Error getting all products",
                               error_message=str(e))
 
-    msg_handler.logStruct(topic=f"getAllProducts: Finish get all products. Length: {len(products)}.\n processing time: {datetime.now()-start_time}")
+    msg_handler.logStruct(
+        topic=f"getAllProducts: Finish get all products. Length: {len(products)}.\n processing time: {datetime.now() - start_time}")
 
     if connection:
         # closing the connection
         r.close()
 
     return products
+
 
 def getAllExternalProductIds(logger:object,
                              sourceId: int = None,
