@@ -619,7 +619,7 @@ def getAllSeries(logger: object,
 def getAllProducts(logger: object,
                    max_results: int = 100000000,
                    page_results: int = 1000,
-                   page: int = 1,
+                   page: int = None,
                    category_id: int = None,
                    brand_id: int = None,
                    language: str = "en",
@@ -649,7 +649,11 @@ def getAllProducts(logger: object,
         for optional_field in optional_fields:
             parameters = parameters + f"&optionalFields={optional_field}"
     ## set page
-    page = 1
+    if page:
+        pagination = False
+    else:
+        pagination = True
+        page = 1
     page_set_parameters = parameters + f"&page={page}"
 
     ## logging
@@ -676,9 +680,12 @@ def getAllProducts(logger: object,
                     if len(data.get('results', [])) > 0:
                         products = products + data['results']
 
-                        page += 1
-                        page_set_parameters = parameters + f"&page={page}"
-                        continue
+                        if pagination:
+                            page += 1
+                            page_set_parameters = parameters + f"&page={page}"
+                            continue
+                        else:
+                            break
 
                     else:
                         msg_handler.logStruct(topic="getAllProducts: No new data so all products gathered",
