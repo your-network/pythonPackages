@@ -641,7 +641,7 @@ def getAllSeries(logger: object,
 def getAllProducts(logger: object,
                    max_results: int = 100000000,
                    page_results: int = 1000,
-                   page: int = None,
+                   page: int = 1,
                    category_id: int = None,
                    brand_id: int = None,
                    language: str = "en",
@@ -660,39 +660,30 @@ def getAllProducts(logger: object,
     elif environment == "development":
         request_url = f"{DEVELOPMENT_ADDRESS}/Product"
 
-    base_params = {}
-
     parameters = f"?resultsPerPage={page_results}&sortBy={sorting}&lang={language}"
     if category_id:
         parameters = parameters + f"&categoryId={category_id}"
-        # base_params.update({"categoryId": category_id})
     if brand_id:
-        base_params.update({"brandId": brand_id})
+        parameters = parameters + f"&brandId={brand_id}"
     if query:
-        base_params.update({"query": query})
+        parameters = parameters + f"&query={query}"
     if optional_fields:
         for optional_field in optional_fields:
             parameters = parameters + f"&optionalFields={optional_field}"
-            # base_params.update({"optionalFields": optional_fields})
-    if page:
-        parameters = parameters + f"&page={page}"
-        # base_params.update({"page": page})
-        pagination = False
-    else:
-        parameters = parameters + f"&page=1"
-        # base_params.update({"page": 1})
-        pagination = True
+    ## set page
+    page = 1
+    page_set_parameters = parameters + f"&page={page}"
 
     ## logging
     msg_handler.logStruct(
-        topic=f"getAllProducts: Request: {base_params}, Start get all products,\n start time: {start_time}")
+        topic=f"getAllProducts: Request parameters: {parameters}, Start get all products")
 
     products = []
     try:
         while True:
             if len(products) < max_results:
                 ## logging
-                msg_handler.logStruct(topic=f"getAllProducts: Request {request_url} with params: {base_params}")
+                msg_handler.logStruct(topic=f"getAllProducts: Request {request_url} with params: {parameters}")
 
                 ## handle request through session or normal
                 no_error = True
@@ -700,7 +691,7 @@ def getAllProducts(logger: object,
                     url = f"{request_url}{parameters}"
                     ## process request from connection pool
                     r = connection.request(method="GET",
-                                           url=f"{request_url}{parameters}",
+                                           url=f"{request_url}{page_set_parameters}",
                                            headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                                     'Content-Type': 'application/json'})
 
@@ -713,8 +704,7 @@ def getAllProducts(logger: object,
 
                 else:
                     ## process request with requests library. Single connection & request
-                    r = requests.get(url=request_url,
-                                     params=base_params,
+                    r = requests.get(url=f"{request_url}{page_set_parameters}",
                                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
                     response_code = r.status_code
@@ -726,16 +716,13 @@ def getAllProducts(logger: object,
 
                 if no_error:
                     data = result.get('data')
-                    if data.get('results'):
+                    if len(data.get('results', [])) > 0:
                         products = products + data['results']
 
-                        if pagination:
-                            page += 1
-                            parameters = parameters.split("&page")[0]
-                            parameters = parameters + f"page={page}"
-                            # base_params.update({"page": page})
-                        else:
-                            break
+                        page += 1
+                        page_set_parameters = parameters + f"&page={page}"
+                        continue
+
                     else:
                         msg_handler.logStruct(topic="getAllProducts: No new data so all products gathered",
                                               status_code=response_code,
