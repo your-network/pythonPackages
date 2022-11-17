@@ -653,8 +653,7 @@ def getAllProducts(logger: object,
     page_set_parameters = parameters + f"&page={page}"
 
     ## logging
-    msg_handler.logStruct(
-        topic=f"getAllProducts: Request parameters: {parameters}, Start get all products")
+    msg_handler.logStruct(topic=f"getAllProducts: Request parameters: {parameters}, Start get all products")
 
     products = []
     try:
@@ -663,36 +662,16 @@ def getAllProducts(logger: object,
                 ## logging
                 msg_handler.logStruct(topic=f"getAllProducts: Request {request_url} with params: {parameters}")
 
-                ## handle request through session or normal
-                no_error = True
-                if connection:
-                    url = f"{request_url}{parameters}"
-                    ## process request from connection pool
-                    r = connection.request(method="GET",
-                                           url=f"{request_url}{page_set_parameters}",
-                                           headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
-                                                    'Content-Type': 'application/json'})
+                ## process request from connection pool
+                r = connection.request(method="GET",
+                                       url=f"{request_url}{page_set_parameters}",
+                                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                                'Content-Type': 'application/json'})
 
-                    response_code = r.status
-                    response_text = r.data
-                    if response_code == 200:
-                        result = json.loads(response_text.decode('utf-8'))
-                    else:
-                        no_error = False
-
-                else:
-                    ## process request with requests library. Single connection & request
-                    r = requests.get(url=f"{request_url}{page_set_parameters}",
-                                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-
-                    response_code = r.status_code
-                    response_text = r.text
-                    if response_code == 200:
-                        result = json.loads(r.text)
-                    else:
-                        no_error = False
-
-                if no_error:
+                response_code = r.status
+                response_text = r.data
+                if response_code == 200:
+                    result = json.loads(response_text.decode('utf-8'))
                     data = result.get('data')
                     if len(data.get('results', [])) > 0:
                         products = products + data['results']
@@ -723,10 +702,6 @@ def getAllProducts(logger: object,
 
     msg_handler.logStruct(
         topic=f"getAllProducts: Finish get all products. Length: {len(products)}.\n processing time: {datetime.now() - start_time}")
-
-    if connection:
-        # closing the connection
-        r.close()
 
     return products
 
