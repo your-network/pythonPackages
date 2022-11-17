@@ -543,12 +543,12 @@ def getAllAttributeTypeUnit(logger: object,
 
     return attributeTypeUnits
 
+
 def getAllSeries(logger: object,
                  resultsPerPage: int = 1000,
                  page: int = 1,
                  environment: str = "production",
                  connection: object = None) -> list:
-
     start_time = datetime.now()
     msg_handler = messageHandler(logger=logger, level="DEBUG",
                                  labels={'function': 'getAllSeries',
@@ -570,48 +570,51 @@ def getAllSeries(logger: object,
     try:
         while next_page:
             base_params.update({"page": page})
-            ## handle request through session or normal
-            if connection:
-                r = connection.get(url=request_url,
-                                params=base_params,
-                                headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-            else:
-                r = requests.get(url=request_url,
-                                 params=base_params,
-                                 headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
-            if r.status_code == 200:
-                result = json.loads(r.text)
-                data = result.get('data')
-                if data:
-                    ## logging
-                    msg_handler.logStruct(topic="getAllSeries: get request finished with data present")
+            ## logging
+            if logger:
+                msg_handler.logStruct(topic=f"getAllSeries: Request {request_url} with params: {base_params}")
 
+            ## process request from connection pool
+            r = connection.request(method="GET",
+                                   url=request_url,
+                                   fields=base_params,
+                                   headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                            'Content-Type': 'application/json'})
+
+            response_code = r.status
+            response_text = r.data
+            if response_code == 200:
+                result = json.loads(response_text.decode('utf-8'))
+                data = result['data'].get('results', [])
+                if len(data) > 0:
                     series = series + data
                     page += 1
+                    continue
 
                 else:
-                    msg_handler.logStruct(topic="getAllSeries: No new data so all categories gathered",
-                                   status_code=r.status_code,
-                                   response_text=r.text)
+                    ## logging
+                    if logger:
+                        msg_handler.logStruct(
+                            topic="getAllSeries: No new data so all series gathered",
+                            status_code=response_code,
+                            response_text=response_text,
+                            level="DEBUG")
                     break
 
             else:
                 msg_handler.logStruct(level="ERROR",
                                       topic="getAllSeries: Error in the get all function",
-                                status_code=r.status_code,
-                                response_text=r.text)
+                                      status_code=r.status_code,
+                                      response_text=r.text)
                 break
 
     except Exception as e:
         msg_handler.logStruct(topic="getAllSeries: Error getting all series",
                               error_message=str(e))
 
-    msg_handler.logStruct(topic=f"getAllSeries: Finish get all series. Length: {len(series)}.\n processing time: {datetime.now()-start_time}")
-
-    if connection == None:
-        # closing the connection
-        r.close()
+    msg_handler.logStruct(
+        topic=f"getAllSeries: Finish get all series. Length: {len(series)}.\n processing time: {datetime.now() - start_time}")
 
     return series
 
