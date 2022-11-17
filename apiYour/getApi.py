@@ -586,7 +586,7 @@ def getAllSeries(logger: object,
             response_text = r.data
             if response_code == 200:
                 result = json.loads(response_text.decode('utf-8'))
-                data = result['data'].get('results', [])
+                data = result.get('data')
                 if len(data) > 0:
                     series = series + data
                     page += 1
