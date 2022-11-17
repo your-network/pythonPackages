@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 from loggingYour.messageHandler import messageHandler
 from apiYour.settingsApi import PRODUCTION_ADDRESS, DEVELOPMENT_ADDRESS
+import urllib3
 
 def getCategory(logger: object,
                 categoryId: int,
@@ -299,67 +300,44 @@ def getAllAttributes(logger: object = None,
         if logger:
             msg_handler.logStruct(topic=f"getAllAttributes: Request {request_url} with params: {base_params}")
 
-        ## handle request through session or normal
-        no_error = True
-        if connection:
-            ## process request from connection pool
-            r = connection.request(method="GET",
-                                   url=request_url,
-                                   fields=base_params,
-                                   headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
-                                            'Content-Type': 'application/json'})
+        ## process request from connection pool
+        r = connection.request(method="GET",
+                               url=request_url,
+                               fields=base_params,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
 
-            response_code = r.status
-            response_text = r.data
-            if response_code == 200:
-                result = json.loads(response_text.decode('utf-8'))
-            else:
-                no_error = False
-
-        else:
-            ## process request with requests library. Single connection & request
-            r = requests.get(url=request_url,
-                             params=base_params,
-                             headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-
-            response_code = r.status_code
-            response_text = r.text
-            if response_code == 200:
-                result = json.loads(r.text)
-            else:
-                no_error = False
-
-        if no_error:
+        response_code = r.status
+        response_text = r.data
+        if response_code == 200:
+            result = json.loads(response_text.decode('utf-8'))
             data = result['data'].get('results', [])
-            if data:
+            if len(data) > 0:
                 attributes = attributes + data
                 page += 1
             else:
                 ## logging
                 if logger:
                     msg_handler.logStruct(
-                                   topic="getAllAttributes: No new data so all attributes gathered",
-                                   status_code=response_code,
-                                   response_text=response_text)
+                                        topic="getAllAttributes: No new data so all attributes gathered",
+                                        status_code=response_code,
+                                        response_text=response_text,
+                                        level="DEBUG")
                 break
         else:
             ## logging
             if logger:
                 msg_handler.logStruct(
-                               level="ERROR",
-                               topic="getAllAttributes: status code not 200",
-                               status_code=response_code,
-                               response_text=response_text)
+                    level="ERROR",
+                    topic="getAllAttributes: status code not 200",
+                    status_code=response_code,
+                    response_text=response_text)
             break
 
     ## logging
     if logger:
         msg_handler.logStruct(topic=f"getAllAttributes: Finish get all attributes. Length: {len(attributes)}."
                                     f"Processing time: {datetime.now()-start_time}")
-
-    if connection == None:
-        # closing the connection
-        r.close()
 
     return attributes
 
