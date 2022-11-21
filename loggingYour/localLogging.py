@@ -8,6 +8,7 @@ class LocalLogger:
 
         # create logger with 'spam_application'
         self.local_logger = logging.getLogger(logger_name)
+        self.local_logger.setLevel(logging.DEBUG)
         # create file handler which logs even debug messages
         ih_handler = TimedRotatingFileHandler(filename=f"{log_path}/info.log", when='D',
                                               interval=1, backupCount=5, encoding='utf-8', delay=False)
