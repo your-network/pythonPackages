@@ -45,7 +45,6 @@ class LocalLogger:
         # create formatter and add it to the handlers
         json_formatter = JsonFormatter({"level": "levelname",
                                         "message": "message",
-                                        "data": "data",
                                         "error_code": "error_code",
                                         "loggerName": "name",
                                         "processName": "processName",
