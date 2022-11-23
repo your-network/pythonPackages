@@ -30,21 +30,18 @@ def publishTopicMessage(publisher, topic_name, data):
 def publishTopicBatchMessages(batch_publisher: object,
                               topic_name: str,
                               batch_data: list,
-                              msg_handler: object,
-                              additional_labels: dict = None,
-                              local_logger: object = None) -> None:
+                              applicationLogger: object,
+                              additional_labels: dict = None) -> None:
 
     topic = f"{os.environ['TOPIC_CONSTRUCT']}{topic_name}"
 
     ## logging
-    labels = {"function": "publishTopicBatchMessages"}
-    if additional_labels:
-        labels.update(additional_labels)
-    msg_handler.logStruct(topic=f"publishTopicBatchMessages: start batch queue upload",
-                          labels=labels,
-                          level="DEBUG")
-    if local_logger:
-        local_logger.createDebugLog(message=f"Start batch queue upload, labels: {labels}, length: {len(batch_data)}")
+    if bool(os.environ["DEBUG"]):
+        log_message = {"topic": "publishTopicBatchMessages: start batch import",
+                       "message": {"numberMessages": len(batch_data)}}
+        if additional_labels:
+            log_message.update(additional_labels)
+        applicationLogger.createDebugLog(message=log_message)
 
     publish_futures = []
     end_length = len(batch_data) - 1
@@ -56,17 +53,20 @@ def publishTopicBatchMessages(batch_publisher: object,
 
         if len(publish_futures) >= 50 or i == end_length:
             ## logging
-            if local_logger:
-                local_logger.createDebugLog(message=f"Batch import {len(publish_futures)}, labels: {labels}, data: {publish_futures}")
+            if bool(os.environ["DEBUG"]):
+                log_message = {"topic": "publishTopicBatchMessages: bath insert",
+                               "message": {"batchSize": i}}
+                if additional_labels:
+                    log_message.update(additional_labels)
+                applicationLogger.createDebugLog(message=log_message)
+
             futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
             publish_futures = []
 
-        msg_handler.logStruct(
-            topic=f"publishTopicBatchMessages: Queue Batch insert finished. length message: {len(batch_data)}",
-            labels=labels,
-            level="DEBUG")
-
-    msg_handler.logStruct(
-        topic=f"publishTopicBatchMessages: All messages published. Number messages: {len(batch_data)}",
-        labels=labels,
-        level="DEBUG")
+    ## logging
+    if bool(os.environ["DEBUG"]):
+        log_message = {"topic": "publishTopicBatchMessages: All messages published",
+                       "message": {"totalInserted": i}}
+        if additional_labels:
+            log_message.update(additional_labels)
+        applicationLogger.createDebugLog(message=log_message)

@@ -53,7 +53,6 @@ class LocalLogger:
                                         "threadName": "threadName",
                                         "threadID": "thread",
                                         "timestamp": "asctime"})
-        # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         fh_handler.setFormatter(json_formatter)
         ch_handler.setFormatter(json_formatter)
         ih_handler.setFormatter(json_formatter)
@@ -64,14 +63,24 @@ class LocalLogger:
         self.local_logger.addHandler(ih_handler)
         self.local_logger.addHandler(wh_handler)
 
-    def createDebugLog(self, message):
+    def createLog(self, message: dict):
+        if message.get("level") == "WARNING":
+            self.local_logger.warning(message)
+        elif message.get("level") == "INFO":
+            self.local_logger.info(message)
+        elif message.get("level") == "ERROR":
+            self.local_logger.error(message)
+        else:
+            self.local_logger.debug(message)
+
+    def createDebugLog(self, message: dict):
         self.local_logger.debug(message)
 
-    def createInfoLog(self, message):
+    def createInfoLog(self, message: dict):
         self.local_logger.info(message)
 
-    def createErrorLog(self, message):
+    def createErrorLog(self, message: dict):
         self.local_logger.error(message)
 
-    def createWarningLog(self, message):
+    def createWarningLog(self, message: dict):
         self.local_logger.warning(message)
