@@ -57,7 +57,7 @@ def getCategory(logger: object,
 
         return {}
 
-def getAllCategories(logger: object,
+def getAllCategories(logger: object = None,
                      query: str = None,
                      resultsPerPage: int = 1000,
                      page: int = 1,
@@ -73,12 +73,12 @@ def getAllCategories(logger: object,
                      connection: object = None) -> list:
 
     start_time = datetime.now()
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'getAllCategories',
-                                         'endpoint': '/Category/GetAll'})
-
     ## logging
-    msg_handler.logStruct(topic=f"getAllCategories: Start get all categories.\n start time: {start_time}")
+    if logger:
+        msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                     labels={'function': 'getAllCategories',
+                                             'endpoint': '/Category/GetAll'})
+        msg_handler.logStruct(topic=f"getAllCategories: Start get all categories.\n start time: {start_time}")
 
     ## construct request
     if environment == "production":
@@ -109,7 +109,8 @@ def getAllCategories(logger: object,
         base_params.update({"page": page})
 
         ## logging
-        msg_handler.logStruct(topic=f"getAllCategories: Request {request_url} with params: {base_params}")
+        if logger:
+            msg_handler.logStruct(topic=f"getAllCategories: Request {request_url} with params: {base_params}")
 
         ## handle request through connection or normal
         no_error = True
@@ -147,18 +148,21 @@ def getAllCategories(logger: object,
                 categories = categories + data['results']
                 page += 1
             else:
-                msg_handler.logStruct(topic="getAllCategories: No new data so all categories gathered",
-                               status_code=response_code,
-                               response_text=response_text)
+                if logger:
+                    msg_handler.logStruct(topic="getAllCategories: No new data so all categories gathered",
+                                   status_code=response_code,
+                                   response_text=response_text)
                 break
         else:
-            msg_handler.logStruct(level="ERROR",
-                                  topic="getAllCategories: Error in the get all function",
-                            status_code=response_code,
-                            response_text=response_text)
+            if logger:
+                msg_handler.logStruct(level="ERROR",
+                                      topic="getAllCategories: Error in the get all function",
+                                      status_code=response_code,
+                                      response_text=response_text)
             break
 
-    msg_handler.logStruct(topic=f"getAllCategories: Finish get all categories. Length: {len(categories)}.\n processing time: {datetime.now()-start_time}")
+    if logger:
+        msg_handler.logStruct(topic=f"getAllCategories: Finish get all categories. Length: {len(categories)}.\n processing time: {datetime.now()-start_time}")
 
     if connection == None:
         # closing the connection
@@ -389,7 +393,7 @@ def getAllAttributeTypes(logger: object,
 
     return attributeTypes
 
-def getAllBrands(logger: object,
+def getAllBrands(logger: object = None,
                  query: str = None,
                  resultsPerPage: int = 1000,
                  page: int = 1,
@@ -407,7 +411,11 @@ def getAllBrands(logger: object,
                                          'endpoint': '/Brand'})
 
     ## logging
-    msg_handler.logStruct(topic=f"getAllBrands: Start get all brands,\n start time: {start_time}")
+    if logger:
+        msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                     labels={'function': 'getAllBrands',
+                                             'endpoint': '/Brand'})
+        msg_handler.logStruct(topic=f"getAllBrands: Start get all brands,\n start time: {start_time}")
 
     ## construct request
     if environment == "production":
@@ -435,7 +443,8 @@ def getAllBrands(logger: object,
         base_params.update({"page": page})
 
         ## logging
-        msg_handler.logStruct(topic=f"getAllBrands: Request {request_url} with params: {base_params}")
+        if logger:
+            msg_handler.logStruct(topic=f"getAllBrands: Request {request_url} with params: {base_params}")
 
         ## handle request through session or normal
         no_error = True
@@ -474,20 +483,24 @@ def getAllBrands(logger: object,
                 brands = brands + data['results']
                 page += 1
             else:
-                msg_handler.logStruct(topic="getAllBrands: No new data so all brands gathered",
-                               status_code=response_code,
-                               response_text=response_text)
+                if logger:
+                    msg_handler.logStruct(topic="getAllBrands: No new data so all brands gathered",
+                                           status_code=response_code,
+                                           response_text=response_text)
                 break
 
         elif no_error == False:
             ## process if error was in call
-            msg_handler.logStruct(level="ERROR",
-                           topic="getAllBrands: status code not 200",
-                           status_code=response_code,
-                           response_text=response_text)
+            if logger:
+                msg_handler.logStruct(level="ERROR",
+                               topic="getAllBrands: status code not 200",
+                               status_code=response_code,
+                               response_text=response_text)
             break
 
-    msg_handler.logStruct(topic=f"getAllBrands: Finish get all brands. Length: {len(brands)}")
+    ## logging
+    if logger:
+        msg_handler.logStruct(topic=f"getAllBrands: Finish get all brands. Length: {len(brands)}")
 
     if connection == None:
         # closing the connection
