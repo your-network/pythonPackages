@@ -557,18 +557,18 @@ def getAllAttributeTypeUnit(logger: object,
     return attributeTypeUnits
 
 
-def getAllSeries(logger: object,
+def getAllSeries(logger: object = None,
                  resultsPerPage: int = 1000,
                  page: int = 1,
                  environment: str = "production",
                  connection: object = None) -> list:
     start_time = datetime.now()
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'getAllSeries',
-                                         'endpoint': '/Series'})
-
     ## logging
-    msg_handler.logStruct(topic=f"getAllSeries: Start get all series,\n start time: {start_time}")
+    if logger:
+        msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                     labels={'function': 'getAllSeries',
+                                             'endpoint': '/Series'})
+        msg_handler.logStruct(topic=f"getAllSeries: Start get all series,\n start time: {start_time}")
 
     ## construct request
     if environment == "production":
@@ -616,18 +616,23 @@ def getAllSeries(logger: object,
                     break
 
             else:
-                msg_handler.logStruct(level="ERROR",
-                                      topic="getAllSeries: Error in the get all function",
-                                      status_code=r.status_code,
-                                      response_text=r.text)
+                if logger:
+                    msg_handler.logStruct(level="ERROR",
+                                          topic="getAllSeries: Error in the get all function",
+                                          status_code=r.status_code,
+                                          response_text=r.text)
                 break
 
     except Exception as e:
-        msg_handler.logStruct(topic="getAllSeries: Error getting all series",
-                              error_message=str(e))
+        if logger:
+            msg_handler.logStruct(topic="getAllSeries: Error getting all series",
+                                  error_message=str(e))
+        else:
+            print(f"getAllSeries: Error getting all series. Error: {str(e)}")
 
-    msg_handler.logStruct(
-        topic=f"getAllSeries: Finish get all series. Length: {len(series)}.\n processing time: {datetime.now() - start_time}")
+    if logger:
+        msg_handler.logStruct(
+            topic=f"getAllSeries: Finish get all series. Length: {len(series)}.\n processing time: {datetime.now() - start_time}")
 
     return series
 
