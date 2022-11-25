@@ -4,15 +4,16 @@ import json
 from loggingYour.messageHandler import messageHandler
 from apiYour.settingsApi import PRODUCTION_ADDRESS, DEVELOPMENT_ADDRESS
 
-def updateCategory(logger: object,
-                   payload: dict,
+def updateCategory(payload: dict,
                    category_id: int,
-                   environment: str = "production") -> list:
+                   environment: str = "production",
+                   logger: object = None) -> list:
 
     ## logging
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'updateCategory', 'endpoint': '/Category/{category_id}'})
-    msg_handler.logStruct(topic=f"updateCategory: categoryId: {category_id}, start updating category.", data=payload)
+    if logger:
+        msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                     labels={'function': 'updateCategory', 'endpoint': '/Category/{category_id}'})
+        msg_handler.logStruct(topic=f"updateCategory: categoryId: {category_id}, start updating category.", data=payload)
 
     ## construct request
     if environment == "production":
@@ -31,17 +32,19 @@ def updateCategory(logger: object,
             media = resp_data.get('duplicates', [])
 
             ## logging
-            msg_handler.logStruct(topic=f"updateCategory: categoryId: {category_id}, update category success",
-                                  status_code=r.status_code,
-                                  response_text=r.text)
+            if logger:
+                msg_handler.logStruct(topic=f"updateCategory: categoryId: {category_id}, update category success",
+                                      status_code=r.status_code,
+                                      response_text=r.text)
             return media
 
     else:
         ## logging
-        msg_handler.logStruct(level="ERROR",
-                              topic=f"updateCategory:  categoryId: {category_id}, update category error",
-                              status_code=r.status_code,
-                              response_text=r.text)
+        if logger:
+            msg_handler.logStruct(level="ERROR",
+                                  topic=f"updateCategory:  categoryId: {category_id}, update category error",
+                                  status_code=r.status_code,
+                                  response_text=r.text)
         return []
 
 def updateBrand(logger: object,
