@@ -818,6 +818,73 @@ def getAllExternalProductIds(logger:object,
 
     return products
 
+def getImageByStatus(connection: object,
+                     logger: object = None,
+                     status: str = "Broken",
+                     resultsPerPage: int = 1000,
+                     page: int = 1,
+                     type: str = "product",
+                     environment: str = "production") -> list:
 
+    start_time = datetime.now()
+    ## logging
+    if logger:
+        msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                     labels={'function': 'getAllCategories',
+                                             'endpoint': '/Category/GetAll'})
+        msg_handler.logStruct(topic=f"getImageByStatus: Start get all {status} images for type {type}\n")
 
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Internal/GetImagesByStatus"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Internal/GetImagesByStatus"
+
+    base_params = {"resultsPerPage": resultsPerPage,
+                   "status": status,
+                   "page": page}
+
+    next_page = True
+    broken_images = []
+    while next_page:
+        base_params.update({"page": page})
+
+        ## logging
+        if logger:
+            msg_handler.logStruct(topic=f"getImageByStatus: Request {request_url} with params: {base_params}")
+
+        ## process request from connection pool
+        r = connection.request(method="GET",
+                               url=request_url,
+                               fields=base_params,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+
+        response_code = r.status
+        response_text = r.data
+        if response_code == 200:
+            result = json.loads(response_text.decode('utf-8'))
+            data = result.get('data')
+            if data.get('results'):
+                broken_images = broken_images + data['results']
+                page += 1
+            else:
+                if logger:
+                    msg_handler.logStruct(topic=f"getImageByStatus: No new data so all {type} {status} images gathered",
+                                          status_code=response_code,
+                                          response_text=response_text)
+                break
+
+        else:
+            if logger:
+                msg_handler.logStruct(level="ERROR",
+                                      topic="getImageByStatus: Error in the get all function",
+                                      status_code=response_code,
+                                      response_text=response_text)
+            break
+
+    if logger:
+        msg_handler.logStruct(topic=f"getImageByStatus: Finish get all images. Length: {len(broken_images)}.\n processing time: {datetime.now()-start_time}")
+
+    return broken_images
 
