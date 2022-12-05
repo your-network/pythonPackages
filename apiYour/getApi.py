@@ -825,7 +825,7 @@ def getImageByStatus(connection: object,
                      maxResults: int = None,
                      page: int = 1,
                      type: str = "product",
-                     environment: str = "production") -> list:
+                     environment: str = "production"):
 
     start_time = datetime.now()
     ## logging
@@ -903,7 +903,7 @@ def getImageByStatus(connection: object,
     if logger:
         msg_handler.logStruct(topic=f"getImageByStatus: Finish get all images. Length: {len(broken_images)}.\n processing time: {datetime.now()-start_time}")
 
-    return broken_images
+    return broken_images, page
 
 def getProduct(productId: str,
                connection: object,
