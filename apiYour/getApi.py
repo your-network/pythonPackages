@@ -830,8 +830,8 @@ def getImageByStatus(connection: object,
     ## logging
     if logger:
         msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                     labels={'function': 'getAllCategories',
-                                             'endpoint': '/Category/GetAll'})
+                                     labels={'function': 'getImageByStatus',
+                                             'endpoint': '/Internal/GetImagesByStatus'})
         msg_handler.logStruct(topic=f"getImageByStatus: Start get all {status} images for type {type}\n")
 
     ## construct request
@@ -901,3 +901,69 @@ def getImageByStatus(connection: object,
 
     return broken_images
 
+def getProduct(productId: str,
+               connection: object,
+               logger: object = None,
+               attributes: bool = False,
+               media: bool = False,
+               parentCategories: bool = False,
+               ReasonsToBuy: bool = False,
+               extraResolutions: bool = True,
+               mediaAttributes: bool = True,
+               language: str = "en",
+               environment: str = "production") -> dict:
+
+    ## logging
+    if logger:
+        msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                     labels={'function': 'getProduct',
+                                             'endpoint': '/Category/GetAll'})
+        msg_handler.logStruct(topic=f"getProduct: Start get productId {productId}")
+
+    ## params
+    param_url = f"?Lang={language}&optionalFields=Translations"
+    if attributes:
+        param_url = param_url + f"&optionalFields=AttributeTranslations&optionalFields=Attributes"
+    if media:
+        param_url = param_url + f"&optionalFields=Media"
+    if parentCategories:
+        param_url = param_url + f"&optionalFields=ParentCategories"
+    if ReasonsToBuy:
+        param_url = param_url + f"&optionalFields=ReasonsToBuy"
+    if extraResolutions:
+        param_url = param_url + f"&optionalFields=extraResolutions"
+    if mediaAttributes:
+        param_url = param_url + f"&optionalFields=MediaAttributeValues"
+
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Product/{productId}?{param_url}"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Product/{productId}?{param_url}"
+
+    ## logging
+    if logger:
+        msg_handler.logStruct(topic=f"getProduct: Request {request_url}")
+
+    ## process request from connection pool
+    r = connection.request(method="GET",
+                           url=request_url,
+                           headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                    'Content-Type': 'application/json'})
+
+    response_code = r.status
+    response_text = r.data
+    if response_code == 200:
+        result = json.loads(response_text.decode('utf-8'))
+        data = result.get('data')
+        if data:
+            return data
+
+    else:
+        if logger:
+            msg_handler.logStruct(level="ERROR",
+                                  topic="getProduct: Error in the get all function",
+                                  status_code=response_code,
+                                  response_text=response_text)
+
+    return {}
