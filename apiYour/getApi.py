@@ -880,7 +880,7 @@ def getImageByStatus(connection: object,
                     elif type == "category" and image_row.get('categoryId'):
                         broken_images.append(image_row)
 
-                if maxResults and len(broken_images) == maxResults:
+                if len(broken_images) == maxResults:
                     break
 
                 page += 1
