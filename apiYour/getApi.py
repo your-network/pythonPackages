@@ -866,8 +866,21 @@ def getImageByStatus(connection: object,
             result = json.loads(response_text.decode('utf-8'))
             data = result.get('data')
             if data.get('results'):
-                broken_images = broken_images + data['results']
+                for image_row in data['results']:
+                    ## product type
+                    if type == "product" and image_row.get('productId'):
+                        broken_images.append(image_row)
+
+                    ## brand type
+                    elif type == "brand" and image_row.get('brandId'):
+                        broken_images.append(image_row)
+
+                    ## category type
+                    elif type == "category" and image_row.get('categoryId'):
+                        broken_images.append(image_row)
+
                 page += 1
+
             else:
                 if logger:
                     msg_handler.logStruct(topic=f"getImageByStatus: No new data so all {type} {status} images gathered",
