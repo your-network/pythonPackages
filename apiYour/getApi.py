@@ -822,6 +822,7 @@ def getImageByStatus(connection: object,
                      logger: object = None,
                      status: str = "Broken",
                      resultsPerPage: int = 1000,
+                     maxResults: int = None,
                      page: int = 1,
                      type: str = "product",
                      environment: str = "production") -> list:
@@ -878,6 +879,9 @@ def getImageByStatus(connection: object,
                     ## category type
                     elif type == "category" and image_row.get('categoryId'):
                         broken_images.append(image_row)
+
+                if maxResults and len(broken_images) == maxResults:
+                    break
 
                 page += 1
 
