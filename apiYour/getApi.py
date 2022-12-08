@@ -971,3 +971,49 @@ def getProduct(productId: str,
                                   response_text=response_text)
 
     return {}
+
+
+def getUser(identifier: str,
+            connection: object,
+            logger: object = None,
+            environment: str = "production") -> dict:
+
+    ## logging
+    if logger:
+        msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                     labels={'function': 'getProduct',
+                                             'endpoint': '/User/{identifier}'})
+        msg_handler.logStruct(topic=f"getUser: Start get user {identifier}")
+
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/User/{identifier}"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/User/{identifier}"
+
+    ## logging
+    if logger:
+        msg_handler.logStruct(topic=f"getUser: Request {request_url}")
+
+    ## process request from connection pool
+    r = connection.request(method="GET",
+                           url=request_url,
+                           headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                    'Content-Type': 'application/json'})
+
+    response_code = r.status
+    response_text = r.data
+    if response_code == 200:
+        result = json.loads(response_text.decode('utf-8'))
+        data = result.get('data')
+        if data:
+            return data
+
+    else:
+        if logger:
+            msg_handler.logStruct(level="ERROR",
+                                  topic="getUser: Error in the get function",
+                                  status_code=response_code,
+                                  response_text=response_text)
+
+    return {}
