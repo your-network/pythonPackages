@@ -41,7 +41,7 @@ def createBrand(logger: object,
 
         if success:
             brand_id = resp_data['id']
-            duplicate_media = resp_data.get('duplicates',[])
+            duplicate_media = resp_data.get('duplicates', [])
 
             ## logging
             msg_handler.logStruct(topic=f"createBrand: finished create brand. brand id: {brand_id}",

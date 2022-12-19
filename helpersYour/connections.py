@@ -6,7 +6,10 @@ class HTTPConnections:
                  maxsize: int = 100,
                  num_pools: int = 10):
 
-        self.http_pool = urllib3.PoolManager(num_pools=num_pools, maxsize=maxsize)
+        self.http_pool = urllib3.PoolManager(num_pools=num_pools,
+                                             maxsize=maxsize,
+                                             timeout=10,
+                                             retries=urllib3.util.retry.Retry(15))
 
         return self.http_pool
 
