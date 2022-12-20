@@ -1,23 +1,18 @@
 import logging
 from logging.handlers import TimedRotatingFileHandler
 from loggingYour.formatter import JsonFormatter
+from flask.logging import default_handler
 
 class LocalLogger:
 
     def __init__(self, log_path: str,
-                 logger_name: str):
+                 logger_name: str,
+                 flask: bool = False):
 
         # create logger with 'spam_application'
         self.local_logger = logging.getLogger(logger_name)
         self.local_logger.setLevel(logging.DEBUG)
-        # create file handler which logs even debug messages
-        ih_handler = TimedRotatingFileHandler(filename=f"{log_path}/info.json",
-                                              when='D',
-                                              interval=1,
-                                              backupCount=5,
-                                              encoding='utf-8',
-                                              delay=False)
-        ih_handler.setLevel(logging.INFO)
+
         # create file handler which logs even debug messages
         fh_handler = TimedRotatingFileHandler(filename=f"{log_path}/debug.json",
                                               when='D',
@@ -26,6 +21,14 @@ class LocalLogger:
                                               encoding='utf-8',
                                               delay=False)
         fh_handler.setLevel(logging.DEBUG)
+        # create file handler which logs even debug messages
+        ih_handler = TimedRotatingFileHandler(filename=f"{log_path}/info.json",
+                                              when='D',
+                                              interval=1,
+                                              backupCount=5,
+                                              encoding='utf-8',
+                                              delay=False)
+        ih_handler.setLevel(logging.INFO)
         # create console handler with an error log level
         ch_handler = TimedRotatingFileHandler(filename=f"{log_path}/error.json",
                                               when='D',
@@ -55,6 +58,11 @@ class LocalLogger:
         ch_handler.setFormatter(json_formatter)
         ih_handler.setFormatter(json_formatter)
         wh_handler.setFormatter(json_formatter)
+
+        # flask logging if true
+        if flask:
+            self.local_logger.addHandler(default_handler)
+
         # add the handlers to the logger
         self.local_logger.addHandler(fh_handler)
         self.local_logger.addHandler(ch_handler)
