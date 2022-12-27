@@ -198,3 +198,52 @@ def updateProduct(logger: object,
                               status_code=response_code,
                               response_text=response_text)
         return []
+
+def updateSeries(logger: object,
+                  seriesId: int,
+                  payload: dict,
+                  connection: object,
+                  environment: str = "production",
+                  additional_labels: dict = {}) -> bool:
+
+    ## logging
+    labels = {'function': 'updateSeries', 'endpoint': '/Series/{seriesId}'}
+    if additional_labels:
+        labels.update(additional_labels)
+    msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                 labels=labels)
+    msg_handler.logStruct(topic=f"updateSeries: update series",
+                          data=payload)
+
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Series/{seriesId}"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Series/{seriesId}"
+
+    ## process request from connection pool
+    encoded_data = json.dumps(payload).encode('utf-8')
+    r = connection.request(method="PUT",
+                           url=request_url,
+                           body=encoded_data,
+                           headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                    'Content-Type': 'application/json'})
+
+    response_code = r.status
+    response_text = r.data
+
+    if response_code == 200:
+        ## logging
+        msg_handler.logStruct(topic=f"updateSeries: seriesId: {seriesId}, update series success",
+                              status_code=response_code,
+                              response_text=response_text)
+
+        return True
+
+    else:
+        ## logging
+        msg_handler.logStruct(level="ERROR",
+                              topic=f"updateSeries:  seriesId: {seriesId}, update series error",
+                              status_code=response_code,
+                              response_text=response_text)
+        return False
