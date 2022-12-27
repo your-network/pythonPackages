@@ -73,7 +73,7 @@ class pubMessageHandler():
         ## logging
         if bool(os.environ["DEBUG"]):
             log_message = {"topic": "publishTopicBatchMessages: start batch import",
-                           "message": {"numberMessages": len(batch_data)}}
+                           "message": {"numberMessages": len(messages)}}
             if additional_labels:
                 log_message.update(additional_labels)
             applicationLogger.createDebugLog(message=log_message)
@@ -83,9 +83,9 @@ class pubMessageHandler():
         for message in messages:
             # When you publish a message, the client returns a future.
             topic_path = self.publisher.topic_path(os.environ['GOOGLE_PROJECT_ID'], topic_name)
-            publish_future = self.publisher.publish(topic_path, json.dumps(data).encode('utf-8'))
+            publish_future = self.publisher.publish(topic_path, json.dumps(message).encode('utf-8'))
             # Non-blocking. Publish failures are handled in the callback function.
-            publish_future.add_done_callback(self.get_callback(publish_future, json.dumps(data).encode('utf-8')))
+            publish_future.add_done_callback(self.get_callback(publish_future, json.dumps(message).encode('utf-8')))
             publish_futures.append(publish_future)
 
         # Wait for all the publish futures to resolve before exiting.
