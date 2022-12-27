@@ -7,7 +7,7 @@ from google.cloud.pubsub_v1.types import (
     BatchSettings,
     LimitExceededBehavior,
     PublishFlowControl,
-    PublisherOptions,
+    PublisherOptions
 )
 
 class QueueAuth:
@@ -34,20 +34,13 @@ class QueueAuth:
         return publisher
 
     def connectBatchPublisherQueue(self):
-
-        publisher_options = PublisherOptions(
-            enable_message_ordering=False,
-            flow_control=PublishFlowControl(limit_exceeded_behavior=LimitExceededBehavior.BLOCK),
-        )
-
         batch_settings = BatchSettings(
             max_messages=100,  # default 100
-            max_bytes=1024,  # default 1 MB
+            max_bytes=1000000,  # default 1 MB
             max_latency=10,  # default 10 ms
         )
         publisher = PublisherClient.from_service_account_json(self.service_account_info,
-                                                                        batch_settings,
-                                                                        publisher_options)
+                                                              batch_settings=batch_settings,)
 
         return publisher
 
