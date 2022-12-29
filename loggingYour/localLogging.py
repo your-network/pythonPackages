@@ -70,23 +70,38 @@ class LocalLogger:
         self.local_logger.addHandler(wh_handler)
 
     def createLog(self, message: dict):
-        if message.get("level") == "WARNING":
-            self.local_logger.warning(message)
-        elif message.get("level") == "INFO":
-            self.local_logger.info(message)
-        elif message.get("level") == "ERROR":
-            self.local_logger.error(message)
-        else:
-            self.local_logger.debug(message)
+        try:
+            if message.get("level") == "WARNING":
+                self.local_logger.warning(message)
+            elif message.get("level") == "INFO":
+                self.local_logger.info(message)
+            elif message.get("level") == "ERROR":
+                self.local_logger.error(message)
+            else:
+                self.local_logger.debug(message)
+        except:
+            self.local_logger.error("Error logging")
 
     def createDebugLog(self, message: dict):
-        self.local_logger.debug(message)
+        try:
+            self.local_logger.debug(message)
+        except:
+            self.local_logger.error("Error debug logging")
 
     def createInfoLog(self, message: dict):
-        self.local_logger.info(message)
+        try:
+            self.local_logger.info(message)
+        except:
+            self.local_logger.error("Error create logging")
 
     def createErrorLog(self, message: dict):
-        self.local_logger.error(message)
+        try:
+            self.local_logger.error(message)
+        except:
+            self.local_logger.error("Error error logging")
 
     def createWarningLog(self, message: dict):
-        self.local_logger.warning(message)
+        try:
+            self.local_logger.warning(message)
+        except:
+            self.local_logger.error("Error  warning logging")
