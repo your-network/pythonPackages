@@ -401,7 +401,7 @@ def getAllBrands(logger: object = None,
                  withImagesOnly: bool = False,
                  withProductsOnly: bool = False,
                  desc: bool = False,
-                 lang: str = "en",
+                 lang: str = None,
                  sortBy: str = None,
                  environment: str = "production",
                  connection: object = None) -> list:
@@ -428,7 +428,6 @@ def getAllBrands(logger: object = None,
                    "withImagesOnly": withImagesOnly,
                    "withProductsOnly": withProductsOnly,
                    "desc": desc,
-                   "lang": lang,
                    "page": page}
 
     if query:
@@ -437,6 +436,8 @@ def getAllBrands(logger: object = None,
         base_params.update({"sortBy": sortBy})
     if categoryId:
         base_params.update({"categoryId": categoryId})
+    if lang:
+        base_params.update({"lang": lang})
 
     next_page = True
     page = 1
