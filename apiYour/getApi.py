@@ -66,7 +66,7 @@ def getAllCategories(logger: object = None,
                      withImagesOnly: bool = False,
                      withChildrenOnly: bool = False,
                      withProductsOnly: bool = False,
-                     lang: str = "en",
+                     lang: str = None,
                      sortBy: str = None,
                      includeServiceCategories: bool = False,
                      environment: str = "production",
@@ -91,7 +91,6 @@ def getAllCategories(logger: object = None,
                    "withChildrenOnly": withChildrenOnly,
                    "withProductsOnly": withProductsOnly,
                    "includeServiceCategories": includeServiceCategories,
-                   "lang": lang,
                    "page": page}
 
     if categoryId:
@@ -102,6 +101,8 @@ def getAllCategories(logger: object = None,
         base_params.update({"query": query})
     if sortBy:
         base_params.update({"sortBy": sortBy})
+    if lang:
+        base_params.update({"lang": lang})
 
     next_page = True
     categories = []
