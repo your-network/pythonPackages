@@ -33,7 +33,7 @@ class pubMessageHandler():
         def callback(publish_future: pubsub_v1.publisher.futures.Future) -> None:
             try:
                 # Wait 60 seconds for the publish call to succeed.
-                print(publish_future.result(timeout=60))
+                print(publish_future.result(timeout=120))
             except futures.TimeoutError:
                 print(f"Publishing {data} timed out.")
 
@@ -52,9 +52,11 @@ class pubMessageHandler():
 
         topic_path = self.publisher.topic_path(os.environ['GOOGLE_PROJECT_ID'], topic_name)
         publish_future = self.publisher.publish(topic_path,
-                                                data=json.dumps(data).encode('utf-8'))
+                                                data=json.dumps(data).encode('utf-8'),
+                                                retry=custom_retry)
 
-        publish_future.add_done_callback(self.get_callback(publish_future, json.dumps(data).encode('utf-8')))
+        publish_future.add_done_callback(self.get_callback(publish_future, str(json.dumps(data).encode('utf-8'))))
+
         return publish_future
 
     def batch_publish_event(self,
@@ -100,14 +102,17 @@ class pubMessageHandler():
             applicationLogger.createDebugLog(message=log_message)
             print(log_message)
 
-
 def publishTopicMessage(publisher, topic_name, data):
-    topic = f"{os.environ['TOPIC_CONSTRUCT']}{topic_name}"
-
-    future = publisher.publish(topic=topic,
+    topic_path = publisher.topic_path(os.environ['GOOGLE_PROJECT_ID'], topic_name)
+    future = publisher.publish(topic=topic_path,
                                data=json.dumps(data).encode('utf-8'),
-                               spam='eggs')
-
+                               retry=custom_retry)
+    try:
+        print(future.result())
+        return True
+    except Exception as e:
+        print("Error publishing: " + str(e))
+        return False
 
 def publishTopicBatchMessages(batch_publisher: object,
                               topic_name: str,
