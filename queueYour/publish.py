@@ -109,10 +109,10 @@ def publishTopicMessage(publisher, topic_name, data):
                                retry=custom_retry)
     try:
         print(future.result())
-        return True
+        return "Success"
     except Exception as e:
         print("Error publishing: " + str(e))
-        return False
+        return str(e)
 
 def publishTopicBatchMessages(batch_publisher: object,
                               topic_name: str,
