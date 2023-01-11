@@ -1,4 +1,6 @@
-from apiYour.settingsApi import SOURCE_IDS, PURPOSE_IDS
+from apiYour.settingsApi import SOURCE_IDS, PURPOSE_IDS, PRODUCTION_ADDRESS, DEVELOPMENT_ADDRESS
+import os
+import json
 
 def createInternalIdLookup(items: list) -> dict:
     item_lookup = {}
@@ -109,3 +111,28 @@ def createAttributeTypeUnitNameLookup(your_attr_type_units: list) -> dict:
         attr_type_unit_lookup.update({unit['name']: unit['id']})
 
     return attr_type_unit_lookup
+
+
+def productIdCheckExists(productId:str,
+                         type:str,
+                         connection: object,
+                         environment: str = "production") -> bool:
+
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/Product/Exists?id={productId}&idType={type}"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/Product/Exists?id={productId}&idType={type}"
+
+    r = connection.request(method="GET",
+                           url=request_url,
+                           headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                    'Content-Type': 'application/json'})
+
+    response_code = r.status
+    response_text = r.data
+    if response_code == 200:
+        result = json.loads(response_text.decode('utf-8'))
+        return result.get('data')
+    else:
+        return False
