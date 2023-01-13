@@ -116,7 +116,7 @@ def createAttributeTypeUnitNameLookup(your_attr_type_units: list) -> dict:
 def productIdCheckExists(productId:str,
                          type:str,
                          connection: object,
-                         environment: str = "production") -> bool:
+                         environment: str = "production"):
 
     ## construct request
     if environment == "production":
