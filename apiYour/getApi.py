@@ -271,7 +271,7 @@ def getAllAttributes(logger: object = None,
                      resultsPerPage: int = 1000,
                      environment: str = "production",
                      page: int = 1,
-                     lang: str = "en",
+                     lang: str = None,
                      categoryId: int = None,
                      connection: object = None) -> list:
 
@@ -290,13 +290,14 @@ def getAllAttributes(logger: object = None,
         request_url = f"{DEVELOPMENT_ADDRESS}/Attribute"
 
     base_params = {"resultsPerPage": resultsPerPage,
-                   "lang": lang,
                    "page": page}
 
     if categoryId:
         base_params.update({"categoryId": categoryId})
+    if lang:
+        base_params.update({"lang": lang})
 
-    next_page = True
+        next_page = True
     attributes = []
     while next_page:
         base_params.update({"page": page})
