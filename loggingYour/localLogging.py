@@ -1,4 +1,5 @@
 import logging
+import traceback
 from logging.handlers import TimedRotatingFileHandler
 from loggingYour.formatter import JsonFormatter
 from flask.logging import default_handler
@@ -80,28 +81,33 @@ class LocalLogger:
             else:
                 self.local_logger.debug(message)
         except:
-            self.local_logger.error("Error logging")
+            error = traceback.format_exc()
+            self.local_logger.error(f"Error Create logging: error: {str(error)}")
 
     def createDebugLog(self, message: dict):
         try:
             self.local_logger.debug(message)
         except:
-            self.local_logger.error("Error debug logging")
+            error = traceback.format_exc()
+            self.local_logger.error(f"Error Debug logging: error: {str(error)}")
 
     def createInfoLog(self, message: dict):
         try:
             self.local_logger.info(message)
         except:
-            self.local_logger.error("Error create logging")
+            error = traceback.format_exc()
+            self.local_logger.error(f"Error Info logging: error: {str(error)}")
 
     def createErrorLog(self, message: dict):
         try:
             self.local_logger.error(message)
         except:
-            self.local_logger.error("Error error logging")
+            error = traceback.format_exc()
+            self.local_logger.error(f"Error Error logging: error: {str(error)}")
 
     def createWarningLog(self, message: dict):
         try:
             self.local_logger.warning(message)
         except:
-            self.local_logger.error("Error  warning logging")
+            error = traceback.format_exc()
+            self.local_logger.error(f"Error Warning logging: error: {str(error)}")

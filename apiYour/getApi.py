@@ -297,7 +297,7 @@ def getAllAttributes(logger: object = None,
     if lang:
         base_params.update({"lang": lang})
 
-        next_page = True
+    next_page = True
     attributes = []
     while next_page:
         base_params.update({"page": page})
