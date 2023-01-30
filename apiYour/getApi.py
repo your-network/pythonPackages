@@ -513,6 +513,85 @@ def getAllBrands(logger: object = None,
 
     return brands
 
+def getAttributeValueUnits(connection: object,
+                           logger: object = None,
+                           resultsPerPage: int = 500,
+                           page: int = 1,
+                           lang: str = None,
+                           environment: str = "production") -> list:
+
+    start_time = datetime.now()
+    msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                 labels={'function': 'getAttributeValueUnits',
+                                         'endpoint': '/AttributeValueUnit'})
+
+    ## logging
+    if logger:
+        msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                     labels={'function': 'getAttributeValueUnits',
+                                             'endpoint': '/AttributeValueUnit'})
+        msg_handler.logStruct(topic=f"getAttributeValueUnits: Start get all,\n start time: {start_time}")
+
+    ## construct request
+    if environment == "production":
+        request_url = f"{PRODUCTION_ADDRESS}/AttributeValueUnit"
+    elif environment == "development":
+        request_url = f"{DEVELOPMENT_ADDRESS}/AttributeValueUnit"
+
+    base_params = {"resultsPerPage": resultsPerPage,
+                   "page": page}
+
+    if lang:
+        base_params.update({"lang": lang})
+
+    next_page = True
+    page = 1
+    attributeUnits = []
+    while next_page:
+        base_params.update({"page": page})
+
+        ## logging
+        if logger:
+            msg_handler.logStruct(topic=f"getAttributeValueUnits: Request {request_url} with params: {base_params}")
+
+        ## process request from connection pool
+        r = connection.request(method="GET",
+                               url=request_url,
+                               fields=base_params,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+
+        response_code = r.status
+        response_text = r.data
+        if response_code == 200:
+            result = json.loads(response_text.decode('utf-8'))
+            ## process data
+            data = result.get('data')
+            if data.get('results'):
+                attributeUnits = attributeUnits + data['results']
+                page += 1
+            else:
+                if logger:
+                    msg_handler.logStruct(topic="getAttributeValueUnits: No new data so all brands gathered",
+                                           status_code=response_code,
+                                           response_text=response_text)
+                break
+
+        else:
+            ## process if error was in call
+            if logger:
+                msg_handler.logStruct(level="ERROR",
+                                      topic="getAttributeValueUnits: status code not 200",
+                                      status_code=response_code,
+                                      response_text=response_text)
+            break
+
+    ## logging
+    if logger:
+        msg_handler.logStruct(topic=f"getAttributeValueUnits: Finish get all. Length: {len(attributeUnits)}")
+
+    return attributeUnits
+
 def getAllAttributeTypeUnit(logger: object,
                             environment: str = "production") -> list:
     start_time = datetime.now()
