@@ -4,158 +4,160 @@ import json
 from loggingYour.messageHandler import messageHandler
 from apiYour.settingsApi import PRODUCTION_ADDRESS, DEVELOPMENT_ADDRESS
 
-def updateCategory(payload: dict,
-                   category_id: int,
-                   environment: str = "production",
-                   logger: object = None) -> list:
+class Category:
+    @staticmethod
+    def putUpdate(payload: dict,
+                  category_id: int,
+                  connection: object,
+                  logger: object = None) -> list:
 
-    ## logging
-    if logger:
-        msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                     labels={'function': 'updateCategory', 'endpoint': '/Category/{category_id}'})
-        msg_handler.logStruct(topic=f"updateCategory: categoryId: {category_id}, start updating category.", data=payload)
+        ## logging
+        if bool(os.environ['DEBUG']) and logger:
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'updateCategory', 'endpoint': '/Category/{category_id}'})
+            msg_handler.logStruct(topic=f"updateCategory: categoryId: {category_id}, start updating category.", data=payload)
 
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Category/{category_id}"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Category/{category_id}"
+        ## process request from connection pool
+        encoded_data = json.dumps(payload).encode('utf-8')
+        r = connection.request(method="PUT",
+                               url=f"{os.environ['YOUR_API_URL']}/Category/{category_id}",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        status_code = r.status
 
-    ## request
-    r = requests.put(request_url,
-                      json=payload,
-                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        if status_code == 200:
+            resp_body = json.loads(r.data.decode('utf-8'))
+            resp_data = resp_body.get('data')
 
-    if r.status_code == 200:
-        resp_data = json.loads(r.text).get('data')
-        if resp_data:
-            media = resp_data.get('duplicates', [])
+            if resp_data:
+                media = resp_data.get('duplicates', [])
 
+                ## logging
+                if bool(os.environ['DEBUG']) and logger:
+                    msg_handler.logStruct(topic=f"updateCategory: categoryId: {category_id}, update category success",
+                                          status_code=r.status_code,
+                                          response_text=r.text)
+                return media
+
+        else:
             ## logging
-            if logger:
-                msg_handler.logStruct(topic=f"updateCategory: categoryId: {category_id}, update category success",
+            if bool(os.environ['DEBUG']) and logger:
+                msg_handler.logStruct(level="ERROR",
+                                      topic=f"updateCategory:  categoryId: {category_id}, update category error",
                                       status_code=r.status_code,
                                       response_text=r.text)
-            return media
+            return []
 
-    else:
+class Brand:
+    @staticmethod
+    def putUpdate(logger: object,
+                  payload: dict,
+                  brand_id: int,
+                  connection: object) -> list:
+
         ## logging
-        if logger:
-            msg_handler.logStruct(level="ERROR",
-                                  topic=f"updateCategory:  categoryId: {category_id}, update category error",
-                                  status_code=r.status_code,
-                                  response_text=r.text)
-        return []
+        if bool(os.environ['DEBUG']):
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'updateBrand', 'endpoint': '/Brand/{brand_id}'})
+            msg_handler.logStruct(topic=f"updateBrand: brandId: {brand_id}, start updating brand.", data=payload)
 
-def updateBrand(logger: object,
-                payload: dict,
-                brand_id: int,
-                environment: str = "production") -> list:
+        ## process request from connection pool
+        encoded_data = json.dumps(payload).encode('utf-8')
+        r = connection.request(method="PUT",
+                               url=f"{os.environ['YOUR_API_URL']}/Brand/{brand_id}",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        status_code = r.status
 
-    ## logging
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'updateBrand', 'endpoint': '/Brand/{brand_id}'})
-    msg_handler.logStruct(topic=f"updateBrand: brandId: {brand_id}, start updating brand.", data=payload)
+        if status_code == 200:
+            resp_body = json.loads(r.data.decode('utf-8'))
+            resp_data = resp_body.get('data')
+            if resp_data:
+                media = resp_data.get('duplicates', [])
 
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Brand/{brand_id}"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Brand/{brand_id}"
+                ## logging
+                if bool(os.environ['DEBUG']):
+                    msg_handler.logStruct(topic=f"updateBrand: brandId: {brand_id}, update brand success",
+                                          status_code=r.status_code,
+                                          response_text=r.text)
+                return media
 
-    ## request
-    r = requests.put(request_url,
-                      json=payload,
-                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-
-    if r.status_code == 200:
-        resp_data = json.loads(r.text).get('data')
-        if resp_data:
-            media = resp_data.get('duplicates', [])
-
+        else:
             ## logging
-            msg_handler.logStruct(topic=f"updateBrand: brandId: {brand_id}, update brand success",
-                                  status_code=r.status_code,
-                                  response_text=r.text)
-            return media
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(level="ERROR",
+                                      topic=f"updateBrand:  brandId: {brand_id}, update brand error",
+                                      status_code=r.status_code,
+                                      response_text=r.text)
+            return []
 
-    else:
+class Attribute:
+    @staticmethod
+    def putUpdate(logger: object,
+                  payload: dict,
+                  attribute_id: int,
+                  connection: object) -> list:
+
         ## logging
-        msg_handler.logStruct(level="ERROR",
-                              topic=f"updateBrand:  brandId: {brand_id}, update brand error",
-                              status_code=r.status_code,
-                              response_text=r.text)
-        return []
+        if bool(os.environ['DEBUG']):
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'updateAttribute', 'endpoint': '/Attribute/{attributeId}'})
+            msg_handler.logStruct(topic=f"updateAttribute: attributeId: {attribute_id}, start updating attribute.",
+                                  data=payload)
 
-def updateAttribute(logger: object,
-                    payload: dict,
-                    attribute_id: int,
-                    environment: str = "production") -> list:
+        ## process request from connection pool
+        encoded_data = json.dumps(payload).encode('utf-8')
+        r = connection.request(method="PUT",
+                               url=f"{os.environ['YOUR_API_URL']}/Attribute/{attribute_id}",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        status_code = r.status
 
-    ## logging
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'updateAttribute', 'endpoint': '/Attribute/{attributeId}'})
-    msg_handler.logStruct(topic=f"updateAttribute: attributeId: {attribute_id}, start updating attribute.", data=payload)
+        if status_code == 200:
+            resp_body = json.loads(r.data.decode('utf-8'))
+            resp_data = resp_body.get('data')
+            if resp_data:
+                media = resp_data.get('duplicates', [])
 
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Attribute/{attribute_id}"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Attribute/{attribute_id}"
+                ## logging
+                if bool(os.environ['DEBUG']):
+                    msg_handler.logStruct(topic=f"updateAttribute: attributeId: {attribute_id}, update attribute success",
+                                          status_code=r.status_code,
+                                          response_text=r.text)
+                return media
 
-    ## request
-    r = requests.put(request_url,
-                      json=payload,
-                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-
-    if r.status_code == 200:
-        resp_data = json.loads(r.text).get('data')
-        if resp_data:
-            media = resp_data.get('duplicates', [])
-
+        else:
             ## logging
-            msg_handler.logStruct(topic=f"updateAttribute: attributeId: {attribute_id}, update attribute success",
-                                  status_code=r.status_code,
-                                  response_text=r.text)
-            return media
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(level="ERROR",
+                                      topic=f"updateAttribute:  attributeId: {attribute_id}, update attribute error",
+                                      status_code=r.status_code,
+                                      response_text=r.text)
+            return []
 
-    else:
-        ## logging
-        msg_handler.logStruct(level="ERROR",
-                              topic=f"updateAttribute:  attributeId: {attribute_id}, update attribute error",
-                              status_code=r.status_code,
-                              response_text=r.text)
-        return []
-
-def updateProduct(logger: object,
+class Product:
+    @staticmethod
+    def putUpdate(logger: object,
                   productId: int,
                   payload: dict,
                   environment: str = "production",
                   additional_labels: dict = {},
                   connection: object = None) -> list:
 
-    ## logging
-    labels = {'function': 'updateProduct', 'endpoint': '/Product/{productId}'}
-    if additional_labels:
-        labels.update(additional_labels)
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels=labels)
-    msg_handler.logStruct(topic=f"updateProduct: update product",
-                          data=payload)
+        ## logging
+        if bool(os.environ['DEBUG']):
+            labels = {'function': 'updateProduct', 'endpoint': '/Product/{productId}'}
+            if additional_labels:
+                labels.update(additional_labels)
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels=labels)
+            msg_handler.logStruct(topic=f"updateProduct: update product",
+                                  data=payload)
 
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Product/{productId}"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Product/{productId}"
-
-    ## handle request through session or normal
-    no_error = True
-    if connection:
         ## process request from connection pool
         encoded_data = json.dumps(payload).encode('utf-8')
         r = connection.request(method="PUT",
-                               url=request_url,
+                               url=f"{os.environ['YOUR_API_URL']}/Product/{productId}",
                                body=encoded_data,
                                headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                         'Content-Type': 'application/json'})
@@ -164,86 +166,69 @@ def updateProduct(logger: object,
         response_text = r.data
         if response_code == 200:
             result = json.loads(response_text.decode('utf-8'))
+            resp_data = result.get('data')
+            if resp_data:
+                media = resp_data.get('duplicates', [])
+
+                ## logging
+                if bool(os.environ['DEBUG']):
+                    msg_handler.logStruct(topic=f"updateProduct: productId: {productId}, update product success",
+                                          status_code=response_code,
+                                          response_text=response_text)
+                return media
+
         else:
-            no_error = False
-
-    else:
-        ## process request with requests library. Single connection & request
-        r = requests.put(url=request_url,
-                         json=payload,
-                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-
-        response_code = r.status_code
-        response_text = r.text
-        if response_code == 200:
-            result = json.loads(r.text)
-        else:
-            no_error = False
-
-    if no_error:
-        resp_data = result.get('data')
-        if resp_data:
-            media = resp_data.get('duplicates', [])
-
             ## logging
-            msg_handler.logStruct(topic=f"updateProduct: productId: {productId}, update product success",
-                                  status_code=response_code,
-                                  response_text=response_text)
-            return media
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(level="ERROR",
+                                      topic=f"updateProduct:  productId: {productId}, update product error",
+                                      status_code=response_code,
+                                      response_text=response_text)
+            return []
 
-    else:
-        ## logging
-        msg_handler.logStruct(level="ERROR",
-                              topic=f"updateProduct:  productId: {productId}, update product error",
-                              status_code=response_code,
-                              response_text=response_text)
-        return []
-
-def updateSeries(logger: object,
+class Series:
+    @staticmethod
+    def putUpdate(logger: object,
                   seriesId: int,
                   payload: dict,
                   connection: object,
-                  environment: str = "production",
                   additional_labels: dict = {}) -> bool:
 
-    ## logging
-    labels = {'function': 'updateSeries', 'endpoint': '/Series/{seriesId}'}
-    if additional_labels:
-        labels.update(additional_labels)
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels=labels)
-    msg_handler.logStruct(topic=f"updateSeries: update series",
-                          data=payload)
-
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Series/{seriesId}"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Series/{seriesId}"
-
-    ## process request from connection pool
-    encoded_data = json.dumps(payload).encode('utf-8')
-    r = connection.request(method="PUT",
-                           url=request_url,
-                           body=encoded_data,
-                           headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
-                                    'Content-Type': 'application/json'})
-
-    response_code = r.status
-    response_text = r.data
-
-    if response_code == 200:
         ## logging
-        msg_handler.logStruct(topic=f"updateSeries: seriesId: {seriesId}, update series success",
-                              status_code=response_code,
-                              response_text=response_text)
+        if bool(os.environ['DEBUG']):
+            labels = {'function': 'updateSeries', 'endpoint': '/Series/{seriesId}'}
+            if additional_labels:
+                labels.update(additional_labels)
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels=labels)
+            msg_handler.logStruct(topic=f"updateSeries: update series",
+                                  data=payload)
 
-        return True
+        ## process request from connection pool
+        encoded_data = json.dumps(payload).encode('utf-8')
+        r = connection.request(method="PUT",
+                               url=f"{os.environ['YOUR_API_URL']}/Series/{seriesId}",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
 
-    else:
-        ## logging
-        msg_handler.logStruct(level="ERROR",
-                              topic=f"updateSeries:  seriesId: {seriesId}, update series error",
-                              status_code=response_code,
-                              response_text=response_text)
-        return False
+        response_code = r.status
+        response_text = r.data
+
+        if response_code == 200:
+            ## logging
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(topic=f"updateSeries: seriesId: {seriesId}, update series success",
+                                      status_code=response_code,
+                                      response_text=response_text)
+
+            return True
+
+        else:
+            ## logging
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(level="ERROR",
+                                      topic=f"updateSeries:  seriesId: {seriesId}, update series error",
+                                      status_code=response_code,
+                                      response_text=response_text)
+            return False

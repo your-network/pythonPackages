@@ -2,573 +2,527 @@ import os
 import requests
 import json
 from datetime import datetime
-from typing import Tuple
 from loggingYour.messageHandler import messageHandler
-from apiYour.settingsApi import PRODUCTION_ADDRESS, DEVELOPMENT_ADDRESS
 
-def createBrand(logger: object,
-                data: dict,
-                environment: str = "production") -> int:
+class Brand:
+    @staticmethod
+    def create(logger: object,
+               connection: object,
+               data: dict) -> int:
 
-    brand_id = None
-    duplicate_media = []
-    start_time = datetime.now()
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'createBrand',
-                                         'endpoint': '/Brand'})
+        brand_id = None
 
-    ## logging
-    msg_handler.logStruct(topic=f"createBrand: start create brand.\n start time: {start_time}",
-                          data=data,
-                          level="DEBUG")
-
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Brand"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Brand"
-
-    ## request
-    r = requests.post(request_url,
-                     json=data,
-                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-
-    if r.status_code in [200, 400]:
-        resp_body = json.loads(r.text)
-        resp_data = resp_body.get('data')
-        success = resp_body.get('success')
-        code = resp_body.get('code')
-
-        if success:
-            brand_id = resp_data['id']
-            duplicate_media = resp_data.get('duplicates', [])
-
-            ## logging
-            msg_handler.logStruct(topic=f"createBrand: finished create brand. brand id: {brand_id}",
-                                  status_code=r.status_code,
-                                  response_text=r.text,
+        ## logging
+        if bool(os.environ['DEBUG']):
+            start_time = datetime.now()
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'createBrand',
+                                                 'endpoint': '/Brand'})
+            msg_handler.logStruct(topic=f"createBrand: start create brand.\n start time: {start_time}",
+                                  data=data,
                                   level="DEBUG")
 
-        elif code == 11:
-            brand_id = resp_data.get('id')
-            duplicate_media = resp_data.get('duplicates', [])
+        ## process request from connection pool
+        encoded_data = json.dumps(data).encode('utf-8')
+        r = connection.request(method="POST",
+                               url=f"{os.environ['YOUR_API_URL']}/Brand",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+        status_code = r.status
+        resp_data = r.data
 
-            ## logging
-            msg_handler.logStruct(topic=f"createBrand: brand already existed, cat_id: {brand_id}, duplicate_media: {duplicate_media}",
-                                  status_code=r.status_code,
-                                  response_text=r.text,
-                                  level="DEBUG")
+        if status_code in [200, 400]:
+            resp_body = json.loads(resp_data.decode('utf-8'))
+            resp_data = resp_body.get('data')
+            success = resp_body.get('success')
+            code = resp_body.get('code')
+
+            if success:
+                brand_id = resp_data['id']
+
+                ## logging
+                if bool(os.environ['DEBUG']):
+                    msg_handler.logStruct(topic=f"createBrand: finished create brand. brand id: {brand_id}",
+                                          status_code=status_code,
+                                          response_text=resp_data,
+                                          level="DEBUG")
+
+            elif code == 11:
+                brand_id = resp_data.get('id')
+
+                ## logging
+                if bool(os.environ['DEBUG']):
+                    msg_handler.logStruct(topic=f"createBrand: brand already existed, cat_id: {brand_id}",
+                                          status_code=status_code,
+                                          response_text=resp_data,
+                                          level="DEBUG")
+
+            else:
+                ## logging
+                if bool(os.environ['DEBUG']):
+                    msg_handler.logStruct(topic=f"createBrand: no response data",
+                                          status_code=status_code,
+                                          response_text=resp_data,
+                                          level="WARNING")
 
         else:
             ## logging
-            msg_handler.logStruct(topic=f"createBrand: no response data",
-                                  status_code=r.status_code,
-                                  response_text=r.text,
-                                  level="WARNING")
+            msg_handler.logStruct(
+                level="ERROR",
+                topic=f"createBrand: error create brand",
+                status_code=status_code,
+                response_text=resp_data)
 
-    else:
         ## logging
-        msg_handler.logStruct(
-            level="ERROR",
-            topic=f"createBrand: error create brand",
-            status_code=r.status_code,
-            response_text=r.text)
+        if bool(os.environ['DEBUG']):
+            msg_handler.logStruct(topic=f"createBrand: Api brand create finished,\n processing time: {datetime.now() - start_time}")
 
-    ## logging
-    msg_handler.logStruct(topic=f"createBrand: Api brand create finished,\n processing time: {datetime.now() - start_time}")
+        return brand_id
 
-    # closing the connection
-    r.close()
+class Category:
+    @staticmethod
+    def create(payload: dict,
+               logger: object,
+               connection: object,
+               additional_labels: dict = None) -> int:
 
-    return brand_id, duplicate_media
+        cat_id = None
 
-def createCategory(payload: dict,
-                   logger: object,
-                   environment: str = "production",
-                   additional_labels: dict = None):
+        ## logging
+        if bool(os.environ['DEBUG']):
+            labels = {'function': 'createCategory', 'endpoint': '/Category/'}
+            if additional_labels:
+                labels.update(additional_labels)
 
-    cat_id = None
-    media = []
-    labels = {'function': 'createCategory', 'endpoint': '/Category/'}
-    if additional_labels:
-        labels.update(additional_labels)
+            msg_handler = messageHandler(logger=logger, level="DEBUG", labels=labels)
+            start_time = datetime.now()
+            msg_handler.logStruct(topic=f"createCategory: start create category. start time: {start_time}", data=payload)
 
-    msg_handler = messageHandler(logger=logger, level="DEBUG", labels=labels)
-    start_time = datetime.now()
+        ## process request from connection pool
+        encoded_data = json.dumps(payload).encode('utf-8')
+        r = connection.request(method="POST",
+                               url=f"{os.environ['YOUR_API_URL']}/Category",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+        status_code = r.status
+        resp_data = r.data
 
-    ## logging
-    msg_handler.logStruct(topic=f"createCategory: start create category. start time: {start_time}", data=payload)
+        if status_code in [200, 400]:
+            resp_body = json.loads(resp_data.decode('utf-8'))
+            resp_data = resp_body.get('data')
+            success = resp_body.get('success')
+            code = resp_body.get('code')
 
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Category"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Category"
+            if success:
+                cat_id = resp_data.get('id')
 
-    r = requests.post(request_url,
-                      json=payload,
-                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+                ## logging
+                if bool(os.environ['DEBUG']):
+                    msg_handler.logStruct(topic=f"createCategory: category created finished, cat_id: {cat_id}",
+                                          status_code=status_code,
+                                          response_text=resp_data)
 
-    if r.status_code in [200, 400]:
-        resp_body = json.loads(r.text)
-        resp_data = resp_body.get('data')
-        success = resp_body.get('success')
-        code = resp_body.get('code')
+            elif code == 11:
+                cat_id = resp_data.get('id')
+                ## logging
+                if bool(os.environ['DEBUG']):
+                    msg_handler.logStruct(topic=f"createCategory: category already existed, cat_id: {cat_id}",
+                                          status_code=status_code,
+                                          response_text=resp_data)
 
-        if success:
-            cat_id = resp_data.get('id')
-            media = resp_data.get('duplicates',[])
-
-            ## logging
-            msg_handler.logStruct(topic=f"createCategory: category created finished, cat_id: {cat_id}, duplicate_media: {media}",
-                                  status_code=r.status_code,
-                                  response_text=r.text)
-
-        elif code == 11:
-            cat_id = resp_data.get('id')
-            media = resp_data.get('duplicates', [])
-            ## logging
-            msg_handler.logStruct(topic=f"createCategory: category already existed, cat_id: {cat_id}, duplicate_media: {media}",
-                                  status_code=r.status_code,
-                                  response_text=r.text)
+            else:
+                ## logging
+                if bool(os.environ['DEBUG']):
+                    msg_handler.logStruct(topic=f"createCategory: no response data",
+                                          status_code=status_code,
+                                          response_text=resp_data,
+                                          level="WARNING")
 
         else:
             ## logging
-            msg_handler.logStruct(topic=f"createCategory: no response data",
-                                  status_code=r.status_code,
-                                  response_text=r.text,
-                                  level="WARNING")
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(level="ERROR",
+                               topic="createCategory: Error create category",
+                               status_code=status_code,
+                               response_text=resp_data)
 
-    else:
-        ## logging
-        msg_handler.logStruct(level="ERROR",
-                       topic="createCategory: Error create category",
-                       status_code=r.status_code,
-                       response_text=r.text)
+        return cat_id
 
-    # closing the connection
-    r.close()
-
-    return cat_id, media
-
-def createProductBulk(logger: object,
-                      data_bulk: list,
-                      environment: str = "production",
-                      labels: dict = {}):
-
-    ## logging
-    log_labels = {'function': 'createProductBulk', 'endpoint': '/Product/CreateOrUpdateBulk'}
-    if labels:
-        log_labels.update(labels)
-    start_time = datetime.now()
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels=log_labels)
-    msg_handler.logStruct(f"createProductBulk: start process product bulk insert",
-                   data=data_bulk)
-
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Product/CreateOrUpdateBulk"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Product/CreateOrUpdateBulk"
-
-    ## request
-    r = requests.post(request_url,
-                     json=data_bulk,
-                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-
-    if r.status_code == 200:
-        resp_data = json.loads(r.text)
-        product_bulk_response = resp_data
+class Product:
+    @staticmethod
+    def createBulk(logger: object,
+                  data_bulk: list,
+                  labels: dict = {}):
 
         ## logging
-        msg_handler.logStruct(topic=f"createProductBulk: Success in product bulk insert. Number products",
-                       status_code=r.status_code,
-                       response_text=r.text)
+        if bool(os.environ['DEBUG']):
+            log_labels = {'function': 'createProductBulk', 'endpoint': '/Product/CreateOrUpdateBulk'}
+            if labels:
+                log_labels.update(labels)
+            start_time = datetime.now()
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels=log_labels)
+            msg_handler.logStruct(f"createProductBulk: start process product bulk insert",
+                                  data={"list": data_bulk})
 
-    else:
-        ## logging
-        msg_handler.logStruct(level="ERROR",
-                       topic="createProductBulk: Error in product bulk insert",
-                       status_code=r.status_code,
-                       response_text=r.text)
+        ## request
+        r = requests.post(url=f"{os.environ['YOUR_API_URL']}/Product/CreateOrUpdateBulk",
+                          json=data_bulk,
+                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
-        product_bulk_response = None
+        if r.status_code == 200:
+            resp_data = json.loads(r.text)
+            product_bulk_response = resp_data
 
-        ## logging
-        msg_handler.logStruct(topic=f"createProductBulk: Api product bulk insert finished, processing time: {datetime.now() - start_time}",
-                   status_code=r.status_code,
-                   response_text=r.text)
+            ## logging
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(topic=f"createProductBulk: Success in product bulk insert. Number products",
+                               status_code=r.status_code,
+                               response_text=r.text)
 
-    # closing the connection
-    r.close()
+        else:
+            ## logging
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(level="ERROR",
+                               topic="createProductBulk: Error in product bulk insert",
+                               status_code=r.status_code,
+                               response_text=r.text)
 
-    return product_bulk_response
+            product_bulk_response = None
 
-def createProductQueue(logger: object,
-                       data_bulk: list,
-                       environment: str = "production",
-                       additional_labels: dict = {}):
+            ## logging
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(topic=f"createProductBulk: Api product bulk insert finished, processing time: {datetime.now() - start_time}",
+                           status_code=r.status_code,
+                           response_text=r.text)
 
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Product/QueueForCreateBulk"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Product/QueueForCreateBulk"
 
-    ## logging
-    start_time = datetime.now()
-    labels = {'function': 'createProductQueue', 'endpoint': request_url}
-    if additional_labels:
-        labels.update(additional_labels)
+        return product_bulk_response
 
-    msg_handler = messageHandler(logger=logger,
-                                 level="DEBUG",
-                                 labels=labels)
-    msg_handler.logStruct(topic=f"createProductQueue: process product queue",
-                          data=data_bulk)
-
-    ## request
-    r = requests.post(request_url,
-                     json=data_bulk,
-                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-
-    if r.status_code == 200:
-        resp_data = json.loads(r.text)
+    @staticmethod
+    def createQueue(logger: object,
+                   data_bulk: list,
+                   additional_labels: dict = {}):
 
         ## logging
-        msg_handler.logStruct(topic=f"createProductQueue: Success in product queue insert",
-                       status_code=r.status_code,
-                       response_text=r.text)
-    else:
-        resp_data = None
-        ## logging
-        msg_handler.logStruct(topic="createProductQueue: Error product bulk insert",
-                              level="WARNING",
-                              data=data_bulk,
-                       status_code=r.status_code,
-                       response_text=r.text)
+        if bool(os.environ['DEBUG']):
+            start_time = datetime.now()
+            labels = {'function': 'createProductQueue', 'endpoint': "/Product/QueueForCreateBulk"}
+            if additional_labels:
+                labels.update(additional_labels)
 
-    ## logging
-    msg_handler.logStruct(topic=f"createProductBulk: Api product queue insert finished, processing time: {datetime.now()-start_time}")
+            msg_handler = messageHandler(logger=logger,
+                                         level="DEBUG",
+                                         labels=labels)
+            msg_handler.logStruct(topic=f"createProductQueue: process product queue",
+                                  data=data_bulk)
 
-    # closing the connection
-    r.close()
+        ## request
+        r = requests.post(url=f"{os.environ['YOUR_API_URL']}/Product/QueueForCreateBulk",
+                         json=data_bulk,
+                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
-    return resp_data
+        if r.status_code == 200:
+            resp_data = json.loads(r.text)
 
-def createSeries(logger: object,
-                 data=dict,
-                 environment: str = "production") -> int:
-
-    ## logging
-    start_time = datetime.now()
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'createSeries',
-                                         'endpoint': '/Series'})
-    msg_handler.logStruct(topic=f"createSeries: start create serie.\n start time: {start_time}",
-                          data=data)
-
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Series"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Series"
-
-    serie_id = None
-
-    ## request
-    r = requests.post(request_url,
-                     json=data,
-                      headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-
-    if r.status_code == 200:
-        resp_data = json.loads(r.text)
-        serie_id = resp_data['data']['id']
+            ## logging
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(topic=f"createProductQueue: Success in product queue insert",
+                               status_code=r.status_code,
+                               response_text=r.text)
+        else:
+            resp_data = None
+            ## logging
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(topic="createProductQueue: Error product bulk insert",
+                                      level="WARNING",
+                                      data=data_bulk,
+                               status_code=r.status_code,
+                               response_text=r.text)
 
         ## logging
-        msg_handler.logStruct(
-            topic=f"createSeries: finished create serie. serie id: {serie_id}",
-            status_code=r.status_code,
-            response_text=r.text)
+        if bool(os.environ['DEBUG']):
+            msg_handler.logStruct(topic=f"createProductBulk: Api product queue insert finished, processing time: {datetime.now()-start_time}")
 
-    else:
+        return resp_data
+
+class Series:
+    @staticmethod
+    def create(logger: object,
+                 data=dict) -> int:
+
         ## logging
-        msg_handler.logStruct(
-            level="ERROR",
-            topic=f"createSeries: error create serie",
-            status_code=r.status_code,
-            response_text=r.text)
+        if bool(os.environ['DEBUG']):
+            start_time = datetime.now()
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'createSeries',
+                                                 'endpoint': '/Series'})
+            msg_handler.logStruct(topic=f"createSeries: start create serie.\n start time: {start_time}",
+                                  data=data)
 
-    ## logging
-    msg_handler.logStruct(topic=f"createSeries: Api create serie finished,\n processing time: {datetime.now() - start_time}")
+        serie_id = None
 
-    # closing the connection
-    r.close()
+        ## request
+        r = requests.post(url=f"{os.environ['YOUR_API_URL']}/Series",
+                          json=data,
+                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
 
-    return serie_id
+        if r.status_code == 200:
+            resp_data = json.loads(r.text)
+            serie_id = resp_data['data']['id']
+
+            ## logging
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(
+                    topic=f"createSeries: finished create serie. serie id: {serie_id}",
+                    status_code=r.status_code,
+                    response_text=r.text)
+
+        else:
+            ## logging
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(
+                    level="ERROR",
+                    topic=f"createSeries: error create serie",
+                    status_code=r.status_code,
+                    response_text=r.text)
+
+        ## logging
+        if bool(os.environ['DEBUG']):
+            msg_handler.logStruct(topic=f"createSeries: Api create serie finished,\n processing time: {datetime.now() - start_time}")
+
+        return serie_id
 
 class Relations:
 
     @staticmethod
     def createCategoryCategoryRelation(logger: object,
                                         data: dict,
-                                        connection: object = None,
-                                        additional_labels: dict = None,
-                                        environment: str = "production") -> bool:
+                                        connection: object,
+                                        additional_labels: dict = None) -> bool:
         ## logging
-        labels = {'function': 'createCategoryCategoryRelation',
-                  'endpoint': '/Relation/CreateCategoryCategory'}
-        if additional_labels:
-            labels.update(additional_labels)
-        msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                     labels=labels)
-        msg_handler.logStruct(topic=f"createCategoryCategoryRelation: Start create category category relation",
-                              data=data)
+        if bool(os.environ['DEBUG']):
+            labels = {'function': 'createCategoryCategoryRelation',
+                      'endpoint': '/Relation/CreateCategoryCategory'}
+            if additional_labels:
+                labels.update(additional_labels)
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels=labels)
+            msg_handler.logStruct(topic=f"createCategoryCategoryRelation: Start create category category relation",
+                                  data=data)
 
-        ## construct request
-        if environment == "production":
-            request_url = f"{PRODUCTION_ADDRESS}/Relation/CreateCategoryCategory"
-        elif environment == "development":
-            request_url = f"{DEVELOPMENT_ADDRESS}/Relation/CreateCategoryCategory"
+        ## process request from connection pool
+        encoded_data = json.dumps(data).encode('utf-8')
+        r = connection.request(method="POST",
+                               url=f"{os.environ['YOUR_API_URL']}/Relation/CreateCategoryCategory",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
 
-        ## handle request through session or normal
-        no_error = True
-        if connection:
-            ## process request from connection pool
-            encoded_data = json.dumps(data).encode('utf-8')
-            r = connection.request(method="POST",
-                                   url=request_url,
-                                   body=encoded_data,
-                                   headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
-                                            'Content-Type': 'application/json'})
-
-            response_code = r.status
-            response_text = r.data
-
-        else:
-            ## process request with requests library. Single connection & request
-            r = requests.post(request_url,
-                              json=data,
-                              headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-
-            response_code = r.status_code
-            response_text = r.text
+        response_code = r.status
+        response_text = r.data
 
         if response_code == 200:
             ## logging
-            msg_handler.logStruct(
-                topic=f"createCategoryCategoryRelation: finished create relation category category",
-                status_code=response_code,
-                response_text=response_text)
-            return True
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(
+                    topic=f"createCategoryCategoryRelation: finished create relation category category",
+                    status_code=response_code,
+                    response_text=response_text)
+                return True
 
         else:
             ## logging
-            msg_handler.logStruct(
-                level="WARNING",
-                topic=f"createCategoryCategoryRelation: error create relation category category",
-                status_code=response_code,
-                response_text=response_text)
-            return False
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(
+                    level="WARNING",
+                    topic=f"createCategoryCategoryRelation: error create relation category category",
+                    status_code=response_code,
+                    response_text=response_text)
+                return False
 
     @staticmethod
     def createBrandCategoryRelation(logger: object,
                                     data: dict,
-                                    additional_labels: dict = None,
-                                    environment: str = "production") -> None:
+                                    connection: object,
+                                    additional_labels: dict = None) -> bool:
 
         ## logging
-        labels = {'function': 'createBrandCategoryRelation',
-                                             'endpoint': '/Relation/CreateBrandCategory'}
-        if additional_labels:
-            labels.update(additional_labels)
+        if bool(os.environ['DEBUG']):
+            labels = {'function': 'createBrandCategoryRelation',
+                                                 'endpoint': '/Relation/CreateBrandCategory'}
+            if additional_labels:
+                labels.update(additional_labels)
 
-        msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                     labels=labels)
-        msg_handler.logStruct(topic=f"createBrandCategoryRelation: Start create brand category relation",
-                              data=data)
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels=labels)
+            msg_handler.logStruct(topic=f"createBrandCategoryRelation: Start create brand category relation",
+                                  data=data)
 
-        ## construct request
-        if environment == "production":
-            request_url = f"{PRODUCTION_ADDRESS}/Relation/CreateBrandCategory"
-        elif environment == "development":
-            request_url = f"{DEVELOPMENT_ADDRESS}/Relation/CreateBrandCategory"
+        ## process request from connection pool
+        encoded_data = json.dumps(data).encode('utf-8')
+        r = connection.request(method="POST",
+                               url=f"{os.environ['YOUR_API_URL']}/Relation/CreateBrandCategory",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
 
-        ## request
-        r = requests.post(request_url,
-                         json=data,
-                        headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        response_code = r.status
+        response_text = r.data
 
-        resp_body = json.loads(r.text)
-        success = resp_body.get('success')
-        code = resp_body.get('code')
-
-        if r.status_code == [200, 400]:
-
-            if success:
-                ## logging
+        if response_code == [200, 400]:
+            ## logging
+            if bool(os.environ['DEBUG']):
                 msg_handler.logStruct(
                     topic=f"createBrandCategoryRelation: finished create relation brand category",
-                    status_code=r.status_code,
-                    response_text=r.text)
-
-            if code in [10, 11]:
-                ## logging
-                msg_handler.logStruct(
-                    topic=f"createBrandCategoryRelation: relation already exist",
-                    status_code=r.status_code,
-                    response_text=r.text)
-
-        else:
-            ## logging
-            msg_handler.logStruct(
-                level="ERROR",
-                topic=f"createBrandCategoryRelation: error create relation brand category",
-                status_code=r.status_code,
-                response_text=r.text)
-
-    @staticmethod
-    def createCategoryAttributeRelation(logger: object,
-                                        data: dict,
-                                        connection: object = None,
-                                        additional_labels: dict = None,
-                                        environment: str = "production") -> bool:
-        ## logging
-        labels = {'function': 'createCategoryAttributeRelation',
-                                             'endpoint': '/Relation/CreateAttributeCategory'}
-        if additional_labels:
-            labels.update(additional_labels)
-
-        msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                     labels=labels)
-
-        msg_handler.logStruct(
-            topic=f"createCategoryAttributeRelation: Start create category attribute relation",
-            data=data)
-
-        ## construct request
-        if environment == "production":
-            request_url = f"{PRODUCTION_ADDRESS}/Relation/CreateAttributeCategory"
-        elif environment == "development":
-            request_url = f"{DEVELOPMENT_ADDRESS}/Relation/CreateAttributeCategory"
-
-        ## handle request through session or normal
-        no_error = True
-        if connection:
-            ## process request from connection pool
-            encoded_data = json.dumps(data).encode('utf-8')
-            r = connection.request(method="POST",
-                                   url=request_url,
-                                   body=encoded_data,
-                                   headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
-                                            'Content-Type': 'application/json'})
-
-            response_code = r.status
-            response_text = r.data
-
-        else:
-            ## process request with requests library. Single connection & request
-            r = requests.post(request_url,
-                              json=data,
-                              headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-
-            response_code = r.status_code
-            response_text = r.text
-
-        if response_code == 200:
-            ## logging
-            msg_handler.logStruct(
-                topic=f"createCategoryAttributeRelation: finished create relation category attribute",
-                status_code=response_code,
-                response_text=response_text)
+                    status_code=response_code,
+                    response_text=response_text)
             return True
 
         else:
             ## logging
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(
+                    level="ERROR",
+                    topic=f"createBrandCategoryRelation: error create relation brand category",
+                    status_code=response_code,
+                    response_text=response_text)
+            return False
+
+    @staticmethod
+    def createCategoryAttributeRelation(logger: object,
+                                        data: dict,
+                                        connection: object,
+                                        additional_labels: dict = None) -> bool:
+        ## logging
+        if bool(os.environ['DEBUG']):
+            labels = {'function': 'createCategoryAttributeRelation',
+                                                 'endpoint': '/Relation/CreateAttributeCategory'}
+            if additional_labels:
+                labels.update(additional_labels)
+
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels=labels)
+
             msg_handler.logStruct(
-                level="WARNING",
-                topic=f"createCategoryAttributeRelation: error create relation category attribute",
-                status_code=response_code,
-                response_text=response_text)
+                topic=f"createCategoryAttributeRelation: Start create category attribute relation",
+                data=data)
+
+        ## process request from connection pool
+        encoded_data = json.dumps(data).encode('utf-8')
+        r = connection.request(method="POST",
+                               url=f"{os.environ['YOUR_API_URL']}/Relation/CreateAttributeCategory",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+
+        response_code = r.status
+        response_text = r.data
+
+        if response_code == 200:
+            ## logging
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(
+                    topic=f"createCategoryAttributeRelation: finished create relation category attribute",
+                    status_code=response_code,
+                    response_text=response_text)
+            return True
+
+        else:
+            ## logging
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(
+                    level="WARNING",
+                    topic=f"createCategoryAttributeRelation: error create relation category attribute",
+                    status_code=response_code,
+                    response_text=response_text)
             return False
 
     @staticmethod
     def createProductProductRelation(logger: object,
                                      data: dict,
-                                     environment: str = "production") -> bool:
+                                     connection: object) -> bool:
 
         ## logging
-        msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                     labels={'function': 'createProductProductRelation',
-                                             'endpoint': '/Relation/CreateProductProduct'})
-        msg_handler.logStruct(topic=f"createProductProductRelation: Start create product product relation,\n start time: {datetime.now()}", data=data)
+        if bool(os.environ['DEBUG']):
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'createProductProductRelation',
+                                                 'endpoint': '/Relation/CreateProductProduct'})
+            msg_handler.logStruct(topic=f"createProductProductRelation: Start create product product relation,\n start time: {datetime.now()}",
+                                  data=data)
 
-        ## construct request
-        if environment == "production":
-            request_url = f"{PRODUCTION_ADDRESS}/Relation/CreateProductProduct"
-        elif environment == "development":
-            request_url = f"{DEVELOPMENT_ADDRESS}/Relation/CreateProductProduct"
+        ## process request from connection pool
+        encoded_data = json.dumps(data).encode('utf-8')
+        r = connection.request(method="POST",
+                               url=f"{os.environ['YOUR_API_URL']}/Relation/CreateProductProduct",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
 
-        ## request
-        r = requests.post(request_url,
-                         json=data,
-                        headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        response_code = r.status
+        response_text = r.data
 
-        if r.status_code == 200:
+        if response_code == 200:
             ## logging
-            msg_handler.logStruct(
-                topic=f"createProductProductRelation: finished create relation product product",
-                status_code=r.status_code,
-                response_text=r.text)
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(
+                    topic=f"createProductProductRelation: finished create relation product product",
+                    status_code=response_code,
+                    response_text=response_text)
             return True
 
         else:
             ## logging
-            msg_handler.logStruct(
-                level="ERROR",
-                topic=f"createProductProductRelation: error create relation product product",
-                status_code=r.status_code,
-                response_text=r.text)
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(
+                    level="ERROR",
+                    topic=f"createProductProductRelation: error create relation product product",
+                    status_code=response_code,
+                    response_text=response_text)
             return False
 
     @staticmethod
     def createCategoryProductRelation(logger: object,
                                       data: dict,
-                                      environment: str = "production") -> bool:
+                                      connection: object) -> bool:
 
         ## logging
-        msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                     labels={'function': 'createCategoryProductRelation',
-                                             'endpoint': '/Relation/CreateCategoryProduct'})
-        msg_handler.logStruct(topic=f"createCategoryProductRelation: Start create category product relation,\n start time: {datetime.now()}", data=data)
+        if bool(os.environ['DEBUG']):
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'createCategoryProductRelation',
+                                                 'endpoint': '/Relation/CreateCategoryProduct'})
+            msg_handler.logStruct(topic=f"createCategoryProductRelation: Start create category product relation,\n start time: {datetime.now()}", data=data)
 
-        ## construct request
-        if environment == "production":
-            request_url = f"{PRODUCTION_ADDRESS}/Relation/CreateCategoryProduct"
-        elif environment == "development":
-            request_url = f"{DEVELOPMENT_ADDRESS}/Relation/CreateCategoryProduct"
+        ## process request from connection pool
+        encoded_data = json.dumps(data).encode('utf-8')
+        r = connection.request(method="POST",
+                               url=f"{os.environ['YOUR_API_URL']}/Relation/CreateCategoryProduct",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
 
-        ## request
-        r = requests.post(request_url,
-                         json=data,
-                        headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        response_code = r.status
+        response_text = r.data
 
-        if r.status_code == 200:
+        if response_code == 200:
             ## logging
-            msg_handler.logStruct(
-                topic=f"createCategoryProductRelation: finished create relation category product",
-                status_code=r.status_code,
-                response_text=r.text)
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(
+                    topic=f"createCategoryProductRelation: finished create relation category product",
+                    status_code=response_code,
+                    response_text=response_text)
             return True
 
         else:
             ## logging
-            msg_handler.logStruct(
-                level="ERROR",
-                topic=f"createCategoryProductRelation: error create relation category product",
-                status_code=r.status_code,
-                response_text=r.text)
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(
+                    level="ERROR",
+                    topic=f"createCategoryProductRelation: error create relation category product",
+                    status_code=response_code,
+                    response_text=response_text)
             return False
 
 class Attributes:
@@ -576,137 +530,137 @@ class Attributes:
     @staticmethod
     def createAttributeUnit(logger: object,
                             data: dict,
-                            environment: str = "production") -> int:
+                            connection: object) -> int:
 
         ## logging
-        start_time = datetime.now()
-        msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                     labels={'function': 'createAttributeUnit',
-                                             'endpoint': '/Attribute/CreateOrUpdateAttributeTypeUnit'})
-        msg_handler.logStruct(topic=f"createAttributeUnit: start create attribute unit. Start time: {start_time}",
-                              data=data)
-
-        ## construct request
-        if environment == "production":
-            request_url = f"{PRODUCTION_ADDRESS}/Attribute/CreateOrUpdateAttributeTypeUnit"
-        elif environment == "development":
-            request_url = f"{DEVELOPMENT_ADDRESS}/Attribute/CreateOrUpdateAttributeTypeUnit"
+        if bool(os.environ['DEBUG']):
+            start_time = datetime.now()
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'createAttributeUnit',
+                                                 'endpoint': '/Attribute/CreateOrUpdateAttributeTypeUnit'})
+            msg_handler.logStruct(topic=f"createAttributeUnit: start create attribute unit. Start time: {start_time}",
+                                  data=data)
 
         unit_id = None
 
-        ## request
-        r = requests.post(request_url,
-                          json=data,
-                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        ## process request from connection pool
+        encoded_data = json.dumps(data).encode('utf-8')
+        r = connection.request(method="POST",
+                               url=f"{os.environ['YOUR_API_URL']}/Attribute/CreateOrUpdateAttributeTypeUnit",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+        status_code = r.status
+        resp_data = r.data
 
-        if r.status_code == 200:
-            resp_data = json.loads(r.text)
+        if status_code == 200:
+            resp_data = json.loads(resp_data.decode('utf-8'))
             unit_id = resp_data['data']['id']
 
             ## logging
-            msg_handler.logStruct(topic=f"createAttributeUnit: create attribute unit success. Unit_id: {unit_id}",
-                                  status_code=r.status_code,
-                                  response_text=r.text)
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(topic=f"createAttributeUnit: create attribute unit success. Unit_id: {unit_id}",
+                                      status_code=status_code,
+                                      response_text=resp_data)
 
         else:
             ## logging
-            msg_handler.logStruct(topic="createAttributeUnit: Error attribute unit insert",
-                                  level="ERROR",
-                                  status_code=r.status_code,
-                                  response_text=r.text)
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(topic="createAttributeUnit: Error attribute unit insert",
+                                      level="ERROR",
+                                      status_code=status_code,
+                                      response_text=resp_data)
 
         ## logging
-        msg_handler.logStruct(
-            topic=f"createAttributeUnit: Api attribute unit insert finished, processing time: {datetime.now() - start_time}")
-
-        # closing the connection
-        r.close()
+        if bool(os.environ['DEBUG']):
+            msg_handler.logStruct(
+                topic=f"createAttributeUnit: Api attribute unit insert finished, processing time: {datetime.now() - start_time}")
 
         return unit_id
 
     @staticmethod
     def createAttributeType(logger: object,
                             data: dict,
-                            environment: str = "production") -> int:
+                            connection: object) -> int:
 
         ## logging
-        start_time = datetime.now()
-        msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                     labels={'function': 'CreateOrUpdateAttributeType',
-                                             'endpoint': '/Attribute/CreateOrUpdateAttributeType'})
-        msg_handler.logStruct(topic=f"createAttributeType: start create attribute type.\n start time: {start_time}",
-                              data=data)
-
-        ## construct request
-        if environment == "production":
-            request_url = f"{PRODUCTION_ADDRESS}/Attribute/CreateOrUpdateAttributeType"
-        elif environment == "development":
-            request_url = f"{DEVELOPMENT_ADDRESS}/Attribute/CreateOrUpdateAttributeType"
+        if bool(os.environ['DEBUG']):
+            start_time = datetime.now()
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'CreateOrUpdateAttributeType',
+                                                 'endpoint': '/Attribute/CreateOrUpdateAttributeType'})
+            msg_handler.logStruct(topic=f"createAttributeType: start create attribute type.\n start time: {start_time}",
+                                  data=data)
 
         attribute_type_id = None
 
-        ## request
-        r = requests.post(request_url,
-                          json=data,
-                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        ## process request from connection pool
+        encoded_data = json.dumps(data).encode('utf-8')
+        r = connection.request(method="POST",
+                               url=f"{os.environ['YOUR_API_URL']}/Attribute/CreateOrUpdateAttributeType",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+        status_code = r.status
+        resp_data = r.data
 
-        if r.status_code == 200:
-            resp_data = json.loads(r.text)
+        if status_code == 200:
+            resp_data = json.loads(resp_data.decode('utf-8'))
             attribute_type_id = resp_data['data']['id']
 
             ## logging
-            msg_handler.logStruct(
-                topic=f"createAttributeType: finished create attribute type. attribute id type: {attribute_type_id}",
-                status_code=r.status_code,
-                response_text=r.text)
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(
+                    topic=f"createAttributeType: finished create attribute type. attribute id type: {attribute_type_id}",
+                    status_code=status_code,
+                    response_text=resp_data)
 
         else:
             ## logging
-            msg_handler.logStruct(
-                level="ERROR",
-                topic=f"createAttributeType: error create attribute type",
-                status_code=r.status_code,
-                response_text=r.text)
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(
+                    level="ERROR",
+                    topic=f"createAttributeType: error create attribute type",
+                    status_code=status_code,
+                    response_text=resp_data)
 
         ## logging
-        msg_handler.logStruct(
-            topic=f"createAttributeUnit: Api attribute unit create finished,\n processing time: {datetime.now() - start_time}")
-
-        # closing the connection
-        r.close()
+        if bool(os.environ['DEBUG']):
+            msg_handler.logStruct(
+                topic=f"createAttributeUnit: Api attribute unit create finished,\n processing time: {datetime.now() - start_time}")
 
         return attribute_type_id
 
     @staticmethod
     def createAttribute(logger: object,
                         data: dict,
-                        environment: str = "production") -> int:
+                        connection: object) -> int:
 
         ## logging
-        start_time = datetime.now()
-        msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                     labels={'function': 'createAttribute',
-                                             'endpoint': '/Attribute/CreateOrUpdate'})
-        msg_handler.logStruct(topic=f"createAttribute: start create attribute.\n start time: {start_time}",
-                              data=data)
-
-        ## construct request
-        if environment == "production":
-            request_url = f"{PRODUCTION_ADDRESS}/Attribute"
-        elif environment == "development":
-            request_url = f"{DEVELOPMENT_ADDRESS}/Attribute"
+        if bool(os.environ['DEBUG']):
+            start_time = datetime.now()
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'createAttribute',
+                                                 'endpoint': '/Attribute/CreateOrUpdate'})
+            msg_handler.logStruct(topic=f"createAttribute: start create attribute.\n start time: {start_time}",
+                                  data=data)
 
         attribute_id = None
 
-        ## request
-        r = requests.post(request_url,
-                          json=data,
-                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        ## process request from connection pool
+        encoded_data = json.dumps(data).encode('utf-8')
+        r = connection.request(method="POST",
+                               url=f"{os.environ['YOUR_API_URL']}/Attribute",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+        status_code = r.status
+        resp_data = r.data
 
         allowed_codes = [200, 400]
 
-        if r.status_code in allowed_codes:
-            resp_body = json.loads(r.text)
+        if status_code in allowed_codes:
+            resp_body = json.loads(resp_data.decode('utf-8'))
             resp_data = resp_body.get('data')
             success = resp_body.get('success')
             code = resp_body.get('code')
@@ -715,36 +669,37 @@ class Attributes:
                 attribute_id = resp_data['id']
 
                 ## logging
-                msg_handler.logStruct(
-                    topic=f"createAttribute: finished create attribute type. attribute id: {attribute_id}",
-                    status_code=r.status_code,
-                    response_text=r.text,
-                    level="DEBUG")
+                if bool(os.environ['DEBUG']):
+                    msg_handler.logStruct(
+                        topic=f"createAttribute: finished create attribute type. attribute id: {attribute_id}",
+                        status_code=status_code,
+                        response_text=resp_data,
+                        level="DEBUG")
 
             elif code == 11:
                 attribute_id = resp_data.get('id')
 
                 ## logging
-                msg_handler.logStruct(topic=f"createAttribute: attribute already existed, attribute_id: {attribute_id}",
-                                      status_code=r.status_code,
-                                      response_text=r.text,
-                                      level="DEBUG")
+                if bool(os.environ['DEBUG']):
+                    msg_handler.logStruct(topic=f"createAttribute: attribute already existed, attribute_id: {attribute_id}",
+                                          status_code=status_code,
+                                          response_text=resp_data,
+                                          level="DEBUG")
 
             else:
                 ## logging
-                msg_handler.logStruct(topic=f"createAttribute: no response data",
-                                      status_code=r.status_code,
-                                      response_text=r.text,
-                                      level="WARNING")
+                if bool(os.environ['DEBUG']):
+                    msg_handler.logStruct(topic=f"createAttribute: no response data",
+                                          status_code=status_code,
+                                          response_text=resp_data,
+                                          level="WARNING")
         else:
             ## logging
-            msg_handler.logStruct(topic=f"createAttribute: status code not {allowed_codes}",
-                                  status_code=r.status_code,
-                                  response_text=r.text,
-                                  level="ERROR")
-
-        # closing the connection
-        r.close()
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(topic=f"createAttribute: status code not {allowed_codes}",
+                                      status_code=status_code,
+                                      response_text=resp_data,
+                                      level="ERROR")
 
         return attribute_id
 
@@ -752,8 +707,7 @@ class Attributes:
     def createAttributeValueUnit(logger: object,
                                  data: dict,
                                  connection: object,
-                                 additional_labels: dict = None,
-                                 environment: str = "production") -> bool:
+                                 additional_labels: dict = None) -> bool:
         ## logging
         labels = {'function': 'createAttributeValueUnit',
                   'endpoint': '/AttributeValueUnit'}
@@ -764,36 +718,35 @@ class Attributes:
         msg_handler.logStruct(topic=f"createAttributeValueUnit: Start create category category relation",
                               data=data)
 
-        ## construct request
-        if environment == "production":
-            request_url = f"{PRODUCTION_ADDRESS}/AttributeValueUnit"
-        elif environment == "development":
-            request_url = f"{DEVELOPMENT_ADDRESS}/AttributeValueUnit"
-
         ## process request from connection pool
         encoded_data = json.dumps(data).encode('utf-8')
         r = connection.request(method="POST",
-                               url=request_url,
+                               url=f"{os.environ['YOUR_API_URL']}/AttributeValueUnit",
                                body=encoded_data,
                                headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                         'Content-Type': 'application/json'})
+        status_code = r.status
+        resp_data = r.data
 
-        response_code = r.status
-        response_text = r.data
+        allowed_codes = [200, 400]
 
-        if response_code == 200:
+        if status_code in allowed_codes:
+            resp_body = json.loads(resp_data.decode('utf-8'))
+            unit_id = resp_body['id']
             ## logging
-            msg_handler.logStruct(
-                topic=f"createAttributeValueUnit: finished creating",
-                status_code=response_code,
-                response_text=response_text)
-            return True
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(
+                    topic=f"createAttributeValueUnit: finished creating",
+                    status_code=status_code,
+                    response_text=resp_data)
+            return unit_id
 
         else:
             ## logging
-            msg_handler.logStruct(
-                level="WARNING",
-                topic=f"createAttributeValueUnit: error creating",
-                status_code=response_code,
-                response_text=response_text)
-            return False
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(
+                    level="WARNING",
+                    topic=f"createAttributeValueUnit: error creating",
+                    status_code=status_code,
+                    response_text=resp_data)
+            return None

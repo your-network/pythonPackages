@@ -4,677 +4,110 @@ import json
 from datetime import datetime
 from loggingYour.messageHandler import messageHandler
 from apiYour.settingsApi import PRODUCTION_ADDRESS, DEVELOPMENT_ADDRESS
-import urllib3
 
-def getCategory(logger: object,
-                categoryId: int,
-                lang: str = "en",
-                environment: str = "production") -> dict:
-    ## logging
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'getCategory',
-                                         'endpoint': '/Category/{categoryId'})
-    msg_handler.logStruct(topic=f"getCategory: Start get category", data=categoryId)
+class Category:
+    @staticmethod
+    def get(logger: object,
+            categoryId: int,
+            connection: object,
+            lang: str = None):
 
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Category/{categoryId}"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Category/{categoryId}"
+        ## logging
+        if bool(os.environ['DEBUG']):
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'getCategory',
+                                                 'endpoint': '/Category/{categoryId'})
+            msg_handler.logStruct(topic=f"getCategory: Start get category", data=categoryId)
 
-    base_params = {"lang": lang}
+        ## variables
+        base_params = {}
+        if lang:
+            base_params.update({"lang": lang})
 
-    response = requests.get(request_url,
-                     headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]},
-                     params=base_params)
+        ## process request from connection pool
+        r = connection.request(method="GET",
+                               url=f"{os.environ['YOUR_API_URL']}/Category/{categoryId}",
+                               fields=base_params,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+        status_code = r.status
+        resp_data = r.data
 
-    if response.status_code == 200:
-        result = json.loads(response.text)
-        data = result.get('data')
+        if status_code in [200, 400]:
+            resp_body = json.loads(resp_data.decode('utf-8'))
+            data = resp_body.get('data')
 
-        if data:
-            # closing the connection
-            response.close()
+            if data:
+                return data
+            else:
+                if bool(os.environ['DEBUG']):
+                    msg_handler.logStruct(topic="getCategory: No data on category get",
+                                          status_code=status_code,
+                                          response_text=resp_data)
 
-            return data
+                return {}
         else:
-            msg_handler.logStruct(topic="getCategory: No data on category get",
-                                  status_code=response.status_code,
-                                  response_text=response.text)
-
-            # closing the connection
-            response.close()
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(level="ERROR",
+                                      topic="getCategory: Error in the get category function",
+                                      status_code=status_code,
+                                      response_text=resp_data)
 
             return {}
-    else:
-        msg_handler.logStruct(level="ERROR",
-                              topic="getCategory: Error in the get category function",
-                              status_code=response.status_code,
-                              response_text=response.text)
 
-        # closing the connection
-        response.close()
+    @staticmethod
+    def getAll(connection: object,
+               logger: object = None,
+               query: str = None,
+               resultsPerPage: int = 1000,
+               page: int = 1,
+               categoryId: int = None,
+               brandId: int = None,
+               withImagesOnly: bool = False,
+               withChildrenOnly: bool = False,
+               withProductsOnly: bool = False,
+               lang: str = None,
+               sortBy: str = None,
+               includeServiceCategories: bool = False):
 
-        return {}
-
-def getAllCategories(logger: object = None,
-                     query: str = None,
-                     resultsPerPage: int = 1000,
-                     page: int = 1,
-                     categoryId: int = None,
-                     brandId: int = None,
-                     withImagesOnly: bool = False,
-                     withChildrenOnly: bool = False,
-                     withProductsOnly: bool = False,
-                     lang: str = None,
-                     sortBy: str = None,
-                     includeServiceCategories: bool = False,
-                     environment: str = "production",
-                     connection: object = None) -> list:
-
-    start_time = datetime.now()
-    ## logging
-    if logger:
-        msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                     labels={'function': 'getAllCategories',
-                                             'endpoint': '/Category/GetAll'})
-        msg_handler.logStruct(topic=f"getAllCategories: Start get all categories.\n start time: {start_time}")
-
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Category/GetAll"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Category/GetAll"
-
-    base_params = {"resultsPerPage": resultsPerPage,
-                   "withImagesOnly": withImagesOnly,
-                   "withChildrenOnly": withChildrenOnly,
-                   "withProductsOnly": withProductsOnly,
-                   "includeServiceCategories": includeServiceCategories,
-                   "page": page}
-
-    if categoryId:
-        base_params.update({"categoryId": categoryId})
-    if brandId:
-        base_params.update({"brandId": brandId})
-    if query:
-        base_params.update({"query": query})
-    if sortBy:
-        base_params.update({"sortBy": sortBy})
-    if lang:
-        base_params.update({"lang": lang})
-
-    next_page = True
-    categories = []
-    while next_page:
-        base_params.update({"page": page})
-
-        ## logging
-        if logger:
-            msg_handler.logStruct(topic=f"getAllCategories: Request {request_url} with params: {base_params}")
-
-        ## handle request through connection or normal
-        no_error = True
-        if connection:
-            ## process request from connection pool
-            r = connection.request(method="GET",
-                                   url=request_url,
-                                   fields=base_params,
-                                   headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
-                                            'Content-Type': 'application/json'})
-
-            response_code = r.status
-            response_text = r.data
-            if response_code == 200:
-                result = json.loads(response_text.decode('utf-8'))
-            else:
-                no_error = False
-
-        else:
-            ## process request with requests library. Single connection & request
-            r = requests.get(url=request_url,
-                             params=base_params,
-                             headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-
-            response_code = r.status_code
-            response_text = r.text
-            if response_code == 200:
-                result = json.loads(r.text)
-            else:
-                no_error = False
-
-        if no_error:
-            data = result.get('data')
-            if data.get('results'):
-                categories = categories + data['results']
-                page += 1
-            else:
-                if logger:
-                    msg_handler.logStruct(topic="getAllCategories: No new data so all categories gathered",
-                                   status_code=response_code,
-                                   response_text=response_text)
-                break
-        else:
-            if logger:
-                msg_handler.logStruct(level="ERROR",
-                                      topic="getAllCategories: Error in the get all function",
-                                      status_code=response_code,
-                                      response_text=response_text)
-            break
-
-    if logger:
-        msg_handler.logStruct(topic=f"getAllCategories: Finish get all categories. Length: {len(categories)}.\n processing time: {datetime.now()-start_time}")
-
-    if connection == None:
-        # closing the connection
-        r.close()
-
-    return categories
-
-def getCategoryChilds(logger: object,
-                      categoryId: int,
-                      resultsPerPage: int = 1000,
-                      page: int = 1,
-                      lang: str = "en",
-                      sortBy: str = None,
-                      includeServiceCategories: bool = False,
-                      environment: str = "production",
-                      connection: object = None) -> list:
-
-    start_time = datetime.now()
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'getCategoryChilds',
-                                         'endpoint': '/Category/{categoryId}/Categories'})
-
-    ## logging
-    msg_handler.logStruct(topic=f"getCategoryChilds: Start get all category childs")
-
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Category/{categoryId}/Categories"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Category/{categoryId}/Categories"
-
-    base_params = {"resultsPerPage": resultsPerPage,
-                   "includeServiceCategories": includeServiceCategories,
-                   "lang": lang,
-                   "page": page}
-
-    if sortBy:
-        base_params.update({"sortBy": sortBy})
-
-    next_page = True
-    category_childs = []
-    while next_page:
-        base_params.update({"page": page})
-
-        ## logging
-        msg_handler.logStruct(topic=f"getCategoryChilds: Request {request_url} with params: {base_params}")
-
-        ## handle request through session or normal
-        no_error = True
-        if connection:
-            ## process request from connection pool
-            r = connection.request(method="GET",
-                                   url=request_url,
-                                   fields=base_params,
-                                   headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
-                                            'Content-Type': 'application/json'})
-
-            response_code = r.status
-            response_text = r.data
-            if response_code == 200:
-                result = json.loads(response_text.decode('utf-8'))
-            else:
-                no_error = False
-
-        else:
-            ## process request with requests library. Single connection & request
-            r = requests.get(url=request_url,
-                             params=base_params,
-                             headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-
-            response_code = r.status_code
-            response_text = r.text
-            if response_code == 200:
-                result = json.loads(r.text)
-            else:
-                no_error = False
-
-        if no_error:
-            data = result.get('data')
-            if data.get('results'):
-                category_childs = category_childs + data['results']
-                page += 1
-            else:
-                msg_handler.logStruct(topic="getCategoryChilds: No new data so all categories childs gathered",
-                                      status_code=response_code,
-                                      response_text=response_text)
-                break
-        else:
-            msg_handler.logStruct(level="ERROR",
-                                  topic="getCategoryChilds: Error in the get all function",
-                                  status_code=response_code,
-                                  response_text=response_text)
-            break
-
-    msg_handler.logStruct(
-        topic=f"getAllCategories: Finish get all category childs. Length: {len(category_childs)}.\n processing time: {datetime.now() - start_time}")
-
-    if connection == None:
-        # closing the connection
-        r.close()
-
-    return category_childs
-
-def getAllAttributes(logger: object = None,
-                     resultsPerPage: int = 1000,
-                     environment: str = "production",
-                     page: int = 1,
-                     lang: str = None,
-                     categoryId: int = None,
-                     connection: object = None) -> list:
-
-    ## logging
-    if logger:
         start_time = datetime.now()
-        msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                     labels={'function': 'getAllAttributes',
-                                             'endpoint': '/Attribute'})
-        msg_handler.logStruct(topic=f"getAllAttributes: Start get all attributes")
-
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Attribute"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Attribute"
-
-    base_params = {"resultsPerPage": resultsPerPage,
-                   "page": page}
-
-    if categoryId:
-        base_params.update({"categoryId": categoryId})
-    if lang:
-        base_params.update({"lang": lang})
-
-    next_page = True
-    attributes = []
-    while next_page:
-        base_params.update({"page": page})
-
         ## logging
-        if logger:
-            msg_handler.logStruct(topic=f"getAllAttributes: Request {request_url} with params: {base_params}")
+        if bool(os.environ['DEBUG']) and logger:
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'getAllCategories',
+                                                 'endpoint': '/Category/GetAll'})
+            msg_handler.logStruct(topic=f"getAllCategories: Start get all categories.\n start time: {start_time}")
 
-        ## process request from connection pool
-        r = connection.request(method="GET",
-                               url=request_url,
-                               fields=base_params,
-                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
-                                        'Content-Type': 'application/json'})
+        base_params = {"resultsPerPage": resultsPerPage,
+                       "withImagesOnly": withImagesOnly,
+                       "withChildrenOnly": withChildrenOnly,
+                       "withProductsOnly": withProductsOnly,
+                       "includeServiceCategories": includeServiceCategories,
+                       "page": page}
 
-        response_code = r.status
-        response_text = r.data
-        if response_code == 200:
-            result = json.loads(response_text.decode('utf-8'))
-            data = result['data'].get('results', [])
-            if len(data) > 0:
-                attributes = attributes + data
-                page += 1
-            else:
-                ## logging
-                if logger:
-                    msg_handler.logStruct(
-                                        topic="getAllAttributes: No new data so all attributes gathered",
-                                        status_code=response_code,
-                                        response_text=response_text,
-                                        level="DEBUG")
-                break
-        else:
-            ## logging
-            if logger:
-                msg_handler.logStruct(
-                    level="ERROR",
-                    topic="getAllAttributes: status code not 200",
-                    status_code=response_code,
-                    response_text=response_text)
-            break
+        if categoryId:
+            base_params.update({"categoryId": categoryId})
+        if brandId:
+            base_params.update({"brandId": brandId})
+        if query:
+            base_params.update({"query": query})
+        if sortBy:
+            base_params.update({"sortBy": sortBy})
+        if lang:
+            base_params.update({"lang": lang})
 
-    ## logging
-    if logger:
-        msg_handler.logStruct(topic=f"getAllAttributes: Finish get all attributes. Length: {len(attributes)}."
-                                    f"Processing time: {datetime.now()-start_time}")
-
-    return attributes
-
-def getAllAttributeTypes(logger: object,
-                         environment: str = "production") -> list:
-
-    start_time = datetime.now()
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'getAllAttributeTypes',
-                                         'endpoint': '/AttributeType'})
-
-    ## logging
-    msg_handler.logStruct(topic=f"getAllAttributeTypes: Start get all attribute types,\n start time: {start_time}")
-
-    ## construct request
-    if environment == "production":
-        request_url = PRODUCTION_ADDRESS
-    elif environment == "development":
-        request_url = DEVELOPMENT_ADDRESS
-
-    next_page = True
-    page = 1
-    attributeTypes = []
-    while next_page:
-        r = requests.get(f"{request_url}/AttributeType?resultsPerPage=10000&page={page}",
-                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-        if r.status_code == 200:
-            result = json.loads(r.text)
-            data = result.get('data')
-            if len(data) > 0:
-                attributeTypes = attributeTypes + data
-                page += 1
-            else:
-                msg_handler.logStruct(topic="getAllAttributeTypes: No new data so all attribute types gathered",
-                               status_code=r.status_code,
-                               response_text=r.text)
-                break
-        else:
-            msg_handler.logStruct(level="ERROR",
-                                  topic="getAllAttributeTypes: status code not 200",
-                           status_code=r.status_code,
-                           response_text=r.text)
-            break
-
-    msg_handler.logStruct(topic=f"getAllAttributeTypes: Finish get all attributes types. Length: {len(attributeTypes)}.\n Process time: {datetime.now()-start_time}")
-
-    # closing the connection
-    r.close()
-
-    return attributeTypes
-
-def getAllBrands(logger: object = None,
-                 query: str = None,
-                 resultsPerPage: int = 1000,
-                 page: int = 1,
-                 categoryId: int = None,
-                 withImagesOnly: bool = False,
-                 withProductsOnly: bool = False,
-                 desc: bool = False,
-                 lang: str = None,
-                 sortBy: str = None,
-                 environment: str = "production",
-                 connection: object = None) -> list:
-
-    start_time = datetime.now()
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'getAllBrands',
-                                         'endpoint': '/Brand'})
-
-    ## logging
-    if logger:
-        msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                     labels={'function': 'getAllBrands',
-                                             'endpoint': '/Brand'})
-        msg_handler.logStruct(topic=f"getAllBrands: Start get all brands,\n start time: {start_time}")
-
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Brand"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Brand"
-
-    base_params = {"resultsPerPage": resultsPerPage,
-                   "withImagesOnly": withImagesOnly,
-                   "withProductsOnly": withProductsOnly,
-                   "desc": desc,
-                   "page": page}
-
-    if query:
-        base_params.update({"query": query})
-    if sortBy:
-        base_params.update({"sortBy": sortBy})
-    if categoryId:
-        base_params.update({"categoryId": categoryId})
-    if lang:
-        base_params.update({"lang": lang})
-
-    next_page = True
-    page = 1
-    brands = []
-    while next_page:
-        base_params.update({"page": page})
-
-        ## logging
-        if logger:
-            msg_handler.logStruct(topic=f"getAllBrands: Request {request_url} with params: {base_params}")
-
-        ## handle request through session or normal
-        no_error = True
-        if connection:
-            ## process request from connection pool
-            r = connection.request(method="GET",
-                                   url=request_url,
-                                   fields=base_params,
-                                   headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
-                                            'Content-Type': 'application/json'})
-
-            response_code = r.status
-            response_text = r.data
-            if response_code == 200:
-                result = json.loads(response_text.decode('utf-8'))
-            else:
-                no_error = False
-
-        else:
-            ## process request with requests library. Single connection & request
-            r = requests.get(url=request_url,
-                             params=base_params,
-                             headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-
-            response_code = r.status_code
-            response_text = r.text
-            if response_code == 200:
-                result = json.loads(r.text)
-            else:
-                no_error = False
-
-        if no_error:
-            ## process data
-            data = result.get('data')
-            if data.get('results'):
-                brands = brands + data['results']
-                page += 1
-            else:
-                if logger:
-                    msg_handler.logStruct(topic="getAllBrands: No new data so all brands gathered",
-                                           status_code=response_code,
-                                           response_text=response_text)
-                break
-
-        elif no_error == False:
-            ## process if error was in call
-            if logger:
-                msg_handler.logStruct(level="ERROR",
-                               topic="getAllBrands: status code not 200",
-                               status_code=response_code,
-                               response_text=response_text)
-            break
-
-    ## logging
-    if logger:
-        msg_handler.logStruct(topic=f"getAllBrands: Finish get all brands. Length: {len(brands)}")
-
-    if connection == None:
-        # closing the connection
-        r.close()
-
-    return brands
-
-def getAttributeValueUnits(connection: object,
-                           logger: object = None,
-                           resultsPerPage: int = 500,
-                           page: int = 1,
-                           lang: str = None,
-                           environment: str = "production") -> list:
-
-    start_time = datetime.now()
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'getAttributeValueUnits',
-                                         'endpoint': '/AttributeValueUnit'})
-
-    ## logging
-    if logger:
-        msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                     labels={'function': 'getAttributeValueUnits',
-                                             'endpoint': '/AttributeValueUnit'})
-        msg_handler.logStruct(topic=f"getAttributeValueUnits: Start get all,\n start time: {start_time}")
-
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/AttributeValueUnit"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/AttributeValueUnit"
-
-    base_params = {"resultsPerPage": resultsPerPage,
-                   "page": page}
-
-    if lang:
-        base_params.update({"lang": lang})
-
-    next_page = True
-    page = 1
-    attributeUnits = []
-    while next_page:
-        base_params.update({"page": page})
-
-        ## logging
-        if logger:
-            msg_handler.logStruct(topic=f"getAttributeValueUnits: Request {request_url} with params: {base_params}")
-
-        ## process request from connection pool
-        r = connection.request(method="GET",
-                               url=request_url,
-                               fields=base_params,
-                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
-                                        'Content-Type': 'application/json'})
-
-        response_code = r.status
-        response_text = r.data
-        if response_code == 200:
-            result = json.loads(response_text.decode('utf-8'))
-            ## process data
-            data = result.get('data')
-            if data.get('results'):
-                attributeUnits = attributeUnits + data['results']
-                page += 1
-            else:
-                if logger:
-                    msg_handler.logStruct(topic="getAttributeValueUnits: No new data so all brands gathered",
-                                           status_code=response_code,
-                                           response_text=response_text)
-                break
-
-        else:
-            ## process if error was in call
-            if logger:
-                msg_handler.logStruct(level="ERROR",
-                                      topic="getAttributeValueUnits: status code not 200",
-                                      status_code=response_code,
-                                      response_text=response_text)
-            break
-
-    ## logging
-    if logger:
-        msg_handler.logStruct(topic=f"getAttributeValueUnits: Finish get all. Length: {len(attributeUnits)}")
-
-    return attributeUnits
-
-def getAllAttributeTypeUnit(logger: object,
-                            environment: str = "production") -> list:
-    start_time = datetime.now()
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'getAllAttributeTypeUnit',
-                                         'endpoint': '/AttributeTypeUnit'})
-
-    ## logging
-    msg_handler.logStruct(topic=f"getAllAttributeTypeUnit: Start get all attribute type units,\n start time: {start_time}")
-
-    ## construct request
-    if environment == "production":
-        request_url = PRODUCTION_ADDRESS
-    elif environment == "development":
-        request_url = DEVELOPMENT_ADDRESS
-
-    next_page = True
-    page = 1
-    attributeTypeUnits = []
-    while next_page:
-        r = requests.get(f"{request_url}/AttributeTypeUnit?resultsPerPage=10000&page={page}",
-                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-        if r.status_code == 200:
-            result = json.loads(r.text)
-            data = result.get('data')
-            if len(data) > 0:
-                attributeTypeUnits = attributeTypeUnits + data
-                page += 1
-            else:
-                msg_handler.logStruct(topic="getAllAttributeTypeUnit: No new data so all attribute type units gathered",
-                               status_code=r.status_code,
-                               response_text=r.text)
-                break
-
-        else:
-            msg_handler.logStruct(level="ERROR",
-                           topic="getAllAttributeTypeUnit: status code not 200",
-                           status_code=r.status_code,
-                           response_text=r.text)
-            break
-
-    msg_handler.logStruct(topic=f"getAllAttributeTypeUnit: Finish get all attribute type units. Length: {len(attributeTypeUnits)}.\n Processing time: {datetime.now()-start_time}")
-
-    # closing the connection
-    r.close()
-
-    return attributeTypeUnits
-
-
-def getAllSeries(logger: object = None,
-                 resultsPerPage: int = 1000,
-                 page: int = 1,
-                 environment: str = "production",
-                 connection: object = None) -> list:
-    start_time = datetime.now()
-    ## logging
-    if logger:
-        msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                     labels={'function': 'getAllSeries',
-                                             'endpoint': '/Series'})
-        msg_handler.logStruct(topic=f"getAllSeries: Start get all series,\n start time: {start_time}")
-
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Series"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Series"
-
-    base_params = {"resultsPerPage": resultsPerPage}
-
-    next_page = True
-    series = []
-    try:
+        next_page = True
+        categories = []
         while next_page:
             base_params.update({"page": page})
 
             ## logging
             if logger:
-                msg_handler.logStruct(topic=f"getAllSeries: Request {request_url} with params: {base_params}")
+                msg_handler.logStruct(topic=f"getAllCategories: params: {base_params}")
 
             ## process request from connection pool
             r = connection.request(method="GET",
-                                   url=request_url,
+                                   url=f"{os.environ['YOUR_API_URL']}/Category/GetAll",
                                    fields=base_params,
                                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                             'Content-Type': 'application/json'})
@@ -684,173 +117,67 @@ def getAllSeries(logger: object = None,
             if response_code == 200:
                 result = json.loads(response_text.decode('utf-8'))
                 data = result.get('data')
-                if len(data) > 0:
-                    series = series + data
+                if data.get('results'):
+                    categories = categories + data['results']
                     page += 1
-                    continue
-
                 else:
-                    ## logging
-                    if logger:
-                        msg_handler.logStruct(
-                            topic="getAllSeries: No new data so all series gathered",
-                            status_code=response_code,
-                            response_text=response_text,
-                            level="DEBUG")
+                    if bool(os.environ['DEBUG']) and logger:
+                        msg_handler.logStruct(topic="getAllCategories: No new data so all categories gathered",
+                                       status_code=response_code,
+                                       response_text=response_text)
                     break
-
             else:
-                if logger:
+                if bool(os.environ['DEBUG']) and logger:
                     msg_handler.logStruct(level="ERROR",
-                                          topic="getAllSeries: Error in the get all function",
-                                          status_code=r.status_code,
-                                          response_text=r.text)
-                break
-
-    except Exception as e:
-        if logger:
-            msg_handler.logStruct(topic="getAllSeries: Error getting all series",
-                                  error_message=str(e))
-        else:
-            print(f"getAllSeries: Error getting all series. Error: {str(e)}")
-
-    if logger:
-        msg_handler.logStruct(
-            topic=f"getAllSeries: Finish get all series. Length: {len(series)}.\n processing time: {datetime.now() - start_time}")
-
-    return series
-
-
-def getAllProducts(logger: object,
-                   max_results: int = 100000000,
-                   page_results: int = 1000,
-                   page: int = None,
-                   category_id: int = None,
-                   brand_id: int = None,
-                   language: str = "en",
-                   sorting: str = "Popularity",
-                   optional_fields: list = [],
-                   query: str = None,
-                   environment: str = "production",
-                   connection: object = None) -> list:
-    start_time = datetime.now()
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'getAllProducts',
-                                         'endpoint': '/Product'})
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Product"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Product"
-
-    parameters = f"?resultsPerPage={page_results}&sortBy={sorting}&lang={language}"
-    if category_id:
-        parameters = parameters + f"&categoryId={category_id}"
-    if brand_id:
-        parameters = parameters + f"&brandId={brand_id}"
-    if query:
-        parameters = parameters + f"&query={query}"
-    if optional_fields:
-        for optional_field in optional_fields:
-            parameters = parameters + f"&optionalFields={optional_field}"
-    ## set page
-    if page:
-        pagination = False
-    else:
-        pagination = True
-        page = 1
-    page_set_parameters = parameters + f"&page={page}"
-
-    ## logging
-    msg_handler.logStruct(topic=f"getAllProducts: Request parameters: {parameters}, Start get all products")
-
-    products = []
-    try:
-        while True:
-            if len(products) < max_results:
-                ## logging
-                msg_handler.logStruct(topic=f"getAllProducts: Request {request_url} with params: {parameters}")
-
-                ## process request from connection pool
-                r = connection.request(method="GET",
-                                       url=f"{request_url}{page_set_parameters}",
-                                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
-                                                'Content-Type': 'application/json'})
-
-                response_code = r.status
-                response_text = r.data
-                if response_code == 200:
-                    result = json.loads(response_text.decode('utf-8'))
-                    data = result.get('data')
-                    if len(data.get('results', [])) > 0:
-                        products = products + data['results']
-
-                        if pagination:
-                            page += 1
-                            page_set_parameters = parameters + f"&page={page}"
-                            continue
-                        else:
-                            break
-
-                    else:
-                        msg_handler.logStruct(topic="getAllProducts: No new data so all products gathered",
-                                              status_code=response_code,
-                                              response_text=response_text)
-                        break
-                else:
-                    msg_handler.logStruct(level="ERROR",
-                                          topic="getAllProducts: Error in the get all function",
+                                          topic="getAllCategories: Error in the get all function",
                                           status_code=response_code,
                                           response_text=response_text)
-                    break
-            else:
-                msg_handler.logStruct(level="DEBUG",
-                                      topic=f"getAllProducts: max results reached. max: {max_results}")
                 break
 
-    except Exception as e:
-        msg_handler.logStruct(topic="getAllProducts: Error getting all products",
-                              error_message=str(e))
-
-    msg_handler.logStruct(
-        topic=f"getAllProducts: Finish get all products. Length: {len(products)}.\n processing time: {datetime.now() - start_time}")
-
-    return products
+        if bool(os.environ['DEBUG']) and logger:
+            msg_handler.logStruct(topic=f"getAllCategories: Finish get all categories. Length: {len(categories)}.\n processing time: {datetime.now()-start_time}")
 
 
-def getAllExternalProductIds(logger:object,
-                             sourceId: int = None,
-                             environment: str = "production",
-                             connection: object = None) -> dict:
+        return categories
 
-    start_time = datetime.now()
-    msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                 labels={'function': 'getAllExternalProductIds',
-                                         'endpoint': '/Product/GetAllExternalIDs'})
-    ## construct request
-    base_params = {}
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Product/GetAllExternalIDs"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Product/GetAllExternalIDs"
+    @staticmethod
+    def getChilds(connection: object,
+                  logger: object,
+                  categoryId: int,
+                  resultsPerPage: int = 1000,
+                  page: int = 1,
+                  lang: str = "en",
+                  sortBy: str = None,
+                  includeServiceCategories: bool = False) -> list:
 
-    if sourceId:
-        base_params = {"sourceId": sourceId}
+        start_time = datetime.now()
+        ## logging
+        if bool(os.environ['DEBUG']):
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'getCategoryChilds',
+                                                 'endpoint': '/Category/{categoryId}/Categories'})
+            msg_handler.logStruct(topic=f"getCategoryChilds: Start get all category childs")
 
-    ## logging
-    msg_handler.logStruct(
-        topic=f"getAllExternalProductIds: Request get all external product ids",
-        data=base_params)
+        ## params builder
+        base_params = {"resultsPerPage": resultsPerPage,
+                       "includeServiceCategories": includeServiceCategories,
+                       "lang": lang,
+                       "page": page}
+        if sortBy:
+            base_params.update({"sortBy": sortBy})
 
-    ## request variables
-    products = {}
-    try:
-        ## handle request through session or normal
-        no_error = True
-        if connection:
+        next_page = True
+        category_childs = []
+        while next_page:
+            base_params.update({"page": page})
+
+            ## logging
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(topic=f"getCategoryChilds: params: {base_params}")
+
             ## process request from connection pool
             r = connection.request(method="GET",
-                                   url=request_url,
+                                   url=f"{os.environ['YOUR_API_URL']}/Category/{categoryId}/Categories",
                                    fields=base_params,
                                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                             'Content-Type': 'application/json'})
@@ -859,48 +186,432 @@ def getAllExternalProductIds(logger:object,
             response_text = r.data
             if response_code == 200:
                 result = json.loads(response_text.decode('utf-8'))
+                data = result.get('data')
+                if data.get('results'):
+                    category_childs = category_childs + data['results']
+                    page += 1
+                else:
+                    if bool(os.environ['DEBUG']):
+                        msg_handler.logStruct(topic="getCategoryChilds: No new data so all categories childs gathered",
+                                              status_code=response_code,
+                                              response_text=response_text)
+                    break
             else:
-                no_error = False
+                if bool(os.environ['DEBUG']):
+                    msg_handler.logStruct(level="ERROR",
+                                          topic="getCategoryChilds: Error in the get all function",
+                                          status_code=response_code,
+                                          response_text=response_text)
+                break
 
-        else:
-            ## process request with requests library. Single connection & request
-            r = requests.get(url=request_url,
-                             params=base_params,
-                             headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        ## logging
+        if bool(os.environ['DEBUG']):
+            msg_handler.logStruct(topic=f"getAllCategories: Finish get all category childs. "
+                                        f"Length: {len(category_childs)}.\n "
+                                        f"processing time: {datetime.now() - start_time}")
 
-            response_code = r.status_code
-            response_text = r.text
+        return category_childs
+
+class Attributes:
+    @staticmethod
+    def getAll(connection: object,
+               logger: object = None,
+               resultsPerPage: int = 1000,
+               page: int = 1,
+               lang: str = None,
+               categoryId: int = None) -> list:
+
+        ## logging
+        if bool(os.environ['DEBUG']) and logger:
+            start_time = datetime.now()
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'getAllAttributes',
+                                                 'endpoint': '/Attribute'})
+            msg_handler.logStruct(topic=f"getAllAttributes: Start get all attributes")
+
+        ## construct request
+        base_params = {"resultsPerPage": resultsPerPage,
+                       "page": page}
+        if categoryId:
+            base_params.update({"categoryId": categoryId})
+        if lang:
+            base_params.update({"lang": lang})
+
+        attributes = []
+        while True:
+            base_params.update({"page": page})
+
+            ## logging
+            if bool(os.environ['DEBUG']) and logger:
+                msg_handler.logStruct(topic=f"getAllAttributes: params: {base_params}")
+
+            ## process request from connection pool
+            r = connection.request(method="GET",
+                                   url=f"{os.environ['YOUR_API_URL']}/Attribute",
+                                   fields=base_params,
+                                   headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                            'Content-Type': 'application/json'})
+
+            response_code = r.status
+            response_text = r.data
             if response_code == 200:
+                result = json.loads(response_text.decode('utf-8'))
+                data = result['data'].get('results', [])
+                if len(data) > 0:
+                    attributes = attributes + data
+                    page += 1
+                else:
+                    ## logging
+                    if bool(os.environ['DEBUG']) and logger:
+                        msg_handler.logStruct(
+                                            topic="getAllAttributes: No new data so all attributes gathered",
+                                            status_code=response_code,
+                                            response_text=response_text,
+                                            level="DEBUG")
+                    break
+            else:
+                ## logging
+                if bool(os.environ['DEBUG']) and logger:
+                    msg_handler.logStruct(
+                        level="ERROR",
+                        topic="getAllAttributes: status code not 200",
+                        status_code=response_code,
+                        response_text=response_text)
+                break
+
+        ## logging
+        if bool(os.environ['DEBUG']) and logger:
+            msg_handler.logStruct(topic=f"getAllAttributes: Finish get all attributes. Length: {len(attributes)}."
+                                        f"Processing time: {datetime.now()-start_time}")
+
+        return attributes
+
+    @staticmethod
+    def getValueUnits(connection: object,
+                      logger: object = None,
+                      resultsPerPage: int = 500,
+                      page: int = 1,
+                      lang: str = None) -> list:
+
+        start_time = datetime.now()
+        ## logging
+        if bool(os.environ['DEBUG']) and logger:
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'getAttributeValueUnits',
+                                                 'endpoint': '/AttributeValueUnit'})
+            msg_handler.logStruct(topic=f"getAttributeValueUnits: Start get all,\n start time: {start_time}")
+
+        ## construct request
+        base_params = {"resultsPerPage": resultsPerPage,
+                       "page": page}
+        if lang:
+            base_params.update({"lang": lang})
+
+        page = 1
+        attributeUnits = []
+        while True:
+            base_params.update({"page": page})
+
+            ## logging
+            if bool(os.environ['DEBUG']) and logger:
+                msg_handler.logStruct(topic=f"getAttributeValueUnits: params: {base_params}")
+
+            ## process request from connection pool
+            r = connection.request(method="GET",
+                                   url=f"{os.environ['YOUR_API_URL']}/AttributeValueUnit",
+                                   fields=base_params,
+                                   headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                            'Content-Type': 'application/json'})
+
+            response_code = r.status
+            response_text = r.data
+            if response_code == 200:
+                result = json.loads(response_text.decode('utf-8'))
+                ## process data
+                data = result.get('data')
+                if data.get('results'):
+                    attributeUnits = attributeUnits + data['results']
+                    page += 1
+                else:
+                    if bool(os.environ['DEBUG']) and logger:
+                        msg_handler.logStruct(topic="getAttributeValueUnits: No new data so all gathered",
+                                              status_code=response_code,
+                                              response_text=response_text)
+                    break
+
+            else:
+                ## process if error was in call
+                if bool(os.environ['DEBUG']) and logger:
+                    msg_handler.logStruct(level="ERROR",
+                                          topic="getAttributeValueUnits: status code not 200",
+                                          status_code=response_code,
+                                          response_text=response_text)
+                break
+
+        ## logging
+        if bool(os.environ['DEBUG']) and logger:
+            msg_handler.logStruct(topic=f"getAttributeValueUnits: Finish get all. Length: {len(attributeUnits)}")
+
+        return attributeUnits
+
+    @staticmethod
+    def getAllTypeUnit(logger: object,
+                        environment: str = "production") -> list:
+        start_time = datetime.now()
+        msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                     labels={'function': 'getAllAttributeTypeUnit',
+                                             'endpoint': '/AttributeTypeUnit'})
+
+        ## logging
+        msg_handler.logStruct(
+            topic=f"getAllAttributeTypeUnit: Start get all attribute type units,\n start time: {start_time}")
+
+        ## construct request
+        if environment == "production":
+            request_url = PRODUCTION_ADDRESS
+        elif environment == "development":
+            request_url = DEVELOPMENT_ADDRESS
+
+        next_page = True
+        page = 1
+        attributeTypeUnits = []
+        while next_page:
+            r = requests.get(f"{request_url}/AttributeTypeUnit?resultsPerPage=10000&page={page}",
+                             headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+            if r.status_code == 200:
                 result = json.loads(r.text)
+                data = result.get('data')
+                if len(data) > 0:
+                    attributeTypeUnits = attributeTypeUnits + data
+                    page += 1
+                else:
+                    msg_handler.logStruct(
+                        topic="getAllAttributeTypeUnit: No new data so all attribute type units gathered",
+                        status_code=r.status_code,
+                        response_text=r.text)
+                    break
+
             else:
-                no_error = False
+                msg_handler.logStruct(level="ERROR",
+                                      topic="getAllAttributeTypeUnit: status code not 200",
+                                      status_code=r.status_code,
+                                      response_text=r.text)
+                break
 
-        if no_error:
-            data = result.get('data')
-            if data:
-                products = data
+        msg_handler.logStruct(
+            topic=f"getAllAttributeTypeUnit: Finish get all attribute type units. Length: {len(attributeTypeUnits)}.\n Processing time: {datetime.now() - start_time}")
+
+        return attributeTypeUnits
+
+    @staticmethod
+    def getAllAttributeTypes(logger: object,
+                             environment: str = "production") -> list:
+
+        start_time = datetime.now()
+        msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                     labels={'function': 'getAllAttributeTypes',
+                                             'endpoint': '/AttributeType'})
+
+        ## logging
+        msg_handler.logStruct(topic=f"getAllAttributeTypes: Start get all attribute types,\n start time: {start_time}")
+
+        ## construct request
+        if environment == "production":
+            request_url = PRODUCTION_ADDRESS
+        elif environment == "development":
+            request_url = DEVELOPMENT_ADDRESS
+
+        next_page = True
+        page = 1
+        attributeTypes = []
+        while next_page:
+            r = requests.get(f"{request_url}/AttributeType?resultsPerPage=10000&page={page}",
+                             headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+            if r.status_code == 200:
+                result = json.loads(r.text)
+                data = result.get('data')
+                if len(data) > 0:
+                    attributeTypes = attributeTypes + data
+                    page += 1
+                else:
+                    msg_handler.logStruct(topic="getAllAttributeTypes: No new data so all attribute types gathered",
+                                   status_code=r.status_code,
+                                   response_text=r.text)
+                    break
             else:
-                msg_handler.logStruct(topic="getAllExternalProductIds: No data in request",
-                                      status_code=response_code,
-                                      response_text=response_text)
-        else:
-            msg_handler.logStruct(level="ERROR",
-                                  topic="getAllExternalProductIds: Error in the get all function",
-                                  status_code=response_code,
-                                  response_text=response_text)
+                msg_handler.logStruct(level="ERROR",
+                                      topic="getAllAttributeTypes: status code not 200",
+                               status_code=r.status_code,
+                               response_text=r.text)
+                break
 
-    except Exception as e:
-        msg_handler.logStruct(topic="getAllExternalProductIds: Error getting all external product ids",
-                              error_message=str(e))
+        msg_handler.logStruct(topic=f"getAllAttributeTypes: Finish get all attributes types. Length: {len(attributeTypes)}.\n Process time: {datetime.now()-start_time}")
 
-    msg_handler.logStruct(
-        topic=f"getAllExternalProductIds: Finish get all products external ids. Length: {len(products)}.processing time: {datetime.now() - start_time}")
+        return attributeTypes
 
-    if connection == None:
-        # closing the connection
-        r.close()
+class Brands:
+    @staticmethod
+    def getAll(connection: object,
+               logger: object = None,
+               query: str = None,
+               resultsPerPage: int = 1000,
+               page: int = 1,
+               categoryId: int = None,
+               withImagesOnly: bool = False,
+               withProductsOnly: bool = False,
+               desc: bool = False,
+               lang: str = None,
+               sortBy: str = None) -> list:
 
-    return products
+        start_time = datetime.now()
+        msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                     labels={'function': 'getAllBrands',
+                                             'endpoint': '/Brand'})
+
+        ## logging
+        if bool(os.environ['DEBUG']) and logger:
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'getAllBrands',
+                                                 'endpoint': '/Brand'})
+            msg_handler.logStruct(topic=f"getAllBrands: Start get all brands,\n start time: {start_time}")
+
+        ## request builder
+        base_params = {"resultsPerPage": resultsPerPage,
+                       "withImagesOnly": withImagesOnly,
+                       "withProductsOnly": withProductsOnly,
+                       "desc": desc,
+                       "page": page}
+        if query:
+            base_params.update({"query": query})
+        if sortBy:
+            base_params.update({"sortBy": sortBy})
+        if categoryId:
+            base_params.update({"categoryId": categoryId})
+        if lang:
+            base_params.update({"lang": lang})
+
+        next_page = True
+        page = 1
+        brands = []
+        while next_page:
+            base_params.update({"page": page})
+
+            ## logging
+            if bool(os.environ['DEBUG']) and logger:
+                msg_handler.logStruct(topic=f"getAllBrands: params: {base_params}")
+
+            ## process request from connection pool
+            r = connection.request(method="GET",
+                                   url=f"{os.environ['YOUR_API_URL']}/Brand",
+                                   fields=base_params,
+                                   headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                            'Content-Type': 'application/json'})
+
+            response_code = r.status
+            response_text = r.data
+            if response_code == 200:
+                result = json.loads(response_text.decode('utf-8'))
+                data = result.get('data')
+                if data.get('results'):
+                    brands = brands + data['results']
+                    page += 1
+                else:
+                    if bool(os.environ['DEBUG']) and logger:
+                        msg_handler.logStruct(topic="getAllBrands: No new data so all brands gathered",
+                                               status_code=response_code,
+                                               response_text=response_text)
+                    break
+
+            else:
+                ## process if error was in call
+                if bool(os.environ['DEBUG']) and logger:
+                    msg_handler.logStruct(level="ERROR",
+                                   topic="getAllBrands: status code not 200",
+                                   status_code=response_code,
+                                   response_text=response_text)
+                break
+
+        ## logging
+        if bool(os.environ['DEBUG']) and logger:
+            msg_handler.logStruct(topic=f"getAllBrands: Finish get all brands. Length: {len(brands)}")
+
+        return brands
+
+class Series:
+    @staticmethod
+    def getAll(connection: object,
+               logger: object = None,
+               resultsPerPage: int = 1000,
+               page: int = 1) -> list:
+
+        ## logging
+        if bool(os.environ['DEBUG']) and logger:
+            start_time = datetime.now()
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'getAllSeries',
+                                                 'endpoint': '/Series'})
+            msg_handler.logStruct(topic=f"getAllSeries: Start get all series,\n start time: {start_time}")
+
+        ## construct request
+        base_params = {"resultsPerPage": resultsPerPage}
+
+        next_page = True
+        series = []
+        try:
+            while next_page:
+                base_params.update({"page": page})
+
+                ## logging
+                if bool(os.environ['DEBUG']) and logger:
+                    msg_handler.logStruct(topic=f"getAllSeries:params: {base_params}")
+
+                ## process request from connection pool
+                r = connection.request(method="GET",
+                                       url=f"{os.environ['YOUR_API_URL']}/Series",
+                                       fields=base_params,
+                                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                                'Content-Type': 'application/json'})
+
+                response_code = r.status
+                response_text = r.data
+                if response_code == 200:
+                    result = json.loads(response_text.decode('utf-8'))
+                    data = result.get('data')
+                    if len(data) > 0:
+                        series = series + data
+                        page += 1
+                        continue
+
+                    else:
+                        ## logging
+                        if bool(os.environ['DEBUG']) and logger:
+                            msg_handler.logStruct(
+                                topic="getAllSeries: No new data so all series gathered",
+                                status_code=response_code,
+                                response_text=response_text,
+                                level="DEBUG")
+                        break
+
+                else:
+                    if bool(os.environ['DEBUG']) and logger:
+                        msg_handler.logStruct(level="ERROR",
+                                              topic="getAllSeries: Error in the get all function",
+                                              status_code=r.status_code,
+                                              response_text=r.text)
+                    break
+
+        except Exception as e:
+            if bool(os.environ['DEBUG']) and logger:
+                msg_handler.logStruct(topic="getAllSeries: Error getting all series",
+                                      error_message=str(e))
+            else:
+                print(f"getAllSeries: Error getting all series. Error: {str(e)}")
+
+        if bool(os.environ['DEBUG']) and logger:
+            msg_handler.logStruct(
+                topic=f"getAllSeries: Finish get all series. Length: {len(series)}.\n processing time: {datetime.now() - start_time}")
+
+        return series
 
 def getImageByStatus(connection: object,
                      logger: object = None,
@@ -989,72 +700,223 @@ def getImageByStatus(connection: object,
 
     return broken_images, page
 
-def getProduct(productId: str,
-               connection: object,
+class Product:
+    @staticmethod
+    def getAll(connection: object,
                logger: object = None,
-               attributes: bool = False,
-               media: bool = False,
-               parentCategories: bool = False,
-               ReasonsToBuy: bool = False,
-               extraResolutions: bool = True,
-               mediaAttributes: bool = True,
+               max_results: int = 100000000,
+               page_results: int = 1000,
+               page: int = None,
+               category_id: int = None,
+               brand_id: int = None,
                language: str = "en",
-               environment: str = "production") -> dict:
+               sorting: str = "Popularity",
+               optional_fields: list = [],
+               query: str = None) -> list:
 
-    ## logging
-    if logger:
-        msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                     labels={'function': 'getProduct',
-                                             'endpoint': '/Category/GetAll'})
-        msg_handler.logStruct(topic=f"getProduct: Start get productId {productId}")
+        ## logging
+        if bool(os.environ['DEBUG']) and logger:
+            start_time = datetime.now()
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'getAllProducts',
+                                                 'endpoint': '/Product'})
 
-    ## params
-    param_url = f"?Lang={language}&optionalFields=Translations"
-    if attributes:
-        param_url = param_url + f"&optionalFields=AttributeTranslations&optionalFields=Attributes"
-    if media:
-        param_url = param_url + f"&optionalFields=Media"
-    if parentCategories:
-        param_url = param_url + f"&optionalFields=ParentCategories"
-    if ReasonsToBuy:
-        param_url = param_url + f"&optionalFields=ReasonsToBuy"
-    if extraResolutions:
-        param_url = param_url + f"&optionalFields=extraResolutions"
-    if mediaAttributes:
-        param_url = param_url + f"&optionalFields=MediaAttributeValues"
+        ## building parameters
+        parameters = f"?resultsPerPage={page_results}&sortBy={sorting}&lang={language}"
+        if category_id:
+            parameters = parameters + f"&categoryId={category_id}"
+        if brand_id:
+            parameters = parameters + f"&brandId={brand_id}"
+        if query:
+            parameters = parameters + f"&query={query}"
+        if optional_fields:
+            for optional_field in optional_fields:
+                parameters = parameters + f"&optionalFields={optional_field}"
+        ## set page
+        if page:
+            pagination = False
+        else:
+            pagination = True
+            page = 1
+        page_set_parameters = parameters + f"&page={page}"
 
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Product/{productId}?{param_url}"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Product/{productId}?{param_url}"
+        ## logging
+        msg_handler.logStruct(topic=f"getAllProducts: Request parameters: {parameters}, Start get all products")
 
-    ## logging
-    if logger:
-        msg_handler.logStruct(topic=f"getProduct: Request {request_url}")
+        products = []
+        try:
+            while True:
+                if len(products) < max_results:
+                    ## logging
+                    msg_handler.logStruct(topic=f"getAllProducts: params: {parameters}")
 
-    ## process request from connection pool
-    r = connection.request(method="GET",
-                           url=request_url,
-                           headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
-                                    'Content-Type': 'application/json'})
+                    ## process request from connection pool
+                    r = connection.request(method="GET",
+                                           url=f"{os.environ['YOUR_API_URL']}/Product{page_set_parameters}",
+                                           headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                                    'Content-Type': 'application/json'})
 
-    response_code = r.status
-    response_text = r.data
-    if response_code == 200:
-        result = json.loads(response_text.decode('utf-8'))
-        data = result.get('data')
-        if data:
-            return data
+                    response_code = r.status
+                    response_text = r.data
+                    if response_code == 200:
+                        result = json.loads(response_text.decode('utf-8'))
+                        data = result.get('data')
+                        if len(data.get('results', [])) > 0:
+                            products = products + data['results']
 
-    else:
-        if logger:
-            msg_handler.logStruct(level="ERROR",
-                                  topic="getProduct: Error in the get all function",
-                                  status_code=response_code,
-                                  response_text=response_text)
+                            if pagination:
+                                page += 1
+                                page_set_parameters = parameters + f"&page={page}"
+                                continue
+                            else:
+                                break
 
-    return {}
+                        else:
+                            if bool(os.environ['DEBUG']) and logger:
+                                msg_handler.logStruct(topic="getAllProducts: No new data so all products gathered",
+                                                      status_code=response_code,
+                                                      response_text=response_text)
+                            break
+                    else:
+                        if bool(os.environ['DEBUG']) and logger:
+                            msg_handler.logStruct(level="ERROR",
+                                                  topic="getAllProducts: Error in the get all function",
+                                                  status_code=response_code,
+                                                  response_text=response_text)
+                        break
+                else:
+                    if bool(os.environ['DEBUG']) and logger:
+                        msg_handler.logStruct(level="DEBUG",
+                                              topic=f"getAllProducts: max results reached. max: {max_results}")
+                    break
+
+        except Exception as e:
+            if bool(os.environ['DEBUG']) and logger:
+                msg_handler.logStruct(topic="getAllProducts: Error getting all products",
+                                      error_message=str(e))
+
+        if bool(os.environ['DEBUG']) and logger:
+            msg_handler.logStruct(
+                topic=f"getAllProducts: Finish get all products. Length: {len(products)}.\n "
+                      f"processing time: {datetime.now() - start_time}")
+
+        return products
+
+    @staticmethod
+    def getAllExternalIds(connection: object,
+                          logger: object = None,
+                          sourceId: int = None) -> dict:
+        ## construct request
+        if sourceId:
+            base_params = {"sourceId": sourceId}
+
+        if bool(os.environ['DEBUG']) and logger:
+            start_time = datetime.now()
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'getAllExternalProductIds',
+                                                 'endpoint': '/Product/GetAllExternalIDs'})
+            msg_handler.logStruct(
+                topic=f"getAllExternalProductIds: Request get all external product ids",
+                data=base_params)
+
+        ## request variables
+        products = {}
+        try:
+            ## process request from connection pool
+            r = connection.request(method="GET",
+                                   url=f"{os.environ['YOUR_API_URL']}/Product/GetAllExternalIDs",
+                                   fields=base_params,
+                                   headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                            'Content-Type': 'application/json'})
+
+            response_code = r.status
+            response_text = r.data
+            if response_code == 200:
+                result = json.loads(response_text.decode('utf-8'))
+                data = result.get('data')
+                if data:
+                    products = data
+                else:
+                    if bool(os.environ['DEBUG']) and logger:
+                        msg_handler.logStruct(topic="getAllExternalProductIds: No data in request",
+                                              status_code=response_code,
+                                              response_text=response_text)
+            else:
+                if bool(os.environ['DEBUG']) and logger:
+                    msg_handler.logStruct(level="ERROR",
+                                          topic="getAllExternalProductIds: Error in the get all function",
+                                          status_code=response_code,
+                                          response_text=response_text)
+
+        except Exception as e:
+            if bool(os.environ['DEBUG']) and logger:
+                msg_handler.logStruct(topic="getAllExternalProductIds: Error getting all external product ids",
+                                      error_message=str(e))
+
+        if bool(os.environ['DEBUG']) and logger:
+            msg_handler.logStruct(
+                topic=f"getAllExternalProductIds: Finish get all products external ids. Length: {len(products)}.processing time: {datetime.now() - start_time}")
+
+        return products
+
+    @staticmethod
+    def get(productId: str,
+            connection: object,
+            logger: object = None,
+            attributes: bool = False,
+            media: bool = False,
+            parentCategories: bool = False,
+            ReasonsToBuy: bool = False,
+            extraResolutions: bool = True,
+            mediaAttributes: bool = True,
+            language: str = None) -> dict:
+
+        ## params
+        param_url = f"?optionalFields=Translations"
+        if language:
+            param_url = param_url + f"Lang={language}"
+        if attributes:
+            param_url = param_url + f"&optionalFields=AttributeTranslations&optionalFields=Attributes"
+        if media:
+            param_url = param_url + f"&optionalFields=Media"
+        if parentCategories:
+            param_url = param_url + f"&optionalFields=ParentCategories"
+        if ReasonsToBuy:
+            param_url = param_url + f"&optionalFields=ReasonsToBuy"
+        if extraResolutions:
+            param_url = param_url + f"&optionalFields=extraResolutions"
+        if mediaAttributes:
+            param_url = param_url + f"&optionalFields=MediaAttributeValues"
+
+        ## logging
+        if bool(os.environ['DEBUG']) and logger:
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'getProduct',
+                                                 'endpoint': '/Category/GetAll'})
+            msg_handler.logStruct(topic=f"getProduct: Start get productId {productId}, params: {param_url}")
+
+        ## process request from connection pool
+        r = connection.request(method="GET",
+                               url=f"{os.environ['YOUR_API_URL']}/Product/{productId}{param_url}",
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+
+        response_code = r.status
+        response_text = r.data
+        if response_code == 200:
+            result = json.loads(response_text.decode('utf-8'))
+            data = result.get('data')
+            if data:
+                return data
+
+        else:
+            if bool(os.environ['DEBUG']) and logger:
+                msg_handler.logStruct(level="ERROR",
+                                      topic="getProduct: Error in the get all function",
+                                      status_code=response_code,
+                                      response_text=response_text)
+
+        return {}
 
 
 def getUserSearch(identifier: str,
