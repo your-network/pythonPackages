@@ -732,7 +732,7 @@ class Attributes:
 
         if status_code in allowed_codes:
             resp_body = json.loads(resp_data.decode('utf-8'))
-            unit_id = resp_body['id']
+            unit_id = resp_body.get('data', {}).get('id')
             ## logging
             if bool(os.environ['DEBUG']):
                 msg_handler.logStruct(
