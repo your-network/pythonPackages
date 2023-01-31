@@ -329,7 +329,7 @@ class Attributes:
                 result = json.loads(response_text.decode('utf-8'))
                 ## process data
                 data = result.get('data')
-                if data.get('results'):
+                if data and data.get('results'):
                     attributeUnits = attributeUnits + data['results']
                     page += 1
                 else:
