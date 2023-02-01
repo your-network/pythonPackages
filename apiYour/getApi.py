@@ -146,7 +146,7 @@ class Category:
                   categoryId: int,
                   resultsPerPage: int = 1000,
                   page: int = 1,
-                  lang: str = "en",
+                  lang: str = None,
                   sortBy: str = None,
                   includeServiceCategories: bool = False) -> list:
 
@@ -155,20 +155,20 @@ class Category:
         if bool(os.environ['DEBUG']):
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'getCategoryChilds',
-                                                 'endpoint': '/Category/{categoryId}/Categories'})
+                                                 'endpoint': f"/Category/{categoryId}/Categories"})
             msg_handler.logStruct(topic=f"getCategoryChilds: Start get all category childs")
 
         ## params builder
         base_params = {"resultsPerPage": resultsPerPage,
                        "includeServiceCategories": includeServiceCategories,
-                       "lang": lang,
                        "page": page}
         if sortBy:
             base_params.update({"sortBy": sortBy})
+        if lang:
+            base_params.update({"lang": lang})
 
-        next_page = True
         category_childs = []
-        while next_page:
+        while True:
             base_params.update({"page": page})
 
             ## logging
