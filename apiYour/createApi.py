@@ -704,10 +704,10 @@ class Attributes:
         return attribute_id
 
     @staticmethod
-    def createAttributeValueUnit(logger: object,
-                                 data: dict,
-                                 connection: object,
-                                 additional_labels: dict = None) -> bool:
+    def createValueUnit(logger: object,
+                         data: dict,
+                         connection: object,
+                         additional_labels: dict = None) -> bool:
         ## logging
         labels = {'function': 'createAttributeValueUnit',
                   'endpoint': '/AttributeValueUnit'}
@@ -715,7 +715,7 @@ class Attributes:
             labels.update(additional_labels)
         msg_handler = messageHandler(logger=logger, level="DEBUG",
                                      labels=labels)
-        msg_handler.logStruct(topic=f"createAttributeValueUnit: Start create category category relation",
+        msg_handler.logStruct(topic=f"createAttributeValueUnit: create attribute value unit",
                               data=data)
 
         ## process request from connection pool
@@ -732,14 +732,23 @@ class Attributes:
 
         if status_code in allowed_codes:
             resp_body = json.loads(resp_data.decode('utf-8'))
-            unit_id = resp_body.get('data', {}).get('id')
-            ## logging
-            if bool(os.environ['DEBUG']):
-                msg_handler.logStruct(
-                    topic=f"createAttributeValueUnit: finished creating",
-                    status_code=status_code,
-                    response_text=resp_data)
-            return unit_id
+            if resp_body.get('data'):
+                unit_id = resp_body['data'].get('id')
+                ## logging
+                if bool(os.environ['DEBUG']):
+                    msg_handler.logStruct(
+                        topic=f"createAttributeValueUnit: finished creating",
+                        status_code=status_code,
+                        response_text=resp_data)
+                return unit_id
+            else:
+                ## logging
+                if bool(os.environ['DEBUG']):
+                    msg_handler.logStruct(
+                        topic=f"createAttributeValueUnit: no data returned",
+                        status_code=status_code,
+                        response_text=resp_body)
+                return None
 
         else:
             ## logging
