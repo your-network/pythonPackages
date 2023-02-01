@@ -122,8 +122,8 @@ class Attribute:
                 ## logging
                 if bool(os.environ['DEBUG']):
                     msg_handler.logStruct(topic=f"updateAttribute: attributeId: {attribute_id}, update attribute success",
-                                          status_code=r.status_code,
-                                          response_text=r.text)
+                                          status_code=status_code,
+                                          response_text=r.data)
                 return media
 
         else:
@@ -131,8 +131,8 @@ class Attribute:
             if bool(os.environ['DEBUG']):
                 msg_handler.logStruct(level="ERROR",
                                       topic=f"updateAttribute:  attributeId: {attribute_id}, update attribute error",
-                                      status_code=r.status_code,
-                                      response_text=r.text)
+                                      status_code=status_code,
+                                      response_text=r.data)
             return []
 
     @staticmethod
@@ -154,14 +154,13 @@ class Attribute:
                                url=f"{os.environ['YOUR_API_URL']}/AttributeValueUnit/{unitId}",
                                body=encoded_data,
                                headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-        status_code = r.status
 
-        if status_code == 200:
+        if r.status == 200:
             ## logging
             if bool(os.environ['DEBUG']):
                 msg_handler.logStruct(topic=f"putUpdateValueUnit: valueUnit: {unitId}, update attribute success",
-                                      status_code=r.status_code,
-                                      response_text=r.text)
+                                      status_code=r.status,
+                                      response_text=r.data)
             return True
 
         else:
@@ -169,8 +168,8 @@ class Attribute:
             if bool(os.environ['DEBUG']):
                 msg_handler.logStruct(level="ERROR",
                                       topic=f"putUpdateValueUnit:  valueUnit: {unitId}, update attribute error",
-                                      status_code=r.status_code,
-                                      response_text=r.text)
+                                      status_code=r.status,
+                                      response_text=r.data)
             return False
 
 class Product:
