@@ -135,6 +135,44 @@ class Attribute:
                                       response_text=r.text)
             return []
 
+    @staticmethod
+    def putUpdateValueUnit(logger: object,
+                          payload: dict,
+                          unitId: int,
+                          connection: object) -> bool:
+
+        ## logging
+        if bool(os.environ['DEBUG']):
+            msg_handler = messageHandler(logger=logger, level="DEBUG",
+                                         labels={'function': 'updateAttribute', 'endpoint': '/AttributeValueUnit/{unitId}'})
+            msg_handler.logStruct(topic=f"putUpdateValueUnit: valueUnit: {unitId}, start updating attribute.",
+                                  data=payload)
+
+        ## process request from connection pool
+        encoded_data = json.dumps(payload).encode('utf-8')
+        r = connection.request(method="PUT",
+                               url=f"{os.environ['YOUR_API_URL']}/AttributeValueUnit/{unitId}",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+        status_code = r.status
+
+        if status_code == 200:
+            ## logging
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(topic=f"putUpdateValueUnit: valueUnit: {unitId}, update attribute success",
+                                      status_code=r.status_code,
+                                      response_text=r.text)
+            return True
+
+        else:
+            ## logging
+            if bool(os.environ['DEBUG']):
+                msg_handler.logStruct(level="ERROR",
+                                      topic=f"putUpdateValueUnit:  valueUnit: {unitId}, update attribute error",
+                                      status_code=r.status_code,
+                                      response_text=r.text)
+            return False
+
 class Product:
     @staticmethod
     def putUpdate(logger: object,
