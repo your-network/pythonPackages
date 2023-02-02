@@ -22,7 +22,8 @@ class Category:
         r = connection.request(method="PUT",
                                url=f"{os.environ['YOUR_API_URL']}/Category/{category_id}",
                                body=encoded_data,
-                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
         status_code = r.status
 
         if status_code == 200:
@@ -66,7 +67,8 @@ class Brand:
         r = connection.request(method="PUT",
                                url=f"{os.environ['YOUR_API_URL']}/Brand/{brand_id}",
                                body=encoded_data,
-                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
         status_code = r.status
 
         if status_code == 200:
@@ -110,7 +112,8 @@ class Attribute:
         r = connection.request(method="PUT",
                                url=f"{os.environ['YOUR_API_URL']}/Attribute/{attribute_id}",
                                body=encoded_data,
-                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
         status_code = r.status
 
         if status_code == 200:
@@ -153,7 +156,8 @@ class Attribute:
         r = connection.request(method="PUT",
                                url=f"{os.environ['YOUR_API_URL']}/AttributeValueUnit/{unitId}",
                                body=encoded_data,
-                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
 
         if r.status == 200:
             ## logging
