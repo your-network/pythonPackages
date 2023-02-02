@@ -707,7 +707,7 @@ class Attributes:
     def createValueUnit(logger: object,
                          data: dict,
                          connection: object,
-                         additional_labels: dict = None) -> bool:
+                         additional_labels: dict = None):
         ## logging
         labels = {'function': 'createAttributeValueUnit',
                   'endpoint': '/AttributeValueUnit'}
