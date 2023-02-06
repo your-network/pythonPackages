@@ -37,7 +37,7 @@ class Category:
                 if bool(os.environ['DEBUG']) and logger:
                     msg_handler.logStruct(topic=f"updateCategory: categoryId: {category_id}, update category success",
                                           status_code=r.status,
-                                          response_text=r.text)
+                                          response_text=r.data)
                 return media
 
         else:
@@ -46,7 +46,7 @@ class Category:
                 msg_handler.logStruct(level="ERROR",
                                       topic=f"updateCategory:  categoryId: {category_id}, update category error",
                                       status_code=r.status,
-                                      response_text=r.text)
+                                      response_text=r.data)
             return []
 
 class Brand:
@@ -81,7 +81,7 @@ class Brand:
                 if bool(os.environ['DEBUG']):
                     msg_handler.logStruct(topic=f"updateBrand: brandId: {brand_id}, update brand success",
                                           status_code=r.status,
-                                          response_text=r.text)
+                                          response_text=r.data)
                 return media
 
         else:
@@ -90,7 +90,7 @@ class Brand:
                 msg_handler.logStruct(level="ERROR",
                                       topic=f"updateBrand:  brandId: {brand_id}, update brand error",
                                       status_code=r.status,
-                                      response_text=r.text)
+                                      response_text=r.data)
             return []
 
 class Attribute:
