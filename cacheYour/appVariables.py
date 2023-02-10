@@ -20,7 +20,7 @@ connectionPool = Connections.openHTTPPool()
 ## queue pub sub
 from queueYour.auth import QueueAuth
 ## pub/sub auth
-queue = QueueAuth(f"{abs_path}/atomic-affinity-356010-c4893c67467b.json",
+queue = QueueAuth(f"./files/atomic-affinity-356010-c4893c67467b.json",
                   os.environ['GOOGLE_PROJECT_ID'])
 
 ## Variables
