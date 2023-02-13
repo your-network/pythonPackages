@@ -182,7 +182,7 @@ def processAttributeValueUnitCache():
         ## saving external id lookup
         if unit.get('externalId'):
             saveExternalAttributeValueUnitId(externalId=int(unit['externalId']),
-                                             source=int(unit.get('source', 2)),
+                                             source=2,
                                              attributeValueUnitId=int(unit['id']))
 
     redis.set(f"attributeValueUnit.cache", "True", ex=172800)
@@ -292,7 +292,7 @@ def saveExternalAttributeValueUnitId(externalId: int,
                                      source: int,
                                      attributeValueUnitId: int):
     from cacheYour.appVariables import redis
-    redis.set(f"AttributeValueUnitId.{externalId}.{source}", str(attributeValueUnitId))
+    redis.set(f"externalAttributeValueUnitId.{externalId}.{source}", str(attributeValueUnitId))
 
 def getInternalAttributeValueUnitId(externalId: int,
                                     source: int):
