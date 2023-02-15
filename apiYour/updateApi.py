@@ -12,7 +12,7 @@ class Category:
                   logger: object = None) -> list:
 
         ## logging
-        if bool(os.environ['DEBUG']) and logger:
+        if bool(os.getenv('DEBUG','False')) and logger:
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'updateCategory', 'endpoint': '/Category/{category_id}'})
             msg_handler.logStruct(topic=f"updateCategory: categoryId: {category_id}, start updating category.", data=payload)
@@ -34,7 +34,7 @@ class Category:
                 media = resp_data.get('duplicates', [])
 
                 ## logging
-                if bool(os.environ['DEBUG']) and logger:
+                if bool(os.getenv('DEBUG','False')) and logger:
                     msg_handler.logStruct(topic=f"updateCategory: categoryId: {category_id}, update category success",
                                           status_code=r.status,
                                           response_text=r.data)
@@ -42,7 +42,7 @@ class Category:
 
         else:
             ## logging
-            if bool(os.environ['DEBUG']) and logger:
+            if bool(os.getenv('DEBUG','False')) and logger:
                 msg_handler.logStruct(level="ERROR",
                                       topic=f"updateCategory:  categoryId: {category_id}, update category error",
                                       status_code=r.status,
@@ -57,7 +57,7 @@ class Brand:
                   connection: object) -> list:
 
         ## logging
-        if bool(os.environ['DEBUG']):
+        if bool(os.getenv('DEBUG','False')):
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'updateBrand', 'endpoint': '/Brand/{brand_id}'})
             msg_handler.logStruct(topic=f"updateBrand: brandId: {brand_id}, start updating brand.", data=payload)
@@ -78,7 +78,7 @@ class Brand:
                 media = resp_data.get('duplicates', [])
 
                 ## logging
-                if bool(os.environ['DEBUG']):
+                if bool(os.getenv('DEBUG','False')):
                     msg_handler.logStruct(topic=f"updateBrand: brandId: {brand_id}, update brand success",
                                           status_code=r.status,
                                           response_text=r.data)
@@ -86,7 +86,7 @@ class Brand:
 
         else:
             ## logging
-            if bool(os.environ['DEBUG']):
+            if bool(os.getenv('DEBUG','False')):
                 msg_handler.logStruct(level="ERROR",
                                       topic=f"updateBrand:  brandId: {brand_id}, update brand error",
                                       status_code=r.status,
@@ -101,7 +101,7 @@ class Attribute:
                   connection: object) -> list:
 
         ## logging
-        if bool(os.environ['DEBUG']):
+        if bool(os.getenv('DEBUG','False')):
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'updateAttribute', 'endpoint': '/Attribute/{attributeId}'})
             msg_handler.logStruct(topic=f"updateAttribute: attributeId: {attribute_id}, start updating attribute.",
@@ -123,7 +123,7 @@ class Attribute:
                 media = resp_data.get('duplicates', [])
 
                 ## logging
-                if bool(os.environ['DEBUG']):
+                if bool(os.getenv('DEBUG','False')):
                     msg_handler.logStruct(topic=f"updateAttribute: attributeId: {attribute_id}, update attribute success",
                                           status_code=status_code,
                                           response_text=r.data)
@@ -131,7 +131,7 @@ class Attribute:
 
         else:
             ## logging
-            if bool(os.environ['DEBUG']):
+            if bool(os.getenv('DEBUG','False')):
                 msg_handler.logStruct(level="ERROR",
                                       topic=f"updateAttribute:  attributeId: {attribute_id}, update attribute error",
                                       status_code=status_code,
@@ -145,7 +145,7 @@ class Attribute:
                           connection: object) -> bool:
 
         ## logging
-        if bool(os.environ['DEBUG']):
+        if bool(os.getenv('DEBUG','False')):
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'updateAttribute', 'endpoint': '/AttributeValueUnit/{unitId}'})
             msg_handler.logStruct(topic=f"putUpdateValueUnit: valueUnit: {unitId}, start updating attribute.",
@@ -161,7 +161,7 @@ class Attribute:
 
         if r.status == 200:
             ## logging
-            if bool(os.environ['DEBUG']):
+            if bool(os.getenv('DEBUG','False')):
                 msg_handler.logStruct(topic=f"putUpdateValueUnit: valueUnit: {unitId}, update attribute success",
                                       status_code=r.status,
                                       response_text=r.data)
@@ -169,7 +169,7 @@ class Attribute:
 
         else:
             ## logging
-            if bool(os.environ['DEBUG']):
+            if bool(os.getenv('DEBUG','False')):
                 msg_handler.logStruct(level="ERROR",
                                       topic=f"putUpdateValueUnit:  valueUnit: {unitId}, update attribute error",
                                       status_code=r.status,
@@ -186,7 +186,7 @@ class Product:
                   connection: object = None) -> list:
 
         ## logging
-        if bool(os.environ['DEBUG']):
+        if bool(os.getenv('DEBUG','False')):
             labels = {'function': 'updateProduct', 'endpoint': '/Product/{productId}'}
             if additional_labels:
                 labels.update(additional_labels)
@@ -212,7 +212,7 @@ class Product:
                 media = resp_data.get('duplicates', [])
 
                 ## logging
-                if bool(os.environ['DEBUG']):
+                if bool(os.getenv('DEBUG','False')):
                     msg_handler.logStruct(topic=f"updateProduct: productId: {productId}, update product success",
                                           status_code=response_code,
                                           response_text=response_text)
@@ -220,7 +220,7 @@ class Product:
 
         else:
             ## logging
-            if bool(os.environ['DEBUG']):
+            if bool(os.getenv('DEBUG','False')):
                 msg_handler.logStruct(level="ERROR",
                                       topic=f"updateProduct:  productId: {productId}, update product error",
                                       status_code=response_code,
@@ -236,7 +236,7 @@ class Series:
                   additional_labels: dict = {}) -> bool:
 
         ## logging
-        if bool(os.environ['DEBUG']):
+        if bool(os.getenv('DEBUG','False')):
             labels = {'function': 'updateSeries', 'endpoint': '/Series/{seriesId}'}
             if additional_labels:
                 labels.update(additional_labels)
@@ -258,7 +258,7 @@ class Series:
 
         if response_code == 200:
             ## logging
-            if bool(os.environ['DEBUG']):
+            if bool(os.getenv('DEBUG','False')):
                 msg_handler.logStruct(topic=f"updateSeries: seriesId: {seriesId}, update series success",
                                       status_code=response_code,
                                       response_text=response_text)
@@ -267,7 +267,7 @@ class Series:
 
         else:
             ## logging
-            if bool(os.environ['DEBUG']):
+            if bool(os.getenv('DEBUG','False')):
                 msg_handler.logStruct(level="ERROR",
                                       topic=f"updateSeries:  seriesId: {seriesId}, update series error",
                                       status_code=response_code,

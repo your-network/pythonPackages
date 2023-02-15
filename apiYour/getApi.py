@@ -13,7 +13,7 @@ class Category:
             lang: str = None):
 
         ## logging
-        if bool(os.environ['DEBUG']):
+        if bool(os.getenv('DEBUG','False')):
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'getCategory',
                                                  'endpoint': '/Category/{categoryId'})
@@ -40,14 +40,14 @@ class Category:
             if data:
                 return data
             else:
-                if bool(os.environ['DEBUG']):
+                if bool(os.getenv('DEBUG','False')):
                     msg_handler.logStruct(topic="getCategory: No data on category get",
                                           status_code=status_code,
                                           response_text=resp_data)
 
                 return {}
         else:
-            if bool(os.environ['DEBUG']):
+            if bool(os.getenv('DEBUG','False')):
                 msg_handler.logStruct(level="ERROR",
                                       topic="getCategory: Error in the get category function",
                                       status_code=status_code,
@@ -72,7 +72,7 @@ class Category:
 
         start_time = datetime.now()
         ## logging
-        if bool(os.environ['DEBUG']) and logger:
+        if bool(os.getenv('DEBUG','False')) and logger:
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'getAllCategories',
                                                  'endpoint': '/Category/GetAll'})
@@ -121,20 +121,20 @@ class Category:
                     categories = categories + data['results']
                     page += 1
                 else:
-                    if bool(os.environ['DEBUG']) and logger:
+                    if bool(os.getenv('DEBUG','False')) and logger:
                         msg_handler.logStruct(topic="getAllCategories: No new data so all categories gathered",
                                        status_code=response_code,
                                        response_text=response_text)
                     break
             else:
-                if bool(os.environ['DEBUG']) and logger:
+                if bool(os.getenv('DEBUG','False')) and logger:
                     msg_handler.logStruct(level="ERROR",
                                           topic="getAllCategories: Error in the get all function",
                                           status_code=response_code,
                                           response_text=response_text)
                 break
 
-        if bool(os.environ['DEBUG']) and logger:
+        if bool(os.getenv('DEBUG','False')) and logger:
             msg_handler.logStruct(topic=f"getAllCategories: Finish get all categories. Length: {len(categories)}.\n processing time: {datetime.now()-start_time}")
 
 
@@ -152,7 +152,7 @@ class Category:
 
         start_time = datetime.now()
         ## logging
-        if bool(os.environ['DEBUG']):
+        if bool(os.getenv('DEBUG','False')):
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'getCategoryChilds',
                                                  'endpoint': f"/Category/{categoryId}/Categories"})
@@ -172,7 +172,7 @@ class Category:
             base_params.update({"page": page})
 
             ## logging
-            if bool(os.environ['DEBUG']):
+            if bool(os.getenv('DEBUG','False')):
                 msg_handler.logStruct(topic=f"getCategoryChilds: params: {base_params}")
 
             ## process request from connection pool
@@ -191,13 +191,13 @@ class Category:
                     category_childs = category_childs + data['results']
                     page += 1
                 else:
-                    if bool(os.environ['DEBUG']):
+                    if bool(os.getenv('DEBUG','False')):
                         msg_handler.logStruct(topic="getCategoryChilds: No new data so all categories childs gathered",
                                               status_code=response_code,
                                               response_text=response_text)
                     break
             else:
-                if bool(os.environ['DEBUG']):
+                if bool(os.getenv('DEBUG','False')):
                     msg_handler.logStruct(level="ERROR",
                                           topic="getCategoryChilds: Error in the get all function",
                                           status_code=response_code,
@@ -205,7 +205,7 @@ class Category:
                 break
 
         ## logging
-        if bool(os.environ['DEBUG']):
+        if bool(os.getenv('DEBUG','False')):
             msg_handler.logStruct(topic=f"getAllCategories: Finish get all category childs. "
                                         f"Length: {len(category_childs)}.\n "
                                         f"processing time: {datetime.now() - start_time}")
@@ -222,7 +222,7 @@ class Attributes:
                categoryId: int = None) -> list:
 
         ## logging
-        if bool(os.environ['DEBUG']) and logger:
+        if bool(os.getenv('DEBUG','False')) and logger:
             start_time = datetime.now()
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'getAllAttributes',
@@ -242,7 +242,7 @@ class Attributes:
             base_params.update({"page": page})
 
             ## logging
-            if bool(os.environ['DEBUG']) and logger:
+            if bool(os.getenv('DEBUG','False')) and logger:
                 msg_handler.logStruct(topic=f"getAllAttributes: params: {base_params}")
 
             ## process request from connection pool
@@ -262,7 +262,7 @@ class Attributes:
                     page += 1
                 else:
                     ## logging
-                    if bool(os.environ['DEBUG']) and logger:
+                    if bool(os.getenv('DEBUG','False')) and logger:
                         msg_handler.logStruct(
                                             topic="getAllAttributes: No new data so all attributes gathered",
                                             status_code=response_code,
@@ -271,7 +271,7 @@ class Attributes:
                     break
             else:
                 ## logging
-                if bool(os.environ['DEBUG']) and logger:
+                if bool(os.getenv('DEBUG','False')) and logger:
                     msg_handler.logStruct(
                         level="ERROR",
                         topic="getAllAttributes: status code not 200",
@@ -280,7 +280,7 @@ class Attributes:
                 break
 
         ## logging
-        if bool(os.environ['DEBUG']) and logger:
+        if bool(os.getenv('DEBUG','False')) and logger:
             msg_handler.logStruct(topic=f"getAllAttributes: Finish get all attributes. Length: {len(attributes)}."
                                         f"Processing time: {datetime.now()-start_time}")
 
@@ -295,7 +295,7 @@ class Attributes:
 
         start_time = datetime.now()
         ## logging
-        if bool(os.environ['DEBUG']) and logger:
+        if bool(os.getenv('DEBUG','False')) and logger:
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'getAttributeValueUnits',
                                                  'endpoint': '/AttributeValueUnit'})
@@ -313,7 +313,7 @@ class Attributes:
             base_params.update({"page": page})
 
             ## logging
-            if bool(os.environ['DEBUG']) and logger:
+            if bool(os.getenv('DEBUG','False')) and logger:
                 msg_handler.logStruct(topic=f"getAttributeValueUnits: params: {base_params}")
 
             ## process request from connection pool
@@ -333,7 +333,7 @@ class Attributes:
                     attributeUnits = attributeUnits + data['results']
                     page += 1
                 else:
-                    if bool(os.environ['DEBUG']) and logger:
+                    if bool(os.getenv('DEBUG','False')) and logger:
                         msg_handler.logStruct(topic="getAttributeValueUnits: No new data so all gathered",
                                               status_code=response_code,
                                               response_text=response_text)
@@ -341,7 +341,7 @@ class Attributes:
 
             else:
                 ## process if error was in call
-                if bool(os.environ['DEBUG']) and logger:
+                if bool(os.getenv('DEBUG','False')) and logger:
                     msg_handler.logStruct(level="ERROR",
                                           topic="getAttributeValueUnits: status code not 200",
                                           status_code=response_code,
@@ -349,7 +349,7 @@ class Attributes:
                 break
 
         ## logging
-        if bool(os.environ['DEBUG']) and logger:
+        if bool(os.getenv('DEBUG','False')) and logger:
             msg_handler.logStruct(topic=f"getAttributeValueUnits: Finish get all. Length: {len(attributeUnits)}")
 
         return attributeUnits
@@ -469,7 +469,7 @@ class Brands:
                                              'endpoint': '/Brand'})
 
         ## logging
-        if bool(os.environ['DEBUG']) and logger:
+        if bool(os.getenv('DEBUG','False')) and logger:
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'getAllBrands',
                                                  'endpoint': '/Brand'})
@@ -497,7 +497,7 @@ class Brands:
             base_params.update({"page": page})
 
             ## logging
-            if bool(os.environ['DEBUG']) and logger:
+            if bool(os.getenv('DEBUG','False')) and logger:
                 msg_handler.logStruct(topic=f"getAllBrands: params: {base_params}")
 
             ## process request from connection pool
@@ -516,7 +516,7 @@ class Brands:
                     brands = brands + data['results']
                     page += 1
                 else:
-                    if bool(os.environ['DEBUG']) and logger:
+                    if bool(os.getenv('DEBUG','False')) and logger:
                         msg_handler.logStruct(topic="getAllBrands: No new data so all brands gathered",
                                                status_code=response_code,
                                                response_text=response_text)
@@ -524,7 +524,7 @@ class Brands:
 
             else:
                 ## process if error was in call
-                if bool(os.environ['DEBUG']) and logger:
+                if bool(os.getenv('DEBUG','False')) and logger:
                     msg_handler.logStruct(level="ERROR",
                                    topic="getAllBrands: status code not 200",
                                    status_code=response_code,
@@ -532,7 +532,7 @@ class Brands:
                 break
 
         ## logging
-        if bool(os.environ['DEBUG']) and logger:
+        if bool(os.getenv('DEBUG','False')) and logger:
             msg_handler.logStruct(topic=f"getAllBrands: Finish get all brands. Length: {len(brands)}")
 
         return brands
@@ -545,7 +545,7 @@ class Series:
                page: int = 1) -> list:
 
         ## logging
-        if bool(os.environ['DEBUG']) and logger:
+        if bool(os.getenv('DEBUG','False')) and logger:
             start_time = datetime.now()
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'getAllSeries',
@@ -562,7 +562,7 @@ class Series:
                 base_params.update({"page": page})
 
                 ## logging
-                if bool(os.environ['DEBUG']) and logger:
+                if bool(os.getenv('DEBUG','False')) and logger:
                     msg_handler.logStruct(topic=f"getAllSeries:params: {base_params}")
 
                 ## process request from connection pool
@@ -584,7 +584,7 @@ class Series:
 
                     else:
                         ## logging
-                        if bool(os.environ['DEBUG']) and logger:
+                        if bool(os.getenv('DEBUG','False')) and logger:
                             msg_handler.logStruct(
                                 topic="getAllSeries: No new data so all series gathered",
                                 status_code=response_code,
@@ -593,7 +593,7 @@ class Series:
                         break
 
                 else:
-                    if bool(os.environ['DEBUG']) and logger:
+                    if bool(os.getenv('DEBUG','False')) and logger:
                         msg_handler.logStruct(level="ERROR",
                                               topic="getAllSeries: Error in the get all function",
                                               status_code=r.status_code,
@@ -601,13 +601,13 @@ class Series:
                     break
 
         except Exception as e:
-            if bool(os.environ['DEBUG']) and logger:
+            if bool(os.getenv('DEBUG', 'False')) and logger:
                 msg_handler.logStruct(topic="getAllSeries: Error getting all series",
                                       error_message=str(e))
             else:
                 print(f"getAllSeries: Error getting all series. Error: {str(e)}")
 
-        if bool(os.environ['DEBUG']) and logger:
+        if bool(os.getenv('DEBUG','False')) and logger:
             msg_handler.logStruct(
                 topic=f"getAllSeries: Finish get all series. Length: {len(series)}.\n processing time: {datetime.now() - start_time}")
 
@@ -715,7 +715,7 @@ class Product:
                query: str = None) -> list:
 
         ## logging
-        if bool(os.environ['DEBUG']) and logger:
+        if bool(os.getenv('DEBUG','False')) and logger:
             start_time = datetime.now()
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'getAllProducts',
@@ -772,30 +772,30 @@ class Product:
                                 break
 
                         else:
-                            if bool(os.environ['DEBUG']) and logger:
+                            if bool(os.getenv('DEBUG','False')) and logger:
                                 msg_handler.logStruct(topic="getAllProducts: No new data so all products gathered",
                                                       status_code=response_code,
                                                       response_text=response_text)
                             break
                     else:
-                        if bool(os.environ['DEBUG']) and logger:
+                        if bool(os.getenv('DEBUG','False')) and logger:
                             msg_handler.logStruct(level="ERROR",
                                                   topic="getAllProducts: Error in the get all function",
                                                   status_code=response_code,
                                                   response_text=response_text)
                         break
                 else:
-                    if bool(os.environ['DEBUG']) and logger:
+                    if bool(os.getenv('DEBUG','False')) and logger:
                         msg_handler.logStruct(level="DEBUG",
                                               topic=f"getAllProducts: max results reached. max: {max_results}")
                     break
 
         except Exception as e:
-            if bool(os.environ['DEBUG']) and logger:
+            if bool(os.getenv('DEBUG','False')) and logger:
                 msg_handler.logStruct(topic="getAllProducts: Error getting all products",
                                       error_message=str(e))
 
-        if bool(os.environ['DEBUG']) and logger:
+        if bool(os.getenv('DEBUG','False')) and logger:
             msg_handler.logStruct(
                 topic=f"getAllProducts: Finish get all products. Length: {len(products)}.\n "
                       f"processing time: {datetime.now() - start_time}")
@@ -810,7 +810,7 @@ class Product:
         if sourceId:
             base_params = {"sourceId": sourceId}
 
-        if bool(os.environ['DEBUG']) and logger:
+        if bool(os.getenv('DEBUG','False')) and logger:
             start_time = datetime.now()
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'getAllExternalProductIds',
@@ -837,23 +837,23 @@ class Product:
                 if data:
                     products = data
                 else:
-                    if bool(os.environ['DEBUG']) and logger:
+                    if bool(os.getenv('DEBUG','False')) and logger:
                         msg_handler.logStruct(topic="getAllExternalProductIds: No data in request",
                                               status_code=response_code,
                                               response_text=response_text)
             else:
-                if bool(os.environ['DEBUG']) and logger:
+                if bool(os.getenv('DEBUG','False')) and logger:
                     msg_handler.logStruct(level="ERROR",
                                           topic="getAllExternalProductIds: Error in the get all function",
                                           status_code=response_code,
                                           response_text=response_text)
 
         except Exception as e:
-            if bool(os.environ['DEBUG']) and logger:
+            if bool(os.getenv('DEBUG','False')) and logger:
                 msg_handler.logStruct(topic="getAllExternalProductIds: Error getting all external product ids",
                                       error_message=str(e))
 
-        if bool(os.environ['DEBUG']) and logger:
+        if bool(os.getenv('DEBUG','False')) and logger:
             msg_handler.logStruct(
                 topic=f"getAllExternalProductIds: Finish get all products external ids. Length: {len(products)}.processing time: {datetime.now() - start_time}")
 
@@ -889,7 +889,7 @@ class Product:
             param_url = param_url + f"&optionalFields=MediaAttributeValues"
 
         ## logging
-        if bool(os.environ['DEBUG']) and logger:
+        if bool(os.getenv('DEBUG','False')) and logger:
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'getProduct',
                                                  'endpoint': '/Category/GetAll'})
@@ -910,7 +910,7 @@ class Product:
                 return data
 
         else:
-            if bool(os.environ['DEBUG']) and logger:
+            if bool(os.getenv('DEBUG','False')) and logger:
                 msg_handler.logStruct(level="ERROR",
                                       topic="getProduct: Error in the get all function",
                                       status_code=response_code,
