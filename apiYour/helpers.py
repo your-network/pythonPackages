@@ -23,3 +23,20 @@ def getApiRequestsSession(endpoints: list = ["https://"]) -> object:
             pool_block=True))
 
     return requests_session
+
+def buildRequestParameters(parameters: dict) -> dict:
+    request_parameters = {}
+
+    for key in parameters.keys():
+        if key not in ['connection', 'logger']:
+            ## process additional kwargs
+            if key == 'kwargs' and parameters.get(key):
+                for kwarg_key in parameters[key].keys():
+                    if parameters[key].get(kwarg_key):
+                        request_parameters.update({kwarg_key: parameters[key][kwarg_key]})
+
+            ## process passed parameters
+            elif parameters[key] and key != 'kwargs':
+                request_parameters.update({key: parameters[key]})
+
+    return request_parameters

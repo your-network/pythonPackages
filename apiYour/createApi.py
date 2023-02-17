@@ -13,12 +13,11 @@ class Brand:
         brand_id = None
 
         ## logging
-        if bool(os.getenv('DEBUG','False')):
-            start_time = datetime.now()
+        if bool(os.getenv('DEBUG', 'False')):
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'createBrand',
                                                  'endpoint': '/Brand'})
-            msg_handler.logStruct(topic=f"createBrand: start create brand.\n start time: {start_time}",
+            msg_handler.logStruct(topic=f"createBrand: start create brand.",
                                   data=data,
                                   level="DEBUG")
 
@@ -76,7 +75,7 @@ class Brand:
 
         ## logging
         if bool(os.getenv('DEBUG','False')):
-            msg_handler.logStruct(topic=f"createBrand: Api brand create finished,\n processing time: {datetime.now() - start_time}")
+            msg_handler.logStruct(topic=f"createBrand: Api brand create finished")
 
         return brand_id
 
@@ -90,14 +89,14 @@ class Category:
         cat_id = None
 
         ## logging
-        if bool(os.getenv('DEBUG','False')):
+        if bool(os.getenv('DEBUG', 'False')):
             labels = {'function': 'createCategory', 'endpoint': '/Category/'}
             if additional_labels:
                 labels.update(additional_labels)
 
             msg_handler = messageHandler(logger=logger, level="DEBUG", labels=labels)
-            start_time = datetime.now()
-            msg_handler.logStruct(topic=f"createCategory: start create category. start time: {start_time}", data=payload)
+            msg_handler.logStruct(topic=f"createCategory: start create category",
+                                  data=payload)
 
         ## process request from connection pool
         encoded_data = json.dumps(payload).encode('utf-8')
@@ -161,7 +160,6 @@ class Product:
             log_labels = {'function': 'createProductBulk', 'endpoint': '/Product/CreateOrUpdateBulk'}
             if labels:
                 log_labels.update(labels)
-            start_time = datetime.now()
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels=log_labels)
             msg_handler.logStruct(f"createProductBulk: start process product bulk insert",
@@ -194,9 +192,9 @@ class Product:
 
             ## logging
             if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(topic=f"createProductBulk: Api product bulk insert finished, processing time: {datetime.now() - start_time}",
-                           status_code=r.status_code,
-                           response_text=r.text)
+                msg_handler.logStruct(topic=f"createProductBulk: Api product bulk insert finished.",
+                                      status_code=r.status_code,
+                                      response_text=r.text)
 
 
         return product_bulk_response
@@ -208,7 +206,6 @@ class Product:
 
         ## logging
         if bool(os.getenv('DEBUG','False')):
-            start_time = datetime.now()
             labels = {'function': 'createProductQueue', 'endpoint': "/Product/QueueForCreateBulk"}
             if additional_labels:
                 labels.update(additional_labels)
@@ -255,11 +252,10 @@ class Series:
 
         ## logging
         if bool(os.getenv('DEBUG','False')):
-            start_time = datetime.now()
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'createSeries',
                                                  'endpoint': '/Series'})
-            msg_handler.logStruct(topic=f"createSeries: start create serie.\n start time: {start_time}",
+            msg_handler.logStruct(topic=f"createSeries: start create serie",
                                   data=data)
 
         serie_id = None
@@ -291,7 +287,7 @@ class Series:
 
         ## logging
         if bool(os.getenv('DEBUG','False')):
-            msg_handler.logStruct(topic=f"createSeries: Api create serie finished,\n processing time: {datetime.now() - start_time}")
+            msg_handler.logStruct(topic=f"createSeries: Api create serie finished")
 
         return serie_id
 
@@ -534,11 +530,10 @@ class Attributes:
 
         ## logging
         if bool(os.getenv('DEBUG','False')):
-            start_time = datetime.now()
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'createAttributeUnit',
                                                  'endpoint': '/Attribute/CreateOrUpdateAttributeTypeUnit'})
-            msg_handler.logStruct(topic=f"createAttributeUnit: start create attribute unit. Start time: {start_time}",
+            msg_handler.logStruct(topic=f"createAttributeUnit: start create attribute unit.",
                                   data=data)
 
         unit_id = None
@@ -574,7 +569,7 @@ class Attributes:
         ## logging
         if bool(os.getenv('DEBUG','False')):
             msg_handler.logStruct(
-                topic=f"createAttributeUnit: Api attribute unit insert finished, processing time: {datetime.now() - start_time}")
+                topic=f"createAttributeUnit: Api attribute unit insert finished")
 
         return unit_id
 
@@ -585,11 +580,10 @@ class Attributes:
 
         ## logging
         if bool(os.getenv('DEBUG','False')):
-            start_time = datetime.now()
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'CreateOrUpdateAttributeType',
                                                  'endpoint': '/Attribute/CreateOrUpdateAttributeType'})
-            msg_handler.logStruct(topic=f"createAttributeType: start create attribute type.\n start time: {start_time}",
+            msg_handler.logStruct(topic=f"createAttributeType: start create attribute type.",
                                   data=data)
 
         attribute_type_id = None
@@ -627,7 +621,7 @@ class Attributes:
         ## logging
         if bool(os.getenv('DEBUG','False')):
             msg_handler.logStruct(
-                topic=f"createAttributeUnit: Api attribute unit create finished,\n processing time: {datetime.now() - start_time}")
+                topic=f"createAttributeUnit: Api attribute unit create finished.")
 
         return attribute_type_id
 
@@ -638,11 +632,10 @@ class Attributes:
 
         ## logging
         if bool(os.getenv('DEBUG','False')):
-            start_time = datetime.now()
             msg_handler = messageHandler(logger=logger, level="DEBUG",
                                          labels={'function': 'createAttribute',
                                                  'endpoint': '/Attribute/CreateOrUpdate'})
-            msg_handler.logStruct(topic=f"createAttribute: start create attribute.\n start time: {start_time}",
+            msg_handler.logStruct(topic=f"createAttribute: start create attribute.",
                                   data=data)
 
         attribute_id = None

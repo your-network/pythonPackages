@@ -136,3 +136,22 @@ def productIdCheckExists(productId:str,
         return result.get('data')
     else:
         return False
+
+class Brand:
+    @staticmethod
+    def idCheckExists(brandId: str,
+                      type: str,
+                      connection: object):
+
+        r = connection.request(method="GET",
+                               url=f"{os.environ['YOUR_API_URL']}/Exists?id={brandId}&idType={type}",
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+
+        response_code = r.status
+        response_text = r.data
+        if response_code == 200:
+            result = json.loads(response_text.decode('utf-8'))
+            return result.get('data')
+        else:
+            return None
