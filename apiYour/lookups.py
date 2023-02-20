@@ -139,12 +139,11 @@ def productIdCheckExists(productId:str,
 
 class Brand:
     @staticmethod
-    def idCheckExists(brandId: str,
-                      type: str,
+    def idCheckExists(id: str,
                       connection: object):
 
         r = connection.request(method="GET",
-                               url=f"{os.environ['YOUR_API_URL']}/Exists?id={brandId}&idType={type}",
+                               url=f"{os.environ['YOUR_API_URL']}/Exists?externalId={id}",
                                headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                         'Content-Type': 'application/json'})
 
