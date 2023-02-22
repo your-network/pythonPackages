@@ -57,7 +57,7 @@ def setBrandCache(source_brands: dict = {}):
 
     ## logging
     start_time = datetime.now()
-    if bool(os.environ["DEBUG"]):
+    if os.environ.get('DEBUG') == 'DEBUG':
         log_message = {
             "topic": f"processBrandCache: start saving brand data",
             "message": {}}
@@ -83,7 +83,7 @@ def setBrandCache(source_brands: dict = {}):
     redis.set(f"brand.details.short-term.cache", "True", ex=3000)
 
     ## logging
-    if bool(os.environ["DEBUG"]):
+    if os.environ.get('DEBUG') == 'DEBUG':
         log_message = {
             "topic": f"processBrandCache: finished saving brand data",
             "message": {"processingTime": str(datetime.now() - start_time)}}
@@ -106,7 +106,7 @@ def getBrandDetails(brandId: int,
     else:
         ## logging
         from cacheYour.brands.topicPackage import brandLogger
-        if bool(os.environ["DEBUG"]):
+        if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"getBrandDetails: key not found so "
                                     f"verify cache moment and if needed process cache",
                            "message": {"key": search_key}}
@@ -151,7 +151,7 @@ def getInternalBrand(external: int,
     else:
         ## logging
         from cacheYour.brands.topicPackage import brandLogger
-        if bool(os.environ["DEBUG"]):
+        if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"getInternalBrand: key not found so "
                                     f"verify cache moment and if needed process cache",
                            "message": {"key": search_key}}
@@ -183,7 +183,7 @@ def checkBrandStatusCache(source_brands: dict = {}):
         else:
             ## logging
             from cacheYour.brands.topicPackage import brandLogger
-            if bool(os.environ["DEBUG"]):
+            if os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"checkBrandStatusCache: status false so process",
                                "message": {}}
                 brandLogger.createDebugLog(message=log_message)

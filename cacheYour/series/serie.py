@@ -63,7 +63,7 @@ def getSeriesDetails(seriesId: int):
     else:
         ## logging
         from cacheYour.brands.topicPackage import brandLogger
-        if bool(os.environ["DEBUG"]):
+        if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"getSeriesDetails: key not found so "
                                     f"verify cache moment and if needed process cache",
                            "message": {"key": search_key}}
@@ -100,7 +100,7 @@ def getInternalSeriesId(externalId: int,
     else:
         ## logging
         from cacheYour.brands.topicPackage import brandLogger
-        if bool(os.environ["DEBUG"]):
+        if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"getInternalSeriesId: key not found so "
                                     f"verify cache moment and if needed process cache",
                            "message": {"key": search_key}}
