@@ -7,7 +7,7 @@ def removeProductMedia(connection: object,
                        logger: LocalLogger = None) -> bool:
 
     ## logging
-    if logger and bool(os.getenv('DEBUG', 'False')):
+    if logger and os.environ.get('DEBUG') == 'DEBUG':
         log_message = {"topic": f"delete media from product",
                        "function": "removeProductMedia",
                        "endpoint": "/Product/{productId}/Media/{mediaId}",
@@ -32,7 +32,7 @@ def removeProductMedia(connection: object,
 
     except Exception as e:
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Error deleting media from product",
                            "function": "removeProductMedia",
                            "endpoint": "/Product/{productId}/Media/{mediaId}",
@@ -50,7 +50,7 @@ def removeCategoryMedia(media: str,
                         logger: LocalLogger = None) -> bool:
 
     ## logging
-    if logger and bool(os.getenv('DEBUG', 'False')):
+    if logger and os.environ.get('DEBUG') == 'DEBUG':
         log_message = {"topic": f"delete media from category",
                        "function": "removeCategoryMedia",
                        "endpoint": "/Category/{categoryId}/Media/{mediaId}",
@@ -75,7 +75,7 @@ def removeCategoryMedia(media: str,
 
     except Exception as e:
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Error deleting media from product",
                            "function": "removeCategoryMedia",
                            "endpoint": "/Category/{categoryId}/Media/{mediaId}",

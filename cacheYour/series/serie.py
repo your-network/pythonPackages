@@ -9,7 +9,7 @@ def processSeriesCache():
 
     ## logging
     start_time = datetime.now()
-    if bool(os.environ["DEBUG"]):
+    if os.environ.get('DEBUG') == 'DEBUG':
         log_message = {
             "topic": f"processSeriesCache: start saving series data",
             "message": {}}
@@ -41,7 +41,7 @@ def processSeriesCache():
     redis.set(f"series.details.cache", "True", ex=172800)
 
     ## logging
-    if bool(os.environ["DEBUG"]):
+    if os.environ.get('DEBUG') == 'DEBUG':
         log_message = {
             "topic": f"processSeriesCache: finished saving series data",
             "message": {"processingTime": str(datetime.now() - start_time)}}
@@ -62,7 +62,7 @@ def getSeriesDetails(seriesId: int):
     else:
         ## logging
         from cacheYour.series.topicPackage import seriesLogger
-        if bool(os.environ["DEBUG"]):
+        if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"getSeriesDetails: key not found so process cache",
                            "message": {"key": search_key}}
             seriesLogger.createDebugLog(message=log_message)
@@ -91,7 +91,7 @@ def getInternalSeriesId(externalId: int,
     else:
         ## logging
         from cacheYour.series.topicPackage import seriesLogger
-        if bool(os.environ["DEBUG"]):
+        if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"getInternalSeriesId: key not found so process cache",
                            "message": {"key": search_key}}
             seriesLogger.createDebugLog(message=log_message)
@@ -113,7 +113,7 @@ def checkSeriesStatusCache():
         else:
             ## logging
             from cacheYour.series.topicPackage import seriesLogger
-            if bool(os.environ["DEBUG"]):
+            if os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"checkSeriesStatusCache: status false so cache processing",
                                "message": {}}
                 seriesLogger.createDebugLog(message=log_message)

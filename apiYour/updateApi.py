@@ -11,7 +11,7 @@ class Category:
                   logger: LocalLogger = None) -> list:
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start update",
                            "function": "updateCategory",
                            "endpoint": "/Category/{category_id}",
@@ -37,7 +37,7 @@ class Category:
                 media = resp_data.get('duplicates', [])
 
                 ## logging
-                if logger and bool(os.getenv('DEBUG', 'False')):
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
                     log_message = {"topic": f"Finish update",
                                    "function": "updateCategory",
                                    "endpoint": "/Category/{category_id}",
@@ -48,7 +48,7 @@ class Category:
 
         else:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"Error update",
                                "function": "updateCategory",
                                "endpoint": "/Category/{category_id}",
@@ -67,7 +67,7 @@ class Brand:
                   logger: LocalLogger = None) -> list:
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start update",
                            "function": "updateBrand",
                            "endpoint": "/Brand/{brandId}",
@@ -92,7 +92,7 @@ class Brand:
                 media = resp_data.get('duplicates', [])
 
                 ## logging
-                if logger and bool(os.getenv('DEBUG', 'False')):
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
                     log_message = {"topic": f"Finish update",
                                    "function": "updateBrand",
                                    "endpoint": "/Brand/{brandId}",
@@ -103,7 +103,7 @@ class Brand:
 
         else:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"Finish update",
                                "function": "updateBrand",
                                "endpoint": "/Brand/{brandId}",
@@ -122,7 +122,7 @@ class Attribute:
                   logger: LocalLogger = None) -> list:
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start update",
                            "function": "putUpdateAttribute",
                            "endpoint": "/Attribute/{attributeId}",
@@ -150,7 +150,7 @@ class Attribute:
 
         else:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"Error update",
                                "function": "putUpdateAttribute",
                                "endpoint": "/Attribute/{attributeId}",
@@ -168,7 +168,7 @@ class Attribute:
                            logger: LocalLogger = None) -> bool:
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start update",
                            "function": "putUpdateValueUnit",
                            "endpoint": "/AttributeValueUnit/{unitId}",
@@ -191,7 +191,7 @@ class Attribute:
 
         else:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"Error update",
                                "function": "putUpdateValueUnit",
                                "endpoint": "/AttributeValueUnit/{unitId}",
@@ -211,7 +211,7 @@ class Product:
                   logger: LocalLogger = None) -> list:
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start update",
                            "function": "putUpdateProduct",
                            "endpoint": "/Product/{productId}",
@@ -239,7 +239,7 @@ class Product:
 
         else:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"Error update",
                                "function": "putUpdateProduct",
                                "endpoint": "/Product/{productId}",
@@ -259,7 +259,7 @@ class Series:
                   logger: LocalLogger = None) -> bool:
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start update",
                            "function": "putUpdateSeries",
                            "endpoint": "/Series/{seriesId}",
@@ -283,7 +283,7 @@ class Series:
 
         else:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"Error update",
                                "function": "putUpdateSeries",
                                "endpoint": "/Series/{seriesId}",

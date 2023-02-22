@@ -65,7 +65,7 @@ def setCategoryCache(source_categories: dict = {}):
 
     ## logging
     start_time = datetime.now()
-    if bool(os.environ["DEBUG"]):
+    if os.environ.get('DEBUG') == 'DEBUG':
         log_message = {
             "topic": f"processCategoryCache: start saving category data",
             "message": {}}
@@ -91,7 +91,7 @@ def setCategoryCache(source_categories: dict = {}):
     redis.set(f"category.details.short-term.cache", "True", ex=3000)
 
     ## logging
-    if bool(os.environ["DEBUG"]):
+    if os.environ.get('DEBUG') == 'DEBUG':
         log_message = {
             "topic": f"processCategoryCache: finished saving category data",
             "message": {"processingTime": str(datetime.now() - start_time)}}
@@ -125,7 +125,7 @@ def getInternalCategory(external: int,
     else:
         ## logging
         from cacheYour.categories.topicPackage import categoryLogger
-        if bool(os.environ["DEBUG"]):
+        if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"getInternalCategory: key not found so process cache",
                            "message": {"key": search_key}}
             categoryLogger.createDebugLog(message=log_message)
@@ -157,7 +157,7 @@ def getCategoryDetails(categoryId: int,
 
     else:
         ## logging
-        if bool(os.environ["DEBUG"]):
+        if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"getCategoryDetails: category key not found so "
                                     f"verify cache moment and if needed process cache",
                            "message": {"key": search_key}}
@@ -198,7 +198,7 @@ def getExternalCategoryActive(externalId,
 
     else:
         ## logging
-        if bool(os.environ["DEBUG"]):
+        if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"getExternalCategoryActive: category key not found so process cache",
                            "message": {"key": search_key}}
             categoryLogger.createDebugLog(message=log_message)
@@ -219,14 +219,14 @@ def checkCategoryStatusCache(source_categories: dict = {}):
 
     if status and bool(status):
         ## logging
-        if bool(os.environ["DEBUG"]):
+        if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"checkCategoryStatusCache: category cache checked and present"}
             categoryLogger.createDebugLog(message=log_message)
 
         return True
     else:
         ## logging
-        if bool(os.environ["DEBUG"]):
+        if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"checkCategoryStatusCache: category cache checked and not present so process"}
             categoryLogger.createDebugLog(message=log_message)
 

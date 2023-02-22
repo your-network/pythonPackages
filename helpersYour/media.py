@@ -11,7 +11,7 @@ import mimetypes
 
 def getIpfsImageDetails(logger: LocalLogger, ipfs_url: str) -> dict:
     ## logging
-    if logger and bool(os.getenv('DEBUG', 'False')):
+    if logger and os.environ.get('DEBUG') == 'DEBUG':
         log_message = {"topic": f"Start get",
                        "function": "getIpfsImageDetails",
                        "url": ipfs_url}
@@ -37,7 +37,7 @@ def getIpfsImageDetails(logger: LocalLogger, ipfs_url: str) -> dict:
 
     except:
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             error = traceback.format_exc()
             log_message = {"topic": f"Start get",
                            "function": "getIpfsImageDetails",
@@ -97,7 +97,7 @@ def createMediaDetailsDic(logger: LocalLogger,
 def getImageFromFile(logger: LocalLogger,
                      image_file_dic: dict) -> dict:
     ## logging
-    if logger and bool(os.getenv('DEBUG', 'False')):
+    if logger and os.environ.get('DEBUG') == 'DEBUG':
         log_message = {"topic": f"Start get",
                        "function": "getImageFromFile",
                        "data": image_file_dic["file_path"]}
@@ -125,7 +125,7 @@ def getImageFromFile(logger: LocalLogger,
 
     except:
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             error = traceback.format_exc()
             log_message = {"topic": f"Start get",
                            "function": "getImageFromFile",
@@ -141,7 +141,7 @@ def imageDetailsUrl(logger: LocalLogger,
                     connection: object = None) -> dict:
 
     ## logging
-    if logger and bool(os.getenv('DEBUG', 'False')):
+    if logger and os.environ.get('DEBUG') == 'DEBUG':
         log_message = {"topic": f"Start get",
                        "function": "imageDetailsUrl",
                        "imageUrl": image_url}
@@ -194,7 +194,7 @@ def imageDetailsUrl(logger: LocalLogger,
 
     except:
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             error = traceback.format_exc()
             log_message = {"topic": f"Error imageDetailsUrl",
                            "function": "imageDetailsUrl",
@@ -209,7 +209,7 @@ def getMediaFileUrl(logger: LocalLogger,
                     connection: object = None) -> dict:
 
     ## logging
-    if logger and bool(os.getenv('DEBUG', 'False')):
+    if logger and os.environ.get('DEBUG') == 'DEBUG':
         log_message = {"topic": f"Start get",
                        "function": "getMediaFileUrl",
                        "url": url}
@@ -249,7 +249,7 @@ def getMediaFileUrl(logger: LocalLogger,
 
     except:
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             error = traceback.format_exc()
             log_message = {"topic": f"media reading error",
                            "function": "getMediaFileUrl",

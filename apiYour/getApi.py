@@ -13,7 +13,7 @@ class Category:
             **kwargs):
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"start get category",
                            "function": "getCategory",
                            "endpoint": "/Category/{categoryId}",
@@ -41,7 +41,7 @@ class Category:
                 return data
             else:
                 ## logging
-                if logger and bool(os.getenv('DEBUG', 'False')):
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
                     log_message = {"topic": f"No data on category get",
                                    "function": "getCategory",
                                    "endpoint": "/Category/{categoryId}",
@@ -52,7 +52,7 @@ class Category:
 
         else:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"Error category get",
                                "function": "getCategory",
                                "endpoint": "/Category/{categoryId}",
@@ -84,7 +84,7 @@ class Category:
         base_params = buildRequestParameters(parameters=func_parameters)
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start get all categories",
                            "function": "getAllCategories",
                            "endpoint": "/Category/GetAll"}
@@ -115,7 +115,7 @@ class Category:
                     break
             else:
                 ## logging
-                if logger and bool(os.getenv('DEBUG', 'False')):
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
                     log_message = {"topic": f"Error get all categories",
                                    "function": "getAllCategories",
                                    "code": response_code,
@@ -126,7 +126,7 @@ class Category:
                 break
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Error category get",
                            "function": "getCategory",
                            "endpoint": "/Category/{categoryId}",
@@ -151,7 +151,7 @@ class Category:
         base_params = buildRequestParameters(parameters=func_parameters)
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start get all category childs",
                            "function": "getCategoryChilds",
                            "endpoint": "/Category/{categoryId}/Categories",
@@ -181,7 +181,7 @@ class Category:
                     break
             else:
                 ## logging
-                if logger and bool(os.getenv('DEBUG', 'False')):
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
                     log_message = {"topic": f"Error in the get all function",
                                    "function": "getCategoryChilds",
                                    "endpoint": "/Category/{categoryId}/Categories",
@@ -207,7 +207,7 @@ class Attributes:
         base_params = buildRequestParameters(parameters=func_parameters)
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start get all attributes",
                            "function": "getAllAttributes",
                            "endpoint": "/Attribute"}
@@ -236,7 +236,7 @@ class Attributes:
                     break
             else:
                 ## logging
-                if logger and bool(os.getenv('DEBUG', 'False')):
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
                     log_message = {"topic": f"status code not 200",
                                    "function": "getAllAttributes",
                                    "endpoint": "/Attribute",
@@ -247,7 +247,7 @@ class Attributes:
                 break
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Finish get all attributes",
                            "function": "getAllAttributes",
                            "endpoint": "/Attribute",
@@ -270,7 +270,7 @@ class Attributes:
         base_params = buildRequestParameters(parameters=func_parameters)
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start get all",
                            "function": "getAttributeValueUnits",
                            "endpoint": "/AttributeValueUnit"}
@@ -302,7 +302,7 @@ class Attributes:
 
             else:
                 ## logging
-                if logger and bool(os.getenv('DEBUG', 'False')):
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
                     log_message = {"topic": f"Error no status code 200",
                                    "function": "getAttributeValueUnits",
                                    "endpoint": "/AttributeValueUnit",
@@ -313,7 +313,7 @@ class Attributes:
                 break
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Finish get all",
                            "function": "getAttributeValueUnits",
                            "endpoint": "/AttributeValueUnit",
@@ -342,7 +342,7 @@ class Brands:
         base_params = buildRequestParameters(parameters=func_parameters)
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start get all",
                            "function": "getAllBrands",
                            "endpoint": "/Brand"}
@@ -374,7 +374,7 @@ class Brands:
 
             else:
                 ## logging
-                if logger and bool(os.getenv('DEBUG', 'False')):
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
                     log_message = {"topic": f"Error get all",
                                    "function": "getAllBrands",
                                    "endpoint": "/Brand",
@@ -384,7 +384,7 @@ class Brands:
                 break
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Finish get all",
                            "function": "getAllBrands",
                            "endpoint": "/Brand",
@@ -406,7 +406,7 @@ class Series:
         base_params = buildRequestParameters(parameters=func_parameters)
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start get all",
                            "function": "getAllSeries",
                            "endpoint": "/Series"}
@@ -440,7 +440,7 @@ class Series:
 
                 else:
                     ## logging
-                    if logger and bool(os.getenv('DEBUG', 'False')):
+                    if logger and os.environ.get('DEBUG') == 'DEBUG':
                         log_message = {"topic": f"Error get all",
                                        "function": "getAllSeries",
                                        "endpoint": "/Series",
@@ -451,7 +451,7 @@ class Series:
 
         except Exception as e:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"Error get all",
                                "function": "getAllSeries",
                                "endpoint": "/Series",
@@ -480,7 +480,7 @@ class Product:
         base_params = buildRequestParameters(parameters=func_parameters)
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Error get all products",
                            "function": "getAllProducts",
                            "endpoint": "/Product"}
@@ -512,7 +512,7 @@ class Product:
                             break
                     else:
                         ## logging
-                        if logger and bool(os.getenv('DEBUG', 'False')):
+                        if logger and os.environ.get('DEBUG') == 'DEBUG':
                             log_message = {"topic": f"Error get all products",
                                            "function": "getAllProducts",
                                            "endpoint": "/Product",
@@ -522,7 +522,7 @@ class Product:
                         break
                 else:
                     ## logging
-                    if logger and bool(os.getenv('DEBUG', 'False')):
+                    if logger and os.environ.get('DEBUG') == 'DEBUG':
                         log_message = {"topic": f"Max results reached",
                                        "function": "getAllProducts",
                                        "endpoint": "/Product",
@@ -532,7 +532,7 @@ class Product:
 
         except Exception as e:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"Error get all",
                                "function": "getAllProducts",
                                "endpoint": "/Product",
@@ -552,7 +552,7 @@ class Product:
         base_params = buildRequestParameters(parameters=func_parameters)
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start get all",
                            "function": "getAllExternalProductIds",
                            "endpoint": "/Product/GetAllExternalIDs"}
@@ -579,7 +579,7 @@ class Product:
                     return products
             else:
                 ## logging
-                if logger and bool(os.getenv('DEBUG', 'False')):
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
                     log_message = {"topic": f"Error get all",
                                    "function": "getAllExternalProductIds",
                                    "endpoint": "/Product/GetAllExternalIDs",
@@ -589,7 +589,7 @@ class Product:
 
         except Exception as e:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"Error get all",
                                "function": "getAllExternalProductIds",
                                "endpoint": "/Product/GetAllExternalIDs",
@@ -629,7 +629,7 @@ class Product:
             param_url = param_url + f"&optionalFields=MediaAttributeValues"
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start get all",
                            "function": "getProduct",
                            "endpoint": "/Product/{productId}",
@@ -652,7 +652,7 @@ class Product:
 
         else:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"Error get all",
                                "function": "getProduct",
                                "endpoint": "/Product/{productId}",
@@ -670,7 +670,7 @@ def getUserSearch(identifier: str,
                   **kwargs) -> dict:
 
     ## logging
-    if logger and bool(os.getenv('DEBUG', 'False')):
+    if logger and os.environ.get('DEBUG') == 'DEBUG':
         log_message = {"topic": f"Start get",
                        "function": "getUserSearch",
                        "endpoint": "/User/Search",
@@ -694,7 +694,7 @@ def getUserSearch(identifier: str,
 
     else:
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Error get",
                            "function": "getUserSearch",
                            "endpoint": "/User/Search",

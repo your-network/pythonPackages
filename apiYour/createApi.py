@@ -9,7 +9,7 @@ class Brand:
                logger: LocalLogger = None) -> int:
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"start create brand",
                            "function": "createBrand",
                            "endpoint": "/Brand",
@@ -36,7 +36,7 @@ class Brand:
                 brand_id = resp_data.get('id')
 
                 ## logging
-                if logger and bool(os.getenv('DEBUG', 'False')):
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
                     log_message = {"topic": f"finished create brand",
                                    "function": "createBrand",
                                    "status_code": status_code,
@@ -48,7 +48,7 @@ class Brand:
 
             else:
                 ## logging
-                if logger and bool(os.getenv('DEBUG', 'False')):
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
                     log_message = {"topic": f"no response data",
                                    "function": "createBrand",
                                    "status_code": status_code,
@@ -58,7 +58,7 @@ class Brand:
 
         else:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"error create brand",
                                "function": "createBrand",
                                "status_code": status_code,
@@ -76,7 +76,7 @@ class Category:
                additional_labels: dict = {}) -> int:
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"start create category",
                            "function": "createCategory",
                            "endpoint": "/Category",
@@ -104,7 +104,7 @@ class Category:
                 cat_id = resp_data.get('id')
 
                 ## logging
-                if logger and bool(os.getenv('DEBUG', 'False')):
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
                     log_message = {"topic": f"category created or exist finished",
                                    "function": "createCategory",
                                    "endpoint": "/Category",
@@ -118,7 +118,7 @@ class Category:
 
             else:
                 ## logging
-                if logger and bool(os.getenv('DEBUG', 'False')):
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
                     log_message = {"topic": f"no response data",
                                    "function": "createCategory",
                                    "endpoint": "/Category",
@@ -129,7 +129,7 @@ class Category:
 
         else:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"Error create category",
                                "function": "createCategory",
                                "endpoint": "/Category",
@@ -148,7 +148,7 @@ class Series:
                labels: dict = {}) -> int:
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"start create series",
                            "function": "createSeries",
                            "endpoint": "/Series",
@@ -172,7 +172,7 @@ class Series:
             serie_id = resp_data['data']['id']
 
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"finished create or exist series",
                                "function": "createSeries",
                                "endpoint": "/Series",
@@ -186,7 +186,7 @@ class Series:
 
         else:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"error create series",
                                "function": "createSeries",
                                "endpoint": "/Series",
@@ -204,7 +204,7 @@ class Relations:
                                        logger: LocalLogger = None,
                                         additional_labels: dict = None) -> bool:
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"start relation creation",
                            "function": "createCategoryCategoryRelation",
                            "endpoint": "/Relation/CreateCategoryCategory",
@@ -225,7 +225,7 @@ class Relations:
 
         if response_code in [200,400]:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"finished create relation category category",
                                "function": "createCategoryCategoryRelation",
                                "endpoint": "/Relation/CreateCategoryCategory",
@@ -238,7 +238,7 @@ class Relations:
 
         else:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"warning create relation category category",
                                "function": "createCategoryCategoryRelation",
                                "endpoint": "/Relation/CreateCategoryCategory",
@@ -256,7 +256,7 @@ class Relations:
                                     additional_labels: dict = None) -> bool:
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"start relation brand category relation",
                            "function": "createBrandCategoryRelation",
                            "endpoint": "/Relation/CreateBrandCategory",
@@ -277,7 +277,7 @@ class Relations:
 
         if response_code == [200, 400]:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"finished relation brand category relation",
                                "function": "createBrandCategoryRelation",
                                "endpoint": "/Relation/CreateBrandCategory",
@@ -290,7 +290,7 @@ class Relations:
 
         else:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"warning relation brand category relation",
                                "function": "createBrandCategoryRelation",
                                "endpoint": "/Relation/CreateBrandCategory",
@@ -308,7 +308,7 @@ class Relations:
                                         additional_labels: dict = None) -> bool:
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start create category attribute relation",
                            "function": "createCategoryAttributeRelation",
                            "endpoint": "/Relation/CreateAttributeCategory",
@@ -329,7 +329,7 @@ class Relations:
 
         if response_code in [200, 400]:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"finished create relation category attribute",
                                "function": "createCategoryAttributeRelation",
                                "endpoint": "/Relation/CreateAttributeCategory",
@@ -342,7 +342,7 @@ class Relations:
 
         else:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"warning create relation category attribute",
                                "function": "createCategoryAttributeRelation",
                                "endpoint": "/Relation/CreateAttributeCategory",
@@ -360,7 +360,7 @@ class Relations:
                                      additional_labels: dict = None) -> bool:
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start create product product relation",
                            "function": "createProductProductRelation",
                            "endpoint": "/Relation/CreateProductProduct",
@@ -381,7 +381,7 @@ class Relations:
 
         if response_code in [200, 400]:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"finished create or exist product product relation",
                                "function": "createProductProductRelation",
                                "endpoint": "/Relation/CreateProductProduct",
@@ -395,7 +395,7 @@ class Relations:
 
         else:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"error create product product relation",
                                "function": "createProductProductRelation",
                                "endpoint": "/Relation/CreateProductProduct",
@@ -414,7 +414,7 @@ class Relations:
                                       additional_labels: dict = None) -> bool:
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start create category product relation",
                            "function": "createCategoryProductRelation",
                            "endpoint": "/Relation/CreateCategoryProduct",
@@ -435,7 +435,7 @@ class Relations:
 
         if response_code in [200, 400]:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"finished create relation category product",
                                "function": "createCategoryProductRelation",
                                "endpoint": "/Relation/CreateCategoryProduct",
@@ -448,7 +448,7 @@ class Relations:
 
         else:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"error create relation category product",
                                "function": "createCategoryProductRelation",
                                "endpoint": "/Relation/CreateCategoryProduct",
@@ -467,7 +467,7 @@ class Attributes:
                         additional_labels: dict = {}) -> int:
 
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start create attribute",
                            "function": "createAttribute",
                            "endpoint": "/Attribute",
@@ -495,7 +495,7 @@ class Attributes:
                 attribute_id = resp_data['id']
 
                 ## logging
-                if logger and bool(os.getenv('DEBUG', 'False')):
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
                     log_message = {"topic": f"finished create attribute",
                                    "function": "createAttribute",
                                    "endpoint": "/Attribute",
@@ -509,7 +509,7 @@ class Attributes:
 
             else:
                 ## logging
-                if logger and bool(os.getenv('DEBUG', 'False')):
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
                     log_message = {"topic": f"no response data",
                                    "function": "createCategoryProductRelation",
                                    "endpoint": "/Attribute",
@@ -520,7 +520,7 @@ class Attributes:
 
         else:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"error creating attribute",
                                "function": "createCategoryProductRelation",
                                "endpoint": "/Attribute",
@@ -537,7 +537,7 @@ class Attributes:
                         logger: LocalLogger = None,
                         additional_labels: dict = None):
         ## logging
-        if logger and bool(os.getenv('DEBUG', 'False')):
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start create attribute value unit",
                            "function": "createAttributeValueUnit",
                            "endpoint": "/AttributeValueUnit",
@@ -561,7 +561,7 @@ class Attributes:
                 unit_id = resp_body['data'].get('id')
 
                 ## logging
-                if logger and bool(os.getenv('DEBUG', 'False')):
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
                     log_message = {"topic": f"finished creating",
                                    "function": "createAttributeValueUnit",
                                    "endpoint": "/AttributeValueUnit",
@@ -575,7 +575,7 @@ class Attributes:
 
             else:
                 ## logging
-                if logger and bool(os.getenv('DEBUG', 'False')):
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
                     log_message = {"topic": f"no response data",
                                    "function": "createAttributeValueUnit",
                                    "endpoint": "/AttributeValueUnit",
@@ -586,7 +586,7 @@ class Attributes:
 
         else:
             ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
                 log_message = {"topic": f"error creating attribute value unit",
                                "function": "createAttributeValueUnit",
                                "endpoint": "/AttributeValueUnit",

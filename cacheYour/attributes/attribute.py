@@ -15,7 +15,7 @@ def processAttributeCache():
 
     ## logging
     start_time = datetime.now()
-    if bool(os.environ["DEBUG"]):
+    if os.environ.get('DEBUG') == 'DEBUG':
         log_message = {
             "topic": f"saveAttributeCache: start saving index data",
             "message": {}}
@@ -39,7 +39,7 @@ def processAttributeCache():
     redis.set(f"attribute.short-term.cache", "True", ex=3000)
 
     ## logging
-    if bool(os.environ["DEBUG"]):
+    if os.environ.get('DEBUG') == 'DEBUG':
         log_message = {
             "topic": f"saveAttributeCache: finished saving index data",
             "message": {"processingTime": str(datetime.now() - start_time)}}
@@ -84,7 +84,7 @@ def getAttributeDetails(attributeId: int,
         ## logging
         from cacheYour.attributes.topicPackage import attributeLogger
         ## logging
-        if bool(os.environ["DEBUG"]):
+        if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"getAttributeDetails: key not found so "
                                     f"verify cache moment and if needed process cache",
                            "message": {"key": search_key}}
@@ -119,7 +119,7 @@ def getInternalAttributeId(externalId: int,
         ## logging
         from cacheYour.attributes.topicPackage import attributeLogger
         ## logging
-        if bool(os.environ["DEBUG"]):
+        if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"getInternalAttributeId: key not found so "
                                     f"verify cache moment and if needed process cache",
                            "message": {"key": search_key}}
@@ -148,7 +148,7 @@ def checkAttributeStatusCache() -> bool:
     else:
         ## logging
         from cacheYour.attributes.topicPackage import attributeLogger
-        if bool(os.environ["DEBUG"]):
+        if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"checkAttributeStatusCache: status false so process",
                            "message": {}}
             attributeLogger.createDebugLog(message=log_message)
@@ -167,7 +167,7 @@ def processAttributeValueUnitCache():
 
     ## logging
     start_time = datetime.now()
-    if bool(os.environ["DEBUG"]):
+    if os.environ.get('DEBUG') == 'DEBUG':
         log_message = {
             "topic": f"saveAttributeValueUnitCache: start saving index data",
             "message": {}}
@@ -189,7 +189,7 @@ def processAttributeValueUnitCache():
     redis.set(f"attributeValueUnit.short-term.cache", "True", ex=3000)
 
     ## logging
-    if bool(os.environ["DEBUG"]):
+    if os.environ.get('DEBUG') == 'DEBUG':
         log_message = {
             "topic": f"saveAttributeValueUnitCache: finished saving index data",
             "message": {"processingTime": str(datetime.now() - start_time)}}
@@ -218,7 +218,7 @@ def processAttributeValueUnitLanguages(languages: list,
 
             elif attributeValueUnit['translations'].get(fallback_language):
                 ## fallback
-                if bool(os.environ["DEBUG"]):
+                if os.environ.get('DEBUG') == 'DEBUG':
                     log_message = {
                         "topic": f"Error attribute value unit don't have translations for language: {language} "
                                  f"but for yes fallback language: {fallback_language}",
@@ -238,7 +238,7 @@ def processAttributeValueUnitLanguages(languages: list,
                 continue
 
         ## fallback
-        if bool(os.environ["DEBUG"]):
+        if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {
                 "topic": f"Error attribute value unit don't have translations for language: {language} "
                          f"also not fallback language: {fallback_language}",
@@ -271,7 +271,7 @@ def getAttributeValueUnitDetails(attributeValueUnitId: int,
         ## logging
         from cacheYour.attributes.topicPackage import attributeLogger
         ## logging
-        if bool(os.environ["DEBUG"]):
+        if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"getAttributeValueUnitDetails: key not found so "
                                     f"verify cache moment and if needed process cache",
                            "message": {"key": search_key}}
@@ -306,7 +306,7 @@ def getInternalAttributeValueUnitId(externalId: int,
         ## logging
         from cacheYour.attributes.topicPackage import attributeLogger
         ## logging
-        if bool(os.environ["DEBUG"]):
+        if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"getInternalAttributeValueUnitId: key not found so "
                                     f"verify cache moment and if needed process cache",
                            "message": {"key": search_key}}
@@ -334,7 +334,7 @@ def checkAttributeValueUnitStatusCache() -> bool:
     else:
         ## logging
         from cacheYour.attributes.topicPackage import attributeLogger
-        if bool(os.environ["DEBUG"]):
+        if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"checkattributeValueUnitStatusCache: status false so process",
                            "message": {}}
             attributeLogger.createDebugLog(message=log_message)

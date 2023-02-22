@@ -14,7 +14,7 @@ def processIndexAttributeCache(index_attributes: dict):
 
     ## logging
     start_time = datetime.now()
-    if bool(os.environ["DEBUG"]):
+    if os.environ.get('DEBUG') == 'DEBUG':
         log_message = {
             "topic": f"saveAttributeCategoryCache: start saving index data",
             "message": {}}
@@ -42,7 +42,7 @@ def processIndexAttributeCache(index_attributes: dict):
     redis.set(f"attribute.index.cache", "True", ex=172800)
 
     ## logging
-    if bool(os.environ["DEBUG"]):
+    if os.environ.get('DEBUG') == 'DEBUG':
         log_message = {
             "topic": f"saveAttributeCategoryCache: finished saving index data",
             "message": {"processingTime": str(datetime.now() - start_time)}}
