@@ -71,7 +71,9 @@ class LocalLogger:
         self.local_logger.addHandler(ih_handler)
         self.local_logger.addHandler(wh_handler)
 
-    def createLog(self, message: dict):
+    def createLog(self,
+                  message: dict,
+                  **kwargs):
         try:
             if message.get("level") == "WARNING":
                 self.local_logger.warning(message)
@@ -85,7 +87,9 @@ class LocalLogger:
             error = traceback.format_exc()
             self.local_logger.error(f"Error Create logging: error: {str(error)}")
 
-    def createDebugLog(self, message: dict):
+    def createDebugLog(self,
+                       message: dict,
+                       **kwargs):
         try:
             self.local_logger.debug(json.dumps(message))
             print(message)
@@ -93,7 +97,9 @@ class LocalLogger:
             error = traceback.format_exc()
             self.local_logger.error(f"Error Debug logging: error: {str(error)}")
 
-    def createInfoLog(self, message: dict):
+    def createInfoLog(self,
+                      message: dict,
+                      **kwargs):
         try:
             self.local_logger.info(json.dumps(message))
             print(message)
@@ -101,7 +107,9 @@ class LocalLogger:
             error = traceback.format_exc()
             self.local_logger.error(f"Error Info logging: error: {str(error)}")
 
-    def createErrorLog(self, message: dict):
+    def createErrorLog(self,
+                       message: dict,
+                       **kwargs):
         try:
             self.local_logger.error(json.dumps(message))
             print(message)
@@ -109,7 +117,9 @@ class LocalLogger:
             error = traceback.format_exc()
             self.local_logger.error(f"Error Error logging: error: {str(error)}")
 
-    def createWarningLog(self, message: dict):
+    def createWarningLog(self,
+                         message: dict,
+                         **kwargs):
         try:
             self.local_logger.warning(json.dumps(message))
             print(message)

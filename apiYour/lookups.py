@@ -1,6 +1,7 @@
 from apiYour.settingsApi import SOURCE_IDS, PURPOSE_IDS, PRODUCTION_ADDRESS, DEVELOPMENT_ADDRESS
 import os
 import json
+from loggingYour.localLogging import LocalLogger
 
 def createInternalIdLookup(items: list) -> dict:
     item_lookup = {}
@@ -11,7 +12,8 @@ def createInternalIdLookup(items: list) -> dict:
 
     return item_lookup
 
-def createCategoryIdLookup(message_handler: object, your_categories: list) -> dict:
+def createCategoryIdLookup(your_categories: list,
+                           logger: LocalLogger = None) -> dict:
     category_lookup = {}
 
     ## setting sources
@@ -32,10 +34,10 @@ def createCategoryIdLookup(message_handler: object, your_categories: list) -> di
                 category_lookup[str(source)][str(category['purpose'])].update({str(category['externalIDs'][source][0]): category['id']})
         else:
             ## logging
-            message_handler.logStruct(topic=f"createCategoryIdLookup: Category without externalIds",
-                                      data=category,
-                                      level="WARNING",
-                                      labels={'function': 'createCategoryIdLookup'})
+            if logger and bool(os.getenv('DEBUG', 'False')):
+                log_message = {"topic": f"Category without externalIds",
+                               "function": "getAllExternalProductIds"}
+                logger.createWarningLog(message=log_message)
 
     return category_lookup
 
@@ -115,17 +117,10 @@ def createAttributeTypeUnitNameLookup(your_attr_type_units: list) -> dict:
 
 def productIdCheckExists(productId:str,
                          type:str,
-                         connection: object,
-                         environment: str = "production"):
-
-    ## construct request
-    if environment == "production":
-        request_url = f"{PRODUCTION_ADDRESS}/Product/Exists?id={productId}&idType={type}"
-    elif environment == "development":
-        request_url = f"{DEVELOPMENT_ADDRESS}/Product/Exists?id={productId}&idType={type}"
+                         connection: object):
 
     r = connection.request(method="GET",
-                           url=request_url,
+                           url=f"{os.environ['YOUR_API_URL']}/Product/Exists?id={productId}&idType={type}",
                            headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                     'Content-Type': 'application/json'})
 

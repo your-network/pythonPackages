@@ -1,25 +1,20 @@
 import os
-import requests
 import json
-from datetime import datetime
-from loggingYour.messageHandler import messageHandler
+from loggingYour.localLogging import LocalLogger
 
 class Brand:
     @staticmethod
-    def create(logger: object,
-               connection: object,
-               data: dict) -> int:
-
-        brand_id = None
+    def create(connection: object,
+               data: dict,
+               logger: LocalLogger = None) -> int:
 
         ## logging
-        if bool(os.getenv('DEBUG', 'False')):
-            msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                         labels={'function': 'createBrand',
-                                                 'endpoint': '/Brand'})
-            msg_handler.logStruct(topic=f"createBrand: start create brand.",
-                                  data=data,
-                                  level="DEBUG")
+        if logger and bool(os.getenv('DEBUG', 'False')):
+            log_message = {"topic": f"start create brand",
+                           "function": "createBrand",
+                           "endpoint": "/Brand",
+                           "data": data}
+            logger.createDebugLog(message=log_message)
 
         ## process request from connection pool
         encoded_data = json.dumps(data).encode('utf-8')
@@ -37,66 +32,57 @@ class Brand:
             success = resp_body.get('success')
             code = resp_body.get('code')
 
-            if success:
-                brand_id = resp_data['id']
-
-                ## logging
-                if bool(os.getenv('DEBUG','False')):
-                    msg_handler.logStruct(topic=f"createBrand: finished create brand. brand id: {brand_id}",
-                                          status_code=status_code,
-                                          response_text=resp_data,
-                                          level="DEBUG")
-
-            elif code == 11:
+            if success or code == 11:
                 brand_id = resp_data.get('id')
 
                 ## logging
-                if bool(os.getenv('DEBUG','False')):
-                    msg_handler.logStruct(topic=f"createBrand: brand already existed, cat_id: {brand_id}",
-                                          status_code=status_code,
-                                          response_text=resp_data,
-                                          level="DEBUG")
+                if logger and bool(os.getenv('DEBUG', 'False')):
+                    log_message = {"topic": f"finished create brand",
+                                   "function": "createBrand",
+                                   "status_code": status_code,
+                                   "brandId": brand_id,
+                                   "endpoint": "/Brand"}
+                    logger.createDebugLog(message=log_message)
+
+                return brand_id
 
             else:
                 ## logging
-                if bool(os.getenv('DEBUG','False')):
-                    msg_handler.logStruct(topic=f"createBrand: no response data",
-                                          status_code=status_code,
-                                          response_text=resp_data,
-                                          level="WARNING")
+                if logger and bool(os.getenv('DEBUG', 'False')):
+                    log_message = {"topic": f"no response data",
+                                   "function": "createBrand",
+                                   "status_code": status_code,
+                                   "response_text": resp_data,
+                                   "endpoint": "/Brand"}
+                    logger.createWarningLog(message=log_message)
 
         else:
             ## logging
-            msg_handler.logStruct(
-                level="ERROR",
-                topic=f"createBrand: error create brand",
-                status_code=status_code,
-                response_text=resp_data)
+            if logger and bool(os.getenv('DEBUG', 'False')):
+                log_message = {"topic": f"error create brand",
+                               "function": "createBrand",
+                               "status_code": status_code,
+                               "response_text": resp_data,
+                               "endpoint": "/Brand"}
+                logger.createErrorLog(message=log_message)
 
-        ## logging
-        if bool(os.getenv('DEBUG','False')):
-            msg_handler.logStruct(topic=f"createBrand: Api brand create finished")
-
-        return brand_id
+        return
 
 class Category:
     @staticmethod
     def create(payload: dict,
-               logger: object,
                connection: object,
-               additional_labels: dict = None) -> int:
-
-        cat_id = None
+               logger: LocalLogger = None,
+               additional_labels: dict = {}) -> int:
 
         ## logging
-        if bool(os.getenv('DEBUG', 'False')):
-            labels = {'function': 'createCategory', 'endpoint': '/Category/'}
-            if additional_labels:
-                labels.update(additional_labels)
-
-            msg_handler = messageHandler(logger=logger, level="DEBUG", labels=labels)
-            msg_handler.logStruct(topic=f"createCategory: start create category",
-                                  data=payload)
+        if logger and bool(os.getenv('DEBUG', 'False')):
+            log_message = {"topic": f"start create category",
+                           "function": "createCategory",
+                           "endpoint": "/Category",
+                           "data": payload,
+                           "labels": additional_labels}
+            logger.createDebugLog(message=log_message)
 
         ## process request from connection pool
         encoded_data = json.dumps(payload).encode('utf-8')
@@ -114,200 +100,117 @@ class Category:
             success = resp_body.get('success')
             code = resp_body.get('code')
 
-            if success:
+            if resp_data and (success or code == 11):
                 cat_id = resp_data.get('id')
 
                 ## logging
-                if bool(os.getenv('DEBUG','False')):
-                    msg_handler.logStruct(topic=f"createCategory: category created finished, cat_id: {cat_id}",
-                                          status_code=status_code,
-                                          response_text=resp_data)
+                if logger and bool(os.getenv('DEBUG', 'False')):
+                    log_message = {"topic": f"category created or exist finished",
+                                   "function": "createCategory",
+                                   "endpoint": "/Category",
+                                   "code": status_code,
+                                   "response": resp_data,
+                                   "categoryId": cat_id,
+                                   "labels": additional_labels}
+                    logger.createDebugLog(message=log_message)
 
-            elif code == 11:
-                cat_id = resp_data.get('id')
-                ## logging
-                if bool(os.getenv('DEBUG','False')):
-                    msg_handler.logStruct(topic=f"createCategory: category already existed, cat_id: {cat_id}",
-                                          status_code=status_code,
-                                          response_text=resp_data)
+                return cat_id
 
             else:
                 ## logging
-                if bool(os.getenv('DEBUG','False')):
-                    msg_handler.logStruct(topic=f"createCategory: no response data",
-                                          status_code=status_code,
-                                          response_text=resp_data,
-                                          level="WARNING")
+                if logger and bool(os.getenv('DEBUG', 'False')):
+                    log_message = {"topic": f"no response data",
+                                   "function": "createCategory",
+                                   "endpoint": "/Category",
+                                   "code": status_code,
+                                   "response": resp_data,
+                                   "labels": additional_labels}
+                    logger.createWarningLog(message=log_message)
 
         else:
             ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(level="ERROR",
-                               topic="createCategory: Error create category",
-                               status_code=status_code,
-                               response_text=resp_data)
+            if logger and bool(os.getenv('DEBUG', 'False')):
+                log_message = {"topic": f"Error create category",
+                               "function": "createCategory",
+                               "endpoint": "/Category",
+                               "code": status_code,
+                               "response": resp_data,
+                               "labels": additional_labels}
+                logger.createErrorLog(message=log_message)
 
-        return cat_id
-
-class Product:
-    @staticmethod
-    def createBulk(logger: object,
-                  data_bulk: list,
-                  labels: dict = {}):
-
-        ## logging
-        if bool(os.getenv('DEBUG','False')):
-            log_labels = {'function': 'createProductBulk', 'endpoint': '/Product/CreateOrUpdateBulk'}
-            if labels:
-                log_labels.update(labels)
-            msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                         labels=log_labels)
-            msg_handler.logStruct(f"createProductBulk: start process product bulk insert",
-                                  data={"list": data_bulk})
-
-        ## request
-        r = requests.post(url=f"{os.environ['YOUR_API_URL']}/Product/CreateOrUpdateBulk",
-                          json=data_bulk,
-                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-
-        if r.status_code == 200:
-            resp_data = json.loads(r.text)
-            product_bulk_response = resp_data
-
-            ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(topic=f"createProductBulk: Success in product bulk insert. Number products",
-                               status_code=r.status_code,
-                               response_text=r.text)
-
-        else:
-            ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(level="ERROR",
-                               topic="createProductBulk: Error in product bulk insert",
-                               status_code=r.status_code,
-                               response_text=r.text)
-
-            product_bulk_response = None
-
-            ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(topic=f"createProductBulk: Api product bulk insert finished.",
-                                      status_code=r.status_code,
-                                      response_text=r.text)
-
-
-        return product_bulk_response
-
-    @staticmethod
-    def createQueue(logger: object,
-                   data_bulk: list,
-                   additional_labels: dict = {}):
-
-        ## logging
-        if bool(os.getenv('DEBUG','False')):
-            labels = {'function': 'createProductQueue', 'endpoint': "/Product/QueueForCreateBulk"}
-            if additional_labels:
-                labels.update(additional_labels)
-
-            msg_handler = messageHandler(logger=logger,
-                                         level="DEBUG",
-                                         labels=labels)
-            msg_handler.logStruct(topic=f"createProductQueue: process product queue",
-                                  data=data_bulk)
-
-        ## request
-        r = requests.post(url=f"{os.environ['YOUR_API_URL']}/Product/QueueForCreateBulk",
-                         json=data_bulk,
-                         headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-
-        if r.status_code == 200:
-            resp_data = json.loads(r.text)
-
-            ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(topic=f"createProductQueue: Success in product queue insert",
-                               status_code=r.status_code,
-                               response_text=r.text)
-        else:
-            resp_data = None
-            ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(topic="createProductQueue: Error product bulk insert",
-                                      level="WARNING",
-                                      data=data_bulk,
-                               status_code=r.status_code,
-                               response_text=r.text)
-
-        ## logging
-        if bool(os.getenv('DEBUG','False')):
-            msg_handler.logStruct(topic=f"createProductBulk: Api product queue insert finished, processing time: {datetime.now()-start_time}")
-
-        return resp_data
+        return
 
 class Series:
     @staticmethod
-    def create(logger: object,
-                 data=dict) -> int:
+    def create(data: dict,
+               connection: object,
+               logger: LocalLogger = None,
+               labels: dict = {}) -> int:
 
         ## logging
-        if bool(os.getenv('DEBUG','False')):
-            msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                         labels={'function': 'createSeries',
-                                                 'endpoint': '/Series'})
-            msg_handler.logStruct(topic=f"createSeries: start create serie",
-                                  data=data)
+        if logger and bool(os.getenv('DEBUG', 'False')):
+            log_message = {"topic": f"start create series",
+                           "function": "createSeries",
+                           "endpoint": "/Series",
+                           "data": data,
+                           "labels": labels}
+            logger.createDebugLog(message=log_message)
 
-        serie_id = None
+        ## process request from connection pool
+        encoded_data = json.dumps(data).encode('utf-8')
+        r = connection.request(method="POST",
+                               url=f"{os.environ['YOUR_API_URL']}/Series",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+        status_code = r.status
+        resp_data = r.data
 
-        ## request
-        r = requests.post(url=f"{os.environ['YOUR_API_URL']}/Series",
-                          json=data,
-                          headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"]})
-
-        if r.status_code == 200:
-            resp_data = json.loads(r.text)
+        if status_code == 200:
+            resp_body = json.loads(resp_data.decode('utf-8'))
+            resp_data = resp_body.get('data')
             serie_id = resp_data['data']['id']
 
             ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(
-                    topic=f"createSeries: finished create serie. serie id: {serie_id}",
-                    status_code=r.status_code,
-                    response_text=r.text)
+            if logger and bool(os.getenv('DEBUG', 'False')):
+                log_message = {"topic": f"finished create or exist series",
+                               "function": "createSeries",
+                               "endpoint": "/Series",
+                               "code": status_code,
+                               "response": resp_data,
+                               "seriesId": serie_id,
+                               "labels": labels}
+                logger.createDebugLog(message=log_message)
+
+            return serie_id
 
         else:
             ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(
-                    level="ERROR",
-                    topic=f"createSeries: error create serie",
-                    status_code=r.status_code,
-                    response_text=r.text)
+            if logger and bool(os.getenv('DEBUG', 'False')):
+                log_message = {"topic": f"error create series",
+                               "function": "createSeries",
+                               "endpoint": "/Series",
+                               "code": status_code,
+                               "response": resp_data,
+                               "labels": labels}
+                logger.createErrorLog(message=log_message)
 
-        ## logging
-        if bool(os.getenv('DEBUG','False')):
-            msg_handler.logStruct(topic=f"createSeries: Api create serie finished")
-
-        return serie_id
+        return
 
 class Relations:
-
     @staticmethod
-    def createCategoryCategoryRelation(logger: object,
-                                        data: dict,
+    def createCategoryCategoryRelation(data: dict,
                                         connection: object,
+                                       logger: LocalLogger = None,
                                         additional_labels: dict = None) -> bool:
         ## logging
-        if bool(os.getenv('DEBUG','False')):
-            labels = {'function': 'createCategoryCategoryRelation',
-                      'endpoint': '/Relation/CreateCategoryCategory'}
-            if additional_labels:
-                labels.update(additional_labels)
-            msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                         labels=labels)
-            msg_handler.logStruct(topic=f"createCategoryCategoryRelation: Start create category category relation",
-                                  data=data)
+        if logger and bool(os.getenv('DEBUG', 'False')):
+            log_message = {"topic": f"start relation creation",
+                           "function": "createCategoryCategoryRelation",
+                           "endpoint": "/Relation/CreateCategoryCategory",
+                           "data": data,
+                           "labels": additional_labels}
+            logger.createDebugLog(message=log_message)
 
         ## process request from connection pool
         encoded_data = json.dumps(data).encode('utf-8')
@@ -320,42 +223,46 @@ class Relations:
         response_code = r.status
         response_text = r.data
 
-        if response_code == 200:
+        if response_code in [200,400]:
             ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(
-                    topic=f"createCategoryCategoryRelation: finished create relation category category",
-                    status_code=response_code,
-                    response_text=response_text)
-                return True
+            if logger and bool(os.getenv('DEBUG', 'False')):
+                log_message = {"topic": f"finished create relation category category",
+                               "function": "createCategoryCategoryRelation",
+                               "endpoint": "/Relation/CreateCategoryCategory",
+                               "code": response_code,
+                               "response": response_text,
+                               "labels": additional_labels}
+                logger.createDebugLog(message=log_message)
+
+            return True
 
         else:
             ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(
-                    level="WARNING",
-                    topic=f"createCategoryCategoryRelation: error create relation category category",
-                    status_code=response_code,
-                    response_text=response_text)
-                return False
+            if logger and bool(os.getenv('DEBUG', 'False')):
+                log_message = {"topic": f"warning create relation category category",
+                               "function": "createCategoryCategoryRelation",
+                               "endpoint": "/Relation/CreateCategoryCategory",
+                               "code": response_code,
+                               "response": response_text,
+                               "labels": additional_labels}
+                logger.createWarningLog(message=log_message)
+
+            return False
 
     @staticmethod
-    def createBrandCategoryRelation(logger: object,
-                                    data: dict,
+    def createBrandCategoryRelation(data: dict,
                                     connection: object,
+                                    logger: LocalLogger = None,
                                     additional_labels: dict = None) -> bool:
 
         ## logging
-        if bool(os.getenv('DEBUG','False')):
-            labels = {'function': 'createBrandCategoryRelation',
-                                                 'endpoint': '/Relation/CreateBrandCategory'}
-            if additional_labels:
-                labels.update(additional_labels)
-
-            msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                         labels=labels)
-            msg_handler.logStruct(topic=f"createBrandCategoryRelation: Start create brand category relation",
-                                  data=data)
+        if logger and bool(os.getenv('DEBUG', 'False')):
+            log_message = {"topic": f"start relation brand category relation",
+                           "function": "createBrandCategoryRelation",
+                           "endpoint": "/Relation/CreateBrandCategory",
+                           "data": data,
+                           "labels": additional_labels}
+            logger.createDebugLog(message=log_message)
 
         ## process request from connection pool
         encoded_data = json.dumps(data).encode('utf-8')
@@ -370,41 +277,44 @@ class Relations:
 
         if response_code == [200, 400]:
             ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(
-                    topic=f"createBrandCategoryRelation: finished create relation brand category",
-                    status_code=response_code,
-                    response_text=response_text)
+            if logger and bool(os.getenv('DEBUG', 'False')):
+                log_message = {"topic": f"finished relation brand category relation",
+                               "function": "createBrandCategoryRelation",
+                               "endpoint": "/Relation/CreateBrandCategory",
+                               "code": response_code,
+                               "response": response_text,
+                               "labels": additional_labels}
+                logger.createDebugLog(message=log_message)
+
             return True
 
         else:
             ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(
-                    level="ERROR",
-                    topic=f"createBrandCategoryRelation: error create relation brand category",
-                    status_code=response_code,
-                    response_text=response_text)
+            if logger and bool(os.getenv('DEBUG', 'False')):
+                log_message = {"topic": f"warning relation brand category relation",
+                               "function": "createBrandCategoryRelation",
+                               "endpoint": "/Relation/CreateBrandCategory",
+                               "code": response_code,
+                               "response": response_text,
+                               "labels": additional_labels}
+                logger.createWarningLog(message=log_message)
+
             return False
 
     @staticmethod
-    def createCategoryAttributeRelation(logger: object,
-                                        data: dict,
+    def createCategoryAttributeRelation(data: dict,
                                         connection: object,
+                                        logger: LocalLogger = None,
                                         additional_labels: dict = None) -> bool:
+
         ## logging
-        if bool(os.getenv('DEBUG','False')):
-            labels = {'function': 'createCategoryAttributeRelation',
-                                                 'endpoint': '/Relation/CreateAttributeCategory'}
-            if additional_labels:
-                labels.update(additional_labels)
-
-            msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                         labels=labels)
-
-            msg_handler.logStruct(
-                topic=f"createCategoryAttributeRelation: Start create category attribute relation",
-                data=data)
+        if logger and bool(os.getenv('DEBUG', 'False')):
+            log_message = {"topic": f"Start create category attribute relation",
+                           "function": "createCategoryAttributeRelation",
+                           "endpoint": "/Relation/CreateAttributeCategory",
+                           "data": data,
+                           "labels": additional_labels}
+            logger.createDebugLog(message=log_message)
 
         ## process request from connection pool
         encoded_data = json.dumps(data).encode('utf-8')
@@ -417,37 +327,46 @@ class Relations:
         response_code = r.status
         response_text = r.data
 
-        if response_code == 200:
+        if response_code in [200, 400]:
             ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(
-                    topic=f"createCategoryAttributeRelation: finished create relation category attribute",
-                    status_code=response_code,
-                    response_text=response_text)
+            if logger and bool(os.getenv('DEBUG', 'False')):
+                log_message = {"topic": f"finished create relation category attribute",
+                               "function": "createCategoryAttributeRelation",
+                               "endpoint": "/Relation/CreateAttributeCategory",
+                               "code": response_code,
+                               "response": response_text,
+                               "labels": additional_labels}
+                logger.createDebugLog(message=log_message)
+
             return True
 
         else:
             ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(
-                    level="WARNING",
-                    topic=f"createCategoryAttributeRelation: error create relation category attribute",
-                    status_code=response_code,
-                    response_text=response_text)
+            if logger and bool(os.getenv('DEBUG', 'False')):
+                log_message = {"topic": f"warning create relation category attribute",
+                               "function": "createCategoryAttributeRelation",
+                               "endpoint": "/Relation/CreateAttributeCategory",
+                               "code": response_code,
+                               "response": response_text,
+                               "labels": additional_labels}
+                logger.createWarningLog(message=log_message)
+
             return False
 
     @staticmethod
-    def createProductProductRelation(logger: object,
-                                     data: dict,
-                                     connection: object) -> bool:
+    def createProductProductRelation(data: dict,
+                                     connection: object,
+                                     logger: LocalLogger = None,
+                                     additional_labels: dict = None) -> bool:
 
         ## logging
-        if bool(os.getenv('DEBUG','False')):
-            msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                         labels={'function': 'createProductProductRelation',
-                                                 'endpoint': '/Relation/CreateProductProduct'})
-            msg_handler.logStruct(topic=f"createProductProductRelation: Start create product product relation,\n start time: {datetime.now()}",
-                                  data=data)
+        if logger and bool(os.getenv('DEBUG', 'False')):
+            log_message = {"topic": f"Start create product product relation",
+                           "function": "createProductProductRelation",
+                           "endpoint": "/Relation/CreateProductProduct",
+                           "data": data,
+                           "labels": additional_labels}
+            logger.createDebugLog(message=log_message)
 
         ## process request from connection pool
         encoded_data = json.dumps(data).encode('utf-8')
@@ -460,36 +379,48 @@ class Relations:
         response_code = r.status
         response_text = r.data
 
-        if response_code == 200:
+        if response_code in [200, 400]:
             ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(
-                    topic=f"createProductProductRelation: finished create relation product product",
-                    status_code=response_code,
-                    response_text=response_text)
+            if logger and bool(os.getenv('DEBUG', 'False')):
+                log_message = {"topic": f"finished create or exist product product relation",
+                               "function": "createProductProductRelation",
+                               "endpoint": "/Relation/CreateProductProduct",
+                               "code": response_code,
+                               "response": response_text,
+                               "data": data,
+                               "labels": additional_labels}
+                logger.createDebugLog(message=log_message)
+
             return True
 
         else:
             ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(
-                    level="ERROR",
-                    topic=f"createProductProductRelation: error create relation product product",
-                    status_code=response_code,
-                    response_text=response_text)
+            if logger and bool(os.getenv('DEBUG', 'False')):
+                log_message = {"topic": f"error create product product relation",
+                               "function": "createProductProductRelation",
+                               "endpoint": "/Relation/CreateProductProduct",
+                               "code": response_code,
+                               "response": response_text,
+                               "data": data,
+                               "labels": additional_labels}
+                logger.createWarningLog(message=log_message)
+
             return False
 
     @staticmethod
-    def createCategoryProductRelation(logger: object,
-                                      data: dict,
-                                      connection: object) -> bool:
+    def createCategoryProductRelation(data: dict,
+                                      connection: object,
+                                      logger: LocalLogger = None,
+                                      additional_labels: dict = None) -> bool:
 
         ## logging
-        if bool(os.getenv('DEBUG','False')):
-            msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                         labels={'function': 'createCategoryProductRelation',
-                                                 'endpoint': '/Relation/CreateCategoryProduct'})
-            msg_handler.logStruct(topic=f"createCategoryProductRelation: Start create category product relation,\n start time: {datetime.now()}", data=data)
+        if logger and bool(os.getenv('DEBUG', 'False')):
+            log_message = {"topic": f"Start create category product relation",
+                           "function": "createCategoryProductRelation",
+                           "endpoint": "/Relation/CreateCategoryProduct",
+                           "data": data,
+                           "labels": additional_labels}
+            logger.createDebugLog(message=log_message)
 
         ## process request from connection pool
         encoded_data = json.dumps(data).encode('utf-8')
@@ -502,143 +433,47 @@ class Relations:
         response_code = r.status
         response_text = r.data
 
-        if response_code == 200:
+        if response_code in [200, 400]:
             ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(
-                    topic=f"createCategoryProductRelation: finished create relation category product",
-                    status_code=response_code,
-                    response_text=response_text)
+            if logger and bool(os.getenv('DEBUG', 'False')):
+                log_message = {"topic": f"finished create relation category product",
+                               "function": "createCategoryProductRelation",
+                               "endpoint": "/Relation/CreateCategoryProduct",
+                               "code": response_code,
+                               "response": response_text,
+                               "labels": additional_labels}
+                logger.createDebugLog(message=log_message)
+
             return True
 
         else:
             ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(
-                    level="ERROR",
-                    topic=f"createCategoryProductRelation: error create relation category product",
-                    status_code=response_code,
-                    response_text=response_text)
+            if logger and bool(os.getenv('DEBUG', 'False')):
+                log_message = {"topic": f"error create relation category product",
+                               "function": "createCategoryProductRelation",
+                               "endpoint": "/Relation/CreateCategoryProduct",
+                               "code": response_code,
+                               "response": response_text,
+                               "labels": additional_labels}
+                logger.createWarningLog(message=log_message)
+
             return False
 
 class Attributes:
-
     @staticmethod
-    def createAttributeUnit(logger: object,
-                            data: dict,
-                            connection: object) -> int:
+    def createAttribute(data: dict,
+                        connection: object,
+                        logger: LocalLogger = None,
+                        additional_labels: dict = {}) -> int:
 
         ## logging
-        if bool(os.getenv('DEBUG','False')):
-            msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                         labels={'function': 'createAttributeUnit',
-                                                 'endpoint': '/Attribute/CreateOrUpdateAttributeTypeUnit'})
-            msg_handler.logStruct(topic=f"createAttributeUnit: start create attribute unit.",
-                                  data=data)
-
-        unit_id = None
-
-        ## process request from connection pool
-        encoded_data = json.dumps(data).encode('utf-8')
-        r = connection.request(method="POST",
-                               url=f"{os.environ['YOUR_API_URL']}/Attribute/CreateOrUpdateAttributeTypeUnit",
-                               body=encoded_data,
-                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
-                                        'Content-Type': 'application/json'})
-        status_code = r.status
-        resp_data = r.data
-
-        if status_code == 200:
-            resp_data = json.loads(resp_data.decode('utf-8'))
-            unit_id = resp_data['data']['id']
-
-            ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(topic=f"createAttributeUnit: create attribute unit success. Unit_id: {unit_id}",
-                                      status_code=status_code,
-                                      response_text=resp_data)
-
-        else:
-            ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(topic="createAttributeUnit: Error attribute unit insert",
-                                      level="ERROR",
-                                      status_code=status_code,
-                                      response_text=resp_data)
-
-        ## logging
-        if bool(os.getenv('DEBUG','False')):
-            msg_handler.logStruct(
-                topic=f"createAttributeUnit: Api attribute unit insert finished")
-
-        return unit_id
-
-    @staticmethod
-    def createAttributeType(logger: object,
-                            data: dict,
-                            connection: object) -> int:
-
-        ## logging
-        if bool(os.getenv('DEBUG','False')):
-            msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                         labels={'function': 'CreateOrUpdateAttributeType',
-                                                 'endpoint': '/Attribute/CreateOrUpdateAttributeType'})
-            msg_handler.logStruct(topic=f"createAttributeType: start create attribute type.",
-                                  data=data)
-
-        attribute_type_id = None
-
-        ## process request from connection pool
-        encoded_data = json.dumps(data).encode('utf-8')
-        r = connection.request(method="POST",
-                               url=f"{os.environ['YOUR_API_URL']}/Attribute/CreateOrUpdateAttributeType",
-                               body=encoded_data,
-                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
-                                        'Content-Type': 'application/json'})
-        status_code = r.status
-        resp_data = r.data
-
-        if status_code == 200:
-            resp_data = json.loads(resp_data.decode('utf-8'))
-            attribute_type_id = resp_data['data']['id']
-
-            ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(
-                    topic=f"createAttributeType: finished create attribute type. attribute id type: {attribute_type_id}",
-                    status_code=status_code,
-                    response_text=resp_data)
-
-        else:
-            ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(
-                    level="ERROR",
-                    topic=f"createAttributeType: error create attribute type",
-                    status_code=status_code,
-                    response_text=resp_data)
-
-        ## logging
-        if bool(os.getenv('DEBUG','False')):
-            msg_handler.logStruct(
-                topic=f"createAttributeUnit: Api attribute unit create finished.")
-
-        return attribute_type_id
-
-    @staticmethod
-    def createAttribute(logger: object,
-                        data: dict,
-                        connection: object) -> int:
-
-        ## logging
-        if bool(os.getenv('DEBUG','False')):
-            msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                         labels={'function': 'createAttribute',
-                                                 'endpoint': '/Attribute/CreateOrUpdate'})
-            msg_handler.logStruct(topic=f"createAttribute: start create attribute.",
-                                  data=data)
-
-        attribute_id = None
+        if logger and bool(os.getenv('DEBUG', 'False')):
+            log_message = {"topic": f"Start create attribute",
+                           "function": "createAttribute",
+                           "endpoint": "/Attribute",
+                           "data": data,
+                           "labels": additional_labels}
+            logger.createDebugLog(message=log_message)
 
         ## process request from connection pool
         encoded_data = json.dumps(data).encode('utf-8')
@@ -650,66 +485,65 @@ class Attributes:
         status_code = r.status
         resp_data = r.data
 
-        allowed_codes = [200, 400]
-
-        if status_code in allowed_codes:
+        if status_code in [200, 400]:
             resp_body = json.loads(resp_data.decode('utf-8'))
             resp_data = resp_body.get('data')
             success = resp_body.get('success')
             code = resp_body.get('code')
 
-            if success:
+            if success or code == 11:
                 attribute_id = resp_data['id']
 
                 ## logging
-                if bool(os.getenv('DEBUG','False')):
-                    msg_handler.logStruct(
-                        topic=f"createAttribute: finished create attribute type. attribute id: {attribute_id}",
-                        status_code=status_code,
-                        response_text=resp_data,
-                        level="DEBUG")
+                if logger and bool(os.getenv('DEBUG', 'False')):
+                    log_message = {"topic": f"finished create attribute",
+                                   "function": "createAttribute",
+                                   "endpoint": "/Attribute",
+                                   "code": status_code,
+                                   "response": resp_data,
+                                   "attributeId": attribute_id,
+                                   "labels": additional_labels}
+                    logger.createDebugLog(message=log_message)
 
-            elif code == 11:
-                attribute_id = resp_data.get('id')
-
-                ## logging
-                if bool(os.getenv('DEBUG','False')):
-                    msg_handler.logStruct(topic=f"createAttribute: attribute already existed, attribute_id: {attribute_id}",
-                                          status_code=status_code,
-                                          response_text=resp_data,
-                                          level="DEBUG")
+                return attribute_id
 
             else:
                 ## logging
-                if bool(os.getenv('DEBUG','False')):
-                    msg_handler.logStruct(topic=f"createAttribute: no response data",
-                                          status_code=status_code,
-                                          response_text=resp_data,
-                                          level="WARNING")
+                if logger and bool(os.getenv('DEBUG', 'False')):
+                    log_message = {"topic": f"no response data",
+                                   "function": "createCategoryProductRelation",
+                                   "endpoint": "/Attribute",
+                                   "code": status_code,
+                                   "response": resp_data,
+                                   "labels": additional_labels}
+                    logger.createWarningLog(message=log_message)
+
         else:
             ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(topic=f"createAttribute: status code not {allowed_codes}",
-                                      status_code=status_code,
-                                      response_text=resp_data,
-                                      level="ERROR")
+            if logger and bool(os.getenv('DEBUG', 'False')):
+                log_message = {"topic": f"error creating attribute",
+                               "function": "createCategoryProductRelation",
+                               "endpoint": "/Attribute",
+                               "code": status_code,
+                               "response": resp_data,
+                               "labels": additional_labels}
+                logger.createErrorLog(message=log_message)
 
-        return attribute_id
+        return
 
     @staticmethod
-    def createValueUnit(logger: object,
-                         data: dict,
-                         connection: object,
-                         additional_labels: dict = None):
+    def createValueUnit(data: dict,
+                        connection: object,
+                        logger: LocalLogger = None,
+                        additional_labels: dict = None):
         ## logging
-        labels = {'function': 'createAttributeValueUnit',
-                  'endpoint': '/AttributeValueUnit'}
-        if additional_labels:
-            labels.update(additional_labels)
-        msg_handler = messageHandler(logger=logger, level="DEBUG",
-                                     labels=labels)
-        msg_handler.logStruct(topic=f"createAttributeValueUnit: create attribute value unit",
-                              data=data)
+        if logger and bool(os.getenv('DEBUG', 'False')):
+            log_message = {"topic": f"Start create attribute value unit",
+                           "function": "createAttributeValueUnit",
+                           "endpoint": "/AttributeValueUnit",
+                           "data": data,
+                           "labels": additional_labels}
+            logger.createDebugLog(message=log_message)
 
         ## process request from connection pool
         encoded_data = json.dumps(data).encode('utf-8')
@@ -721,34 +555,44 @@ class Attributes:
         status_code = r.status
         resp_data = r.data
 
-        allowed_codes = [200, 400]
-
-        if status_code in allowed_codes:
+        if status_code in [200, 400]:
             resp_body = json.loads(resp_data.decode('utf-8'))
             if resp_body.get('data'):
                 unit_id = resp_body['data'].get('id')
+
                 ## logging
-                if bool(os.getenv('DEBUG','False')):
-                    msg_handler.logStruct(
-                        topic=f"createAttributeValueUnit: finished creating",
-                        status_code=status_code,
-                        response_text=resp_data)
+                if logger and bool(os.getenv('DEBUG', 'False')):
+                    log_message = {"topic": f"finished creating",
+                                   "function": "createAttributeValueUnit",
+                                   "endpoint": "/AttributeValueUnit",
+                                   "code": status_code,
+                                   "response": resp_data,
+                                   "unitId": unit_id,
+                                   "labels": additional_labels}
+                    logger.createDebugLog(message=log_message)
+
                 return unit_id
+
             else:
                 ## logging
-                if bool(os.getenv('DEBUG','False')):
-                    msg_handler.logStruct(
-                        topic=f"createAttributeValueUnit: no data returned",
-                        status_code=status_code,
-                        response_text=resp_body)
-                return None
+                if logger and bool(os.getenv('DEBUG', 'False')):
+                    log_message = {"topic": f"no response data",
+                                   "function": "createAttributeValueUnit",
+                                   "endpoint": "/AttributeValueUnit",
+                                   "code": status_code,
+                                   "response": resp_data,
+                                   "labels": additional_labels}
+                    logger.createWarningLog(message=log_message)
 
         else:
             ## logging
-            if bool(os.getenv('DEBUG','False')):
-                msg_handler.logStruct(
-                    level="WARNING",
-                    topic=f"createAttributeValueUnit: error creating",
-                    status_code=status_code,
-                    response_text=resp_data)
-            return None
+            if logger and bool(os.getenv('DEBUG', 'False')):
+                log_message = {"topic": f"error creating attribute value unit",
+                               "function": "createAttributeValueUnit",
+                               "endpoint": "/AttributeValueUnit",
+                               "code": status_code,
+                               "response": resp_data,
+                               "labels": additional_labels}
+                logger.createErrorLog(message=log_message)
+
+        return
