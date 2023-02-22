@@ -6,21 +6,21 @@ from helpersYour.settings import HEADER
 from io import BytesIO
 import hashlib
 import requests
-from loggingYour.messageHandler import messageHandler
+from loggingYour.localLogging import LocalLogger
 import mimetypes
 
-def getIpfsImageDetails(logger: object, ipfs_url: str) -> dict:
-    msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'getIpfsImageDetails'})
+def getIpfsImageDetails(logger: LocalLogger, ipfs_url: str) -> dict:
+    ## logging
+    if logger and bool(os.getenv('DEBUG', 'False')):
+        log_message = {"topic": f"Start get",
+                       "function": "getIpfsImageDetails",
+                       "url": ipfs_url}
+        logger.createDebugLog(message=log_message)
 
     try:
         file_directory = ipfs_url.split("//")[-1]
 
         response = requests.request("GET", f"https://cloudflare-ipfs.com/ipfs/{file_directory}")
-
-        ## logging
-        msg_handler.logStruct(topic=f"getIpfsImageDetails: get ipfs image through cloudflare",
-                              data=ipfs_url,
-                       status_code=response.status_code)
 
         im = Image.open(BytesIO(response.content))
         w, h = im.size
@@ -37,10 +37,14 @@ def getIpfsImageDetails(logger: object, ipfs_url: str) -> dict:
 
     except:
         ## logging
-        error = traceback.format_exc()
-        msg_handler.logStruct(level="ERROR",
-                              topic=f"getIpfsImageDetails: ipfs image reading error",
-                              error_message=str(error))
+        if logger and bool(os.getenv('DEBUG', 'False')):
+            error = traceback.format_exc()
+            log_message = {"topic": f"Start get",
+                           "function": "getIpfsImageDetails",
+                           "url": ipfs_url,
+                           "error": str(error)}
+            logger.createErrorLog(message=log_message)
+
         return {}
 
 def createImageDetailsDic(details: dict,language: str = "EN") -> dict:
@@ -62,7 +66,8 @@ def createImageDetailsDic(details: dict,language: str = "EN") -> dict:
 
     return image_dic
 
-def createMediaDetailsDic(logger: object, url: str,
+def createMediaDetailsDic(logger: LocalLogger,
+                          url: str,
                           language: str,
                           connection: object = None) -> dict:
 
@@ -89,13 +94,14 @@ def createMediaDetailsDic(logger: object, url: str,
     else:
         return {}
 
-def getImageFromFile(logger: object,
+def getImageFromFile(logger: LocalLogger,
                      image_file_dic: dict) -> dict:
-
     ## logging
-    msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'getImageFromFile'})
-    msg_handler.logStruct(topic=f"getImageFromFile: get image from file",
-                          data=image_file_dic["file_path"])
+    if logger and bool(os.getenv('DEBUG', 'False')):
+        log_message = {"topic": f"Start get",
+                       "function": "getImageFromFile",
+                       "data": image_file_dic["file_path"]}
+        logger.createDebugLog(message=log_message)
 
     try:
         with open(image_file_dic["file_path"], "rb") as f:
@@ -119,25 +125,27 @@ def getImageFromFile(logger: object,
 
     except:
         ## logging
-        error = traceback.format_exc()
-        msg_handler.logStruct(level="ERROR",
-                              topic=f"getImageFromFile: image file reading error",
-                              error_message=str(error))
+        if logger and bool(os.getenv('DEBUG', 'False')):
+            error = traceback.format_exc()
+            log_message = {"topic": f"Start get",
+                           "function": "getImageFromFile",
+                           "data": image_file_dic["file_path"],
+                           "error": str(error)}
+            logger.createErrorLog(message=log_message)
 
         return {}
 
-def imageDetailsUrl(logger: object,
+def imageDetailsUrl(logger: LocalLogger,
                     additional_labels: dict = {},
                     image_url: str =None,
                     connection: object = None) -> dict:
 
     ## logging
-    labels = {'function': 'imageDetailsUrl'}
-    if additional_labels:
-        labels.update({additional_labels})
-    msg_handler = messageHandler(logger=logger,
-                                 level="DEBUG",
-                                 labels=labels)
+    if logger and bool(os.getenv('DEBUG', 'False')):
+        log_message = {"topic": f"Start get",
+                       "function": "imageDetailsUrl",
+                       "imageUrl": image_url}
+        logger.createDebugLog(message=log_message, **additional_labels)
 
     try:
         if connection:
@@ -155,12 +163,6 @@ def imageDetailsUrl(logger: object,
             response_code = response.status_code
             content = response.content
             header = response.headers
-
-        ## logging
-        msg_handler.logStruct(topic=f"imageDetailsUrl: get image with request",
-                              data=image_url,
-                              labels=labels,
-                              status_code=response_code)
 
         content_type = header.get('content-type')
 
@@ -192,18 +194,26 @@ def imageDetailsUrl(logger: object,
 
     except:
         ## logging
-        error = traceback.format_exc()
-        msg_handler.logStruct(level="ERROR",
-                              topic=f"imageDetailsUrl: image reading error",
-                              labels=labels,
-                              error_message=str(error))
+        if logger and bool(os.getenv('DEBUG', 'False')):
+            error = traceback.format_exc()
+            log_message = {"topic": f"Error imageDetailsUrl",
+                           "function": "imageDetailsUrl",
+                           "imageUrl": image_url,
+                           "error": str(error)}
+            logger.createErrorLog(message=log_message, **additional_labels)
+
         return {}
 
-def getMediaFileUrl(logger: object,
-                    url: str=None,
+def getMediaFileUrl(logger: LocalLogger,
+                    url: str,
                     connection: object = None) -> dict:
 
-    msg_handler = messageHandler(logger=logger, level="DEBUG", labels={'function': 'getMediaFileUrl'})
+    ## logging
+    if logger and bool(os.getenv('DEBUG', 'False')):
+        log_message = {"topic": f"Start get",
+                       "function": "getMediaFileUrl",
+                       "url": url}
+        logger.createDebugLog(message=log_message)
 
     try:
         file_name = url.split("/")[-1]
@@ -223,11 +233,6 @@ def getMediaFileUrl(logger: object,
             content = response.content
             header = response.headers
 
-        ## logging
-        msg_handler.logStruct(topic=f"getMediaFileUrl: get media with request",
-                              data=url,
-                              status_code=response_code)
-
         content_type = header.get('content-type')
         sha256 = hashlib.sha256(content).hexdigest()
 
@@ -244,9 +249,12 @@ def getMediaFileUrl(logger: object,
 
     except:
         ## logging
-        error = traceback.format_exc()
-        msg_handler.logStruct(level="ERROR",
-                              topic=f"getMediaFileUrl: media reading error",
-                              error_message=str(error))
+        if logger and bool(os.getenv('DEBUG', 'False')):
+            error = traceback.format_exc()
+            log_message = {"topic": f"media reading error",
+                           "function": "getMediaFileUrl",
+                           "url": url,
+                           "error": str(error)}
+            logger.createErrorLog(message=log_message)
 
         return {}
