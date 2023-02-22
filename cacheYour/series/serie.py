@@ -39,6 +39,7 @@ def processSeriesCache():
                                              seriesId=int(serie['id']))
 
     redis.set(f"series.details.cache", "True", ex=172800)
+    redis.set(f"series.details.short-term.cache", "True", ex=3000)
 
     ## logging
     if os.environ.get('DEBUG') == 'DEBUG':
@@ -61,18 +62,25 @@ def getSeriesDetails(seriesId: int):
 
     else:
         ## logging
-        from cacheYour.series.topicPackage import seriesLogger
-        if os.environ.get('DEBUG') == 'DEBUG':
-            log_message = {"topic": f"getSeriesDetails: key not found so process cache",
+        from cacheYour.brands.topicPackage import brandLogger
+        if bool(os.environ["DEBUG"]):
+            log_message = {"topic": f"getSeriesDetails: key not found so "
+                                    f"verify cache moment and if needed process cache",
                            "message": {"key": search_key}}
-            seriesLogger.createDebugLog(message=log_message)
+            brandLogger.createDebugLog(message=log_message)
 
-        processSeriesCache()
-        series_details = redis.get(search_key)
-        if series_details:
-            return json.loads(series_details)
-        else:
+        ## short term cache check to fix looping on new creation
+        status = redis.get(f"series.details.short-term.cache")
+
+        if status and bool(status):
             return {}
+        else:
+            processSeriesCache()
+            series_details = redis.get(search_key)
+            if series_details:
+                return json.loads(series_details)
+            else:
+                return {}
 
 def saveExternalSeriesId(externalId: int,
                          source: int,
@@ -88,20 +96,29 @@ def getInternalSeriesId(externalId: int,
     if series_id:
         return int(series_id)
 
+
     else:
         ## logging
-        from cacheYour.series.topicPackage import seriesLogger
-        if os.environ.get('DEBUG') == 'DEBUG':
-            log_message = {"topic": f"getInternalSeriesId: key not found so process cache",
+        from cacheYour.brands.topicPackage import brandLogger
+        if bool(os.environ["DEBUG"]):
+            log_message = {"topic": f"getInternalSeriesId: key not found so "
+                                    f"verify cache moment and if needed process cache",
                            "message": {"key": search_key}}
-            seriesLogger.createDebugLog(message=log_message)
+            brandLogger.createDebugLog(message=log_message)
 
-        processSeriesCache()
-        series_id = redis.get(search_key)
-        if series_id:
-            return int(series_id)
+        ## short term cache check to fix looping on new creation
+        status = redis.get(f"series.details.short-term.cache")
+
+        if status and bool(status):
+            return {}
+
         else:
-            return None
+            processSeriesCache()
+            series_id = redis.get(search_key)
+            if series_id:
+                return int(series_id)
+            else:
+                return None
 
 def checkSeriesStatusCache():
     from cacheYour.appVariables import redis

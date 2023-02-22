@@ -25,7 +25,6 @@ def processAttributeCache():
 
     for attribute in attributes:
         attr_dic = remove_dic_key(dic=attribute, keys=['categoryRelations'])
-        print(f"attribute to process: {attr_dic}")
         processAttributeLanguages(languages=ACTIVE_LANGUAGES,
                                   attribute=attr_dic)
 
