@@ -3,7 +3,6 @@ from cacheYour.attributes.indexAttributes import checkAttributeStatusCache as ch
 from cacheYour.brands.brand import checkBrandStatusCache, setBrandCache
 from cacheYour.categories.category import checkCategoryStatusCache, setCategoryCache
 from cacheYour.series.serie import checkSeriesStatusCache, processSeriesCache
-from appVariables import redis
 
 class DataCache:
     @staticmethod
