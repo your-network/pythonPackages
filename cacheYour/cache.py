@@ -3,22 +3,9 @@ from cacheYour.attributes.indexAttributes import checkAttributeStatusCache as ch
 from cacheYour.brands.brand import checkBrandStatusCache, setBrandCache
 from cacheYour.categories.category import checkCategoryStatusCache, setCategoryCache
 from cacheYour.series.serie import checkSeriesStatusCache, processSeriesCache
+from appVariables import redis
 
 class DataCache:
-
-    def __init__(self, connection_pool):
-        ## cache
-        from redis import Redis
-
-        self.redis = Redis(host="localhost",
-                           port=6379,
-                           db=0,
-                           decode_responses=True,
-                           connection_pool=connection_pool)
-
-    def setConnection(self):
-        return self.redis
-
     @staticmethod
     def checkCache(source_brands: dict = {},
                    source_categories: dict = {},

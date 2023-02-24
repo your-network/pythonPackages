@@ -9,15 +9,13 @@ from helpersYour.connections import HTTPConnections
 Connections = HTTPConnections()
 connectionPool = Connections.openHTTPPool()
 
-from cacheYour.cache import DataCache
-cache = DataCache(connection_pool=connectionPool)
-redis = cache.setConnection()
+from redis import Redis
 
-## queue pub sub
-from queueYour.auth import QueueAuth
-## pub/sub auth
-queue = QueueAuth(f"./files/atomic-affinity-356010-c4893c67467b.json",
-                  os.environ['GOOGLE_PROJECT_ID'])
+redis = Redis(host="localhost",
+               port=6379,
+               db=0,
+               decode_responses=True,
+               connection_pool=connectionPool)
 
 ## Variables
 ACTIVE_LANGUAGES = ["en", "nl"]
