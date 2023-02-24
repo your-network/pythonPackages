@@ -3,19 +3,15 @@ import os
 import rootpath
 abs_path = rootpath.detect()
 
-## cache
-from redis import Redis
-
-redis = Redis(host="localhost",
-              port=6379,
-              db=0,
-              decode_responses=True)
-
 # Request variables
 from helpersYour.connections import HTTPConnections
 ## connection pool
 Connections = HTTPConnections()
 connectionPool = Connections.openHTTPPool()
+
+from cacheYour.cache import DataCache
+cache = DataCache(connection_pool=connectionPool)
+redis = cache.setConnection()
 
 ## queue pub sub
 from queueYour.auth import QueueAuth

@@ -5,6 +5,20 @@ from cacheYour.categories.category import checkCategoryStatusCache, setCategoryC
 from cacheYour.series.serie import checkSeriesStatusCache, processSeriesCache
 
 class DataCache:
+
+    def __init__(self, connection_pool):
+        ## cache
+        from redis import Redis
+
+        self.redis = Redis(host="localhost",
+                           port=6379,
+                           db=0,
+                           decode_responses=True,
+                           connection_pool=connection_pool)
+
+    def setConnection(self):
+        return self.redis
+
     @staticmethod
     def checkCache(source_brands: dict = {},
                    source_categories: dict = {},
@@ -23,8 +37,8 @@ class DataCache:
             checkAttributeValueUnitStatusCache()
             print(f"Attribute & AttributeValueUnit Cache present")
 
-    @staticmethod
-    def triggerCache(source_brands: dict = {},
+    def triggerCache(self,
+                     source_brands: dict = {},
                      source_categories: dict = {},
                      index_attributes: dict = {}):
         setCategoryCache(source_categories=source_categories)

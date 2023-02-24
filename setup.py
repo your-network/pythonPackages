@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 
 setup(
     name="pythonPackages",
-    version='0.6.7.3',
-    author='Thijmen Francken',
+    version='0.6.7.4',
+    author='Thijmen',
     author_email='thijmen@your.io',
     description='All packages used for YOUR development',
     long_description=open('README.txt').read(),
@@ -12,10 +12,8 @@ setup(
     project_urls={},
     license='LICENSE',
     packages=find_packages(),
-    install_requires=['selenium',
-                      'urllib3',
+    install_requires=['urllib3',
                       'pandas',
-                      'selenium_stealth',
                       'Pillow',
                       'SQLAlchemy',
                       'boto3',
