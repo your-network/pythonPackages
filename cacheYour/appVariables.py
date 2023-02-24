@@ -9,13 +9,31 @@ from helpersYour.connections import HTTPConnections
 Connections = HTTPConnections()
 connectionPool = Connections.openHTTPPool()
 
-from redis import Redis
+REDIS_SERVER_CONF = {
+    'servers': {
+      'main_server': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DATABASE': 0
+    }
+  }
+}
 
-redis = Redis(host="localhost",
-               port=6379,
-               db=0,
-               decode_responses=True,
-               connection_pool=connectionPool)
+class RedisWrapper(object):
+    shared_state = {}
+
+    def __init__(self):
+        self.__dict__ = self.shared_state
+
+    def redis_connect(self, server_key):
+        redis_server_conf = REDIS_SERVER_CONF['servers'][server_key]
+        connection_pool = redis.ConnectionPool(host=redis_server_conf['HOST'], port=redis_server_conf['PORT'],
+                                               db=redis_server_conf['DATABASE'])
+        return redis.StrictRedis(connection_pool=connection_pool)
+
+from redis import ConnectionPool, Redis
+pool = ConnectionPool(host='localhost', port=6379, db=0)
+redis = Redis(connection_pool=pool)
 
 ## Variables
 ACTIVE_LANGUAGES = ["en", "nl"]
