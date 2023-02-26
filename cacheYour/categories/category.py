@@ -150,12 +150,11 @@ class CategoryCache:
         self.client.conn.set(f"category.{categoryId}.{language}", json.dumps(data))
 
     '''Functions around active status of categories'''
-    def saveExternalCategoryActive(externalId: int,
+    def saveExternalCategoryActive(self,
+                                   externalId: int,
                                   source: int,
                                   active: bool):
-        from cacheYour.appVariables import RedisClient
-        client = RedisClient()
-        client.conn.set(f"externalCategoryId.active.{externalId}.{source}", str(active))
+        self.client.conn.set(f"externalCategoryId.active.{externalId}.{source}", str(active))
 
 
     ## GET METHODS
