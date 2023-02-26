@@ -23,6 +23,7 @@ class DataCache:
             checkAttributeValueUnitStatusCache()
             print(f"Attribute & AttributeValueUnit Cache present")
 
+    @staticmethod
     def triggerCache(self,
                      source_brands: dict = {},
                      source_categories: dict = {},
