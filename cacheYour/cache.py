@@ -12,14 +12,29 @@ class DataCache:
                    source_brands: dict = {},
                    source_categories: dict = {},
                    index_attributes: dict = {}):
-        # checkCategoryStatusCache(source_categories=source_categories)
-        # print(f"Category Cache present")
-        # checkBrandStatusCache(source_brands=source_brands)
-        # print(f"Brand Cache present")
-        # checkSeriesStatusCache()
-        # print(f"Series Cache present")
+        ## category cache
+        from cacheYour.categories.category import CategoryCache
+        category_cache = CategoryCache(client=self.client)
+        category_cache.checkCategoryStatusCache(source_categories=source_categories)
+        print(f"Category Cache present")
+
+        ## Brand cache
+        from cacheYour.brands.brand import BrandCache
+        brand_cache = BrandCache(client=self.client)
+        brand_cache.checkBrandStatusCache(source_brands=source_brands)
+        print(f"Brand Cache present")
+
+        ## Serie cache
+        from cacheYour.series.serie import SerieCache
+        serie_cache = SerieCache(client=self.client)
+        serie_cache.checkSeriesStatusCache()
+        print(f"Series Cache present")
+
+        ## Attribute cache
         if index_attributes:
-            checkAttributeIndexStatusCache(index_attributes=index_attributes)
+            from cacheYour.attributes.indexAttributes import AttributeIndex
+            attribute_cache = AttributeIndex(client=self.client)
+            attribute_cache.checkAttributeIndexStatusCache(index_attributes=index_attributes)
             print(f"Index Attribute Cache present")
         else:
             from cacheYour.attributes.attribute import AttributeCache
@@ -32,9 +47,30 @@ class DataCache:
                      source_brands: dict = {},
                      source_categories: dict = {},
                      index_attributes: dict = {}):
-        # setCategoryCache(source_categories=source_categories)
-        # setBrandCache(source_brands=source_brands)
-        # processSeriesCache()
+        ## category cache
+        from cacheYour.categories.category import CategoryCache
+        category_cache = CategoryCache(client=self.client)
+        category_cache.setCategoryCache(source_categories=source_categories)
+        print(f"Category Cache processed")
+
+        ## Brand cache
+        from cacheYour.brands.brand import BrandCache
+        brand_cache = BrandCache(client=self.client)
+        brand_cache.setBrandCache(source_brands=source_brands)
+        print(f"Brand Cache processed")
+
+        ## Serie cache
+        from cacheYour.series.serie import SerieCache
+        serie_cache = SerieCache(client=self.client)
+        serie_cache.processSeriesCache()
+        print(f"Series Cache processed")
+
+        ## Attribute cache
+        if index_attributes:
+            from cacheYour.attributes.indexAttributes import AttributeIndex
+            attribute_cache = AttributeIndex(client=self.client)
+            attribute_cache.processIndexAttributeCache(index_attributes=index_attributes)
+            print(f"Index Attribute Cache processed")
 
         ## attributes logic
         if index_attributes:
