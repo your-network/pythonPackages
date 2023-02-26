@@ -60,8 +60,9 @@ def processCategory(category: dict):
 def setCategoryCache(source_categories: dict = {}):
     from datetime import datetime
     from cacheYour.categories.topicPackage import categoryLogger
-    from cacheYour.appVariables import connectionPool, redis
+    from cacheYour.appVariables import connectionPool, RedisClient
     from apiYour.getApi import Category
+    client = RedisClient()
 
     ## logging
     start_time = datetime.now()
@@ -87,8 +88,8 @@ def setCategoryCache(source_categories: dict = {}):
                 processFeedCategory(category=category,
                                     source_id=int(source_id))
 
-    redis.set(f"category.details.cache", "True", ex=172800)
-    redis.set(f"category.details.short-term.cache", "True", ex=3000)
+    client.conn.set(f"category.details.cache", "True", ex=172800)
+    client.conn.set(f"category.details.short-term.cache", "True", ex=3000)
 
     ## logging
     if os.environ.get('DEBUG') == 'DEBUG':
@@ -102,23 +103,28 @@ def saveExternalCategoryId(externalId: any,
                            purpose: int,
                            source: int,
                            categoryId: int):
-    from cacheYour.appVariables import redis
-    redis.set(f"externalCategoryId.{externalId}.{source}.{purpose}", str(categoryId))
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+    client.conn.set(f"externalCategoryId.{externalId}.{source}.{purpose}", str(categoryId))
 
 def saveExternalCategoryName(externalName: str,
                              purpose: int,
                              source: int,
                              categoryId: int):
-    from cacheYour.appVariables import redis
-    redis.set(f"externalCategoryName.{externalName}.{source}.{purpose}", str(categoryId))
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+
+    client.conn.set(f"externalCategoryName.{externalName}.{source}.{purpose}", str(categoryId))
 
 def getInternalCategory(external: int,
                         purpose: int,
                         source: int,
                         matchingType: str):
-    from cacheYour.appVariables import redis
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+
     search_key = f"externalCategory{matchingType.capitalize()}.{external}.{source}.{purpose}"
-    category_id = redis.get(search_key)
+    category_id = client.conn.get(search_key)
     if category_id:
         return int(category_id)
 
@@ -130,8 +136,18 @@ def getInternalCategory(external: int,
                            "message": {"key": search_key}}
             categoryLogger.createDebugLog(message=log_message)
 
+        ## short term cache check to fix looping on new category creation
+        status = client.conn.get(f"category.details.short-term.cache")
+
+        if status and bool(status):
+            return {}
+
+        else:
+            ## process cache again
+            setCategoryCache()
+
         setCategoryCache()
-        category_id = redis.get(search_key)
+        category_id = client.conn.get(search_key)
         if category_id:
             return int(category_id)
         else:
@@ -142,16 +158,18 @@ def getInternalCategory(external: int,
 def saveCategoryDetails(categoryId: int,
                         language: str,
                         data: dict):
-    from cacheYour.appVariables import redis
-    redis.set(f"category.{categoryId}.{language}", json.dumps(data))
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+    client.conn.set(f"category.{categoryId}.{language}", json.dumps(data))
 
 def getCategoryDetails(categoryId: int,
                        language: str):
-    from cacheYour.appVariables import redis
+    from cacheYour.appVariables import RedisClient
     from cacheYour.categories.topicPackage import categoryLogger
+    client = RedisClient()
 
     search_key = f"category.{categoryId}.{language}"
-    category_details = redis.get(search_key)
+    category_details = client.conn.get(search_key)
     if category_details:
         return json.loads(category_details)
 
@@ -164,7 +182,7 @@ def getCategoryDetails(categoryId: int,
             categoryLogger.createDebugLog(message=log_message)
 
         ## short term cache check to fix looping on new category creation
-        status = redis.get(f"category.details.short-term.cache")
+        status = client.conn.get(f"category.details.short-term.cache")
 
         if status and bool(status):
             return {}
@@ -173,7 +191,7 @@ def getCategoryDetails(categoryId: int,
             ## process cache again
             setCategoryCache()
 
-            category_details = redis.get(search_key)
+            category_details = client.conn.get(search_key)
             if category_details:
                 return json.loads(category_details)
             else:
@@ -183,16 +201,18 @@ def getCategoryDetails(categoryId: int,
 def saveExternalCategoryActive(externalId: int,
                               source: int,
                               active: bool):
-    from cacheYour.appVariables import redis
-    redis.set(f"externalCategoryId.active.{externalId}.{source}", str(active))
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+    client.conn.set(f"externalCategoryId.active.{externalId}.{source}", str(active))
 
 def getExternalCategoryActive(externalId,
                              source: int):
-    from cacheYour.appVariables import redis
+    from cacheYour.appVariables import RedisClient
     from cacheYour.categories.topicPackage import categoryLogger
+    client = RedisClient()
 
     search_key = f"externalCategoryId.active.{externalId}.{source}"
-    category_active = redis.get(search_key)
+    category_active = client.conn.get(search_key)
     if category_active:
         return bool(category_active)
 
@@ -204,7 +224,7 @@ def getExternalCategoryActive(externalId,
             categoryLogger.createDebugLog(message=log_message)
 
         setCategoryCache()
-        category_active = redis.get(search_key)
+        category_active = client.conn.get(search_key)
         if category_active:
             return bool(category_active)
         else:
@@ -212,10 +232,11 @@ def getExternalCategoryActive(externalId,
 
 '''Functions around checking status of category cache'''
 def checkCategoryStatusCache(source_categories: dict = {}):
-    from cacheYour.appVariables import redis
+    from cacheYour.appVariables import RedisClient
     from cacheYour.categories.topicPackage import categoryLogger
+    client = RedisClient()
 
-    status = redis.get(f"category.details.cache")
+    status = client.conn.get(f"category.details.cache")
 
     if status and bool(status):
         ## logging

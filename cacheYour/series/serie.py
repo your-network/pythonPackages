@@ -4,8 +4,9 @@ import os
 def processSeriesCache():
     from datetime import datetime
     from cacheYour.series.topicPackage import seriesLogger
-    from cacheYour.appVariables import connectionPool, redis
+    from cacheYour.appVariables import connectionPool, RedisClient
     from apiYour.getApi import Series
+    client = RedisClient()
 
     ## logging
     start_time = datetime.now()
@@ -38,8 +39,8 @@ def processSeriesCache():
                                              source=int(source),
                                              seriesId=int(serie['id']))
 
-    redis.set(f"series.details.cache", "True", ex=172800)
-    redis.set(f"series.details.short-term.cache", "True", ex=3000)
+    client.conn.set(f"series.details.cache", "True", ex=172800)
+    client.conn.set(f"series.details.short-term.cache", "True", ex=3000)
 
     ## logging
     if os.environ.get('DEBUG') == 'DEBUG':
@@ -50,13 +51,16 @@ def processSeriesCache():
 
 def saveSeriesDetails(seriesId: int,
                       data: dict):
-    from cacheYour.appVariables import redis
-    redis.set(f"series.{seriesId}", json.dumps(data))
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+    client.conn.set(f"series.{seriesId}", json.dumps(data))
 
 def getSeriesDetails(seriesId: int):
-    from cacheYour.appVariables import redis
+    from cacheYour.appVariables import RedisClient
     search_key = f"series.{seriesId}"
-    series_details = redis.get(search_key)
+
+    client = RedisClient()
+    series_details = client.conn.get(search_key)
     if series_details:
         return json.loads(series_details)
 
@@ -70,13 +74,13 @@ def getSeriesDetails(seriesId: int):
             brandLogger.createDebugLog(message=log_message)
 
         ## short term cache check to fix looping on new creation
-        status = redis.get(f"series.details.short-term.cache")
+        status = client.conn.get(f"series.details.short-term.cache")
 
         if status and bool(status):
             return {}
         else:
             processSeriesCache()
-            series_details = redis.get(search_key)
+            series_details = client.conn.get(search_key)
             if series_details:
                 return json.loads(series_details)
             else:
@@ -85,17 +89,19 @@ def getSeriesDetails(seriesId: int):
 def saveExternalSeriesId(externalId: int,
                          source: int,
                          seriesId: int):
-    from cacheYour.appVariables import redis
-    redis.set(f"externalSeriesId.{externalId}.{source}", str(seriesId))
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+    client.conn.set(f"externalSeriesId.{externalId}.{source}", str(seriesId))
 
 def getInternalSeriesId(externalId: int,
                           source: int):
-    from cacheYour.appVariables import redis
     search_key = f"externalSeriesId.{externalId}.{source}"
-    series_id = redis.get(search_key)
+
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+    series_id = client.conn.get(search_key)
     if series_id:
         return int(series_id)
-
 
     else:
         ## logging
@@ -107,24 +113,25 @@ def getInternalSeriesId(externalId: int,
             brandLogger.createDebugLog(message=log_message)
 
         ## short term cache check to fix looping on new creation
-        status = redis.get(f"series.details.short-term.cache")
+        status = client.conn.get(f"series.details.short-term.cache")
 
         if status and bool(status):
             return {}
 
         else:
             processSeriesCache()
-            series_id = redis.get(search_key)
+            series_id = client.conn.get(search_key)
             if series_id:
                 return int(series_id)
             else:
                 return None
 
 def checkSeriesStatusCache():
-    from cacheYour.appVariables import redis
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
 
     while True:
-        status = redis.get(f"series.details.cache")
+        status = client.conn.get(f"series.details.cache")
         if status and bool(status):
             return True
         else:

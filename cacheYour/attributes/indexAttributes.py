@@ -7,10 +7,11 @@ import rootpath
 abs_path = rootpath.detect()
 
 def processIndexAttributeCache(index_attributes: dict):
-    from cacheYour.appVariables import redis, connectionPool, ACTIVE_LANGUAGES
+    from cacheYour.appVariables import RedisClient, connectionPool, ACTIVE_LANGUAGES
     from apiYour.getApi import Category, Attributes
     from cacheYour.attributes.topicPackage import attributeLogger
     from helpersYour.functions import remove_dic_key
+    client = RedisClient()
 
     ## logging
     start_time = datetime.now()
@@ -39,7 +40,7 @@ def processIndexAttributeCache(index_attributes: dict):
                                               mapped_attributes=index_attributes,
                                               attribute=attr_dic)
 
-    redis.set(f"attribute.index.cache", "True", ex=172800)
+    client.conn.set(f"attribute.index.cache", "True", ex=172800)
 
     ## logging
     if os.environ.get('DEBUG') == 'DEBUG':
@@ -83,16 +84,19 @@ def saveIndexAttributeDetails(attributeId: int,
                                  categoryId: int,
                                  language: str,
                                  data: dict):
-    from  cacheYour.appVariables import redis
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
     key = f"attribute.index.{attributeId}.{categoryId}.{language}"
-    redis.set(key, json.dumps(data))
+    client.conn.set(key, json.dumps(data))
 
 def getIndexAttributeDetails(attributeId: int,
                                 categoryId: int,
                                 language: str):
-    from  cacheYour.appVariables import redis
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+
     search_key = f"attribute.index.{attributeId}.{categoryId}.{language}"
-    attribute_details = redis.get(search_key)
+    attribute_details = client.conn.get(search_key)
     if attribute_details:
         return json.loads(attribute_details)
 
@@ -100,10 +104,11 @@ def getIndexAttributeDetails(attributeId: int,
         return None
 
 def checkAttributeStatusCache(index_attributes: dict):
-    from cacheYour.appVariables import redis
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
 
     while True:
-        status = redis.get(f"attribute.index.cache")
+        status = client.conn.get(f"attribute.index.cache")
         if status and bool(status):
             return True
         else:

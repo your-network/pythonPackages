@@ -6,12 +6,13 @@ abs_path = rootpath.detect()
 
 '''Attribute Cache'''
 def processAttributeCache():
-    from cacheYour.appVariables import redis
+    from cacheYour.appVariables import RedisClient
     from cacheYour.attributes.topicPackage import attributeLogger
     from datetime import datetime
     from cacheYour.appVariables import connectionPool, ACTIVE_LANGUAGES
     from apiYour.getApi import Attributes
     from helpersYour.functions import remove_dic_key
+    client = RedisClient()
 
     ## logging
     start_time = datetime.now()
@@ -34,8 +35,8 @@ def processAttributeCache():
                                     source=int(attr_dic['source']),
                                     attributeId=int(attr_dic['id']))
 
-    redis.set(f"attribute.cache", "True", ex=172800)
-    redis.set(f"attribute.short-term.cache", "True", ex=3000)
+    client.conn.set(f"attribute.cache", "True", ex=172800)
+    client.conn.set(f"attribute.short-term.cache", "True", ex=3000)
 
     ## logging
     if os.environ.get('DEBUG') == 'DEBUG':
@@ -67,15 +68,18 @@ def processAttributeLanguages(languages: list,
 def saveAttributeDetails(attributeId: int,
                          language: str,
                          data: dict):
-    from cacheYour.appVariables import redis
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
     key = f"attribute.{attributeId}.{language}"
-    redis.set(key, json.dumps(data))
+    client.conn.set(key, json.dumps(data))
 
 def getAttributeDetails(attributeId: int,
                         language: str):
-    from cacheYour.appVariables import redis
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+
     search_key = f"attribute.{attributeId}.{language}"
-    attribute_details = redis.get(search_key)
+    attribute_details = client.conn.get(search_key)
     if attribute_details:
         return json.loads(attribute_details)
 
@@ -90,27 +94,30 @@ def getAttributeDetails(attributeId: int,
             attributeLogger.createDebugLog(message=log_message)
 
         ## short term cache check to fix looping on new category creation
-        status = redis.get(f"attribute.short-term.cache")
+        status = client.conn.get(f"attribute.short-term.cache")
 
         if status and bool(status):
             return {}
 
         else:
             processAttributeCache()
-            attribute_details = redis.get(search_key)
+            attribute_details = client.conn.get(search_key)
             return attribute_details
 
 def saveExternalAttributeId(externalId: int,
                             source: int,
                             attributeId: int):
-    from cacheYour.appVariables import redis
-    redis.set(f"externalAttributeId.{externalId}.{source}", str(attributeId))
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+    client.conn.set(f"externalAttributeId.{externalId}.{source}", str(attributeId))
 
 def getInternalAttributeId(externalId: int,
                            source: int):
-    from cacheYour.appVariables import redis
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+
     search_key = f"externalAttributeId.{externalId}.{source}"
-    attribute_id = redis.get(search_key)
+    attribute_id = client.conn.get(search_key)
     if attribute_id:
         return int(attribute_id)
 
@@ -125,7 +132,7 @@ def getInternalAttributeId(externalId: int,
             attributeLogger.createDebugLog(message=log_message)
 
         ## short term cache check to fix looping on new category creation
-        status = redis.get(f"attribute.short-term.cache")
+        status = client.conn.get(f"attribute.short-term.cache")
 
         if status and bool(status):
             return None
@@ -133,15 +140,17 @@ def getInternalAttributeId(externalId: int,
         else:
             ## process cache
             processAttributeCache()
-            attribute_id = redis.get(search_key)
+            attribute_id = client.conn.get(search_key)
             if attribute_id:
                 return int(attribute_id)
             else:
                 return None
 
 def checkAttributeStatusCache() -> bool:
-    from cacheYour.appVariables import redis
-    status = redis.get(f"attribute.cache")
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+
+    status = client.conn.get(f"attribute.cache")
     if status and bool(status):
         return True
     else:
@@ -158,11 +167,12 @@ def checkAttributeStatusCache() -> bool:
 
 '''Attribute Value Unit Cache'''
 def processAttributeValueUnitCache():
-    from cacheYour.appVariables import redis
     from cacheYour.attributes.topicPackage import attributeLogger
     from datetime import datetime
     from cacheYour.appVariables import connectionPool, ACTIVE_LANGUAGES
     from apiYour.getApi import Attributes
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
 
     ## logging
     start_time = datetime.now()
@@ -184,8 +194,8 @@ def processAttributeValueUnitCache():
                                              source=2,
                                              attributeValueUnitId=int(unit['id']))
 
-    redis.set(f"attributeValueUnit.cache", "True", ex=172800)
-    redis.set(f"attributeValueUnit.short-term.cache", "True", ex=3000)
+    client.conn.set(f"attributeValueUnit.cache", "True", ex=172800)
+    client.conn.set(f"attributeValueUnit.short-term.cache", "True", ex=3000)
 
     ## logging
     if os.environ.get('DEBUG') == 'DEBUG':
@@ -254,15 +264,19 @@ def processAttributeValueUnitLanguages(languages: list,
 def saveAttributeValueUnitDetails(attributeValueUnitId: int,
                                   language: str,
                                   data: dict):
-    from cacheYour.appVariables import redis
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+
     key = f"attributeValueUnitId.{attributeValueUnitId}.{language}"
-    redis.set(key, json.dumps(data))
+    client.conn.set(key, json.dumps(data))
 
 def getAttributeValueUnitDetails(attributeValueUnitId: int,
                                  language: str):
-    from cacheYour.appVariables import redis
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+
     search_key = f"attributeValueUnitId.{attributeValueUnitId}.{language}"
-    attributeValueUnit_details = redis.get(search_key)
+    attributeValueUnit_details = client.conn.get(search_key)
     if attributeValueUnit_details:
         return json.loads(attributeValueUnit_details)
 
@@ -277,27 +291,31 @@ def getAttributeValueUnitDetails(attributeValueUnitId: int,
             attributeLogger.createDebugLog(message=log_message)
 
         ## short term cache check to fix looping on new category creation
-        status = redis.get(f"attributeValueUnit.short-term.cache")
+        status = client.conn.get(f"attributeValueUnit.short-term.cache")
 
         if status and bool(status):
             return {}
         else:
             ## process cache
             processAttributeValueUnitCache()
-            attributeValueUnit_details = redis.get(search_key)
+            attributeValueUnit_details = client.conn.get(search_key)
             return attributeValueUnit_details
 
 def saveExternalAttributeValueUnitId(externalId: int,
                                      source: int,
                                      attributeValueUnitId: int):
-    from cacheYour.appVariables import redis
-    redis.set(f"externalAttributeValueUnitId.{externalId}.{source}", str(attributeValueUnitId))
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+
+    client.conn.set(f"externalAttributeValueUnitId.{externalId}.{source}", str(attributeValueUnitId))
 
 def getInternalAttributeValueUnitId(externalId: int,
                                     source: int):
-    from cacheYour.appVariables import redis
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+
     search_key = f"externalAttributeValueUnitId.{externalId}.{source}"
-    attributeValueUnit_id = redis.get(search_key)
+    attributeValueUnit_id = client.conn.get(search_key)
     if attributeValueUnit_id:
         return int(attributeValueUnit_id)
 
@@ -312,22 +330,24 @@ def getInternalAttributeValueUnitId(externalId: int,
             attributeLogger.createDebugLog(message=log_message)
 
         ## short term cache check to fix looping on new category creation
-        status = redis.get(f"attributeValueUnit.short-term.cache")
+        status = client.conn.get(f"attributeValueUnit.short-term.cache")
 
         if status and bool(status):
             return None
         else:
             ## process cache
             processAttributeValueUnitCache()
-            attributeValueUnit_id = redis.get(search_key)
+            attributeValueUnit_id = client.conn.get(search_key)
             if attributeValueUnit_id:
                 return int(attributeValueUnit_id)
             else:
                 return None
 
 def checkAttributeValueUnitStatusCache() -> bool:
-    from cacheYour.appVariables import redis
-    status = redis.get(f"attributeValueUnit.cache")
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+
+    status = client.conn.get(f"attributeValueUnit.cache")
     if status and bool(status):
         return True
     else:

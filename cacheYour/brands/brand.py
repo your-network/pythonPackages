@@ -52,8 +52,9 @@ def processBrand(brand):
 def setBrandCache(source_brands: dict = {}):
     from datetime import datetime
     from cacheYour.brands.topicPackage import brandLogger
-    from cacheYour.appVariables import connectionPool, redis
+    from cacheYour.appVariables import connectionPool, RedisClient
     from apiYour.getApi import Brands
+    client = RedisClient()
 
     ## logging
     start_time = datetime.now()
@@ -79,8 +80,8 @@ def setBrandCache(source_brands: dict = {}):
                 processFeedBrand(brand=brand,
                                  source_id=int(source_id))
 
-    redis.set(f"brand.details.cache", "True", ex=172800)
-    redis.set(f"brand.details.short-term.cache", "True", ex=3000)
+    client.conn.set(f"brand.details.cache", "True", ex=172800)
+    client.conn.set(f"brand.details.short-term.cache", "True", ex=3000)
 
     ## logging
     if os.environ.get('DEBUG') == 'DEBUG':
@@ -92,14 +93,17 @@ def setBrandCache(source_brands: dict = {}):
 def saveBrandDetails(brandId: int,
                      language: str,
                      data: dict):
-    from cacheYour.appVariables import redis
-    redis.set(f"brand.{brandId}.{language}", json.dumps(data))
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+    client.conn.set(f"brand.{brandId}.{language}", json.dumps(data))
 
 def getBrandDetails(brandId: int,
                     language: str):
-    from cacheYour.appVariables import redis
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+
     search_key = f"brand.{brandId}.{language}"
-    brand_details = redis.get(search_key)
+    brand_details = client.conn.get(search_key)
     if brand_details:
         return json.loads(brand_details)
 
@@ -113,7 +117,7 @@ def getBrandDetails(brandId: int,
             brandLogger.createDebugLog(message=log_message)
 
         ## short term cache check to fix looping on new creation
-        status = redis.get(f"brand.details.short-term.cache")
+        status = client.conn.get(f"brand.details.short-term.cache")
 
         if status and bool(status):
             return {}
@@ -121,7 +125,7 @@ def getBrandDetails(brandId: int,
         else:
             ## process cache
             setBrandCache()
-            brand_details = redis.get(search_key)
+            brand_details = client.conn.get(search_key)
             if brand_details:
                 return json.loads(brand_details)
             else:
@@ -130,21 +134,27 @@ def getBrandDetails(brandId: int,
 def saveExternalBrandId(externalId: any,
                         source: int,
                         brandId: int):
-    from cacheYour.appVariables import redis
-    redis.set(f"externalBrandId.{externalId}.{source}", str(brandId))
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+
+    client.conn.set(f"externalBrandId.{externalId}.{source}", str(brandId))
 
 def saveExternalBrandName(externalName: str,
                           source: int,
                           brandId: int):
-    from cacheYour.appVariables import redis
-    redis.set(f"externalBrandName.{externalName}.{source}", str(brandId))
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+
+    client.conn.set(f"externalBrandName.{externalName}.{source}", str(brandId))
 
 def getInternalBrand(external: int,
                      source: int,
                      matchingType: str):
-    from cacheYour.appVariables import redis
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
+
     search_key = f"externalBrand{matchingType.capitalize()}.{external}.{source}"
-    brand_id = redis.get(search_key)
+    brand_id = client.conn.get(search_key)
     if brand_id:
         return int(brand_id)
 
@@ -158,7 +168,7 @@ def getInternalBrand(external: int,
             brandLogger.createDebugLog(message=log_message)
 
         ## short term cache check to fix looping on new creation
-        status = redis.get(f"brand.details.short-term.cache")
+        status = client.conn.get(f"brand.details.short-term.cache")
 
         if status and bool(status):
             return {}
@@ -166,7 +176,7 @@ def getInternalBrand(external: int,
         else:
             ## process cache
             setBrandCache()
-            brand_id = redis.get(search_key)
+            brand_id = client.conn.get(search_key)
             if brand_id:
                 return int(brand_id)
             else:
@@ -174,10 +184,11 @@ def getInternalBrand(external: int,
 
 
 def checkBrandStatusCache(source_brands: dict = {}):
-    from cacheYour.appVariables import redis
+    from cacheYour.appVariables import RedisClient
+    client = RedisClient()
 
     while True:
-        status = redis.get(f"brand.details.cache")
+        status = client.conn.get(f"brand.details.cache")
         if status and bool(status):
             return True
         else:
