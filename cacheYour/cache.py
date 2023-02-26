@@ -24,8 +24,7 @@ class DataCache:
             print(f"Attribute & AttributeValueUnit Cache present")
 
     @staticmethod
-    def triggerCache(self,
-                     source_brands: dict = {},
+    def triggerCache(source_brands: dict = {},
                      source_categories: dict = {},
                      index_attributes: dict = {}):
         setCategoryCache(source_categories=source_categories)
