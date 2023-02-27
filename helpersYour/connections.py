@@ -9,7 +9,7 @@ class HTTPConnections:
         self.http_pool = urllib3.PoolManager(num_pools=num_pools,
                                              maxsize=maxsize,
                                              timeout=60,
-                                             retries=urllib3.util.retry.Retry(15))
+                                             block=True)
 
         return self.http_pool
 

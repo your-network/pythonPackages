@@ -123,7 +123,6 @@ def productIdCheckExists(productId:str,
                            url=f"{os.environ['YOUR_API_URL']}/Product/Exists?id={productId}&idType={type}",
                            headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                     'Content-Type': 'application/json'})
-
     response_code = r.status
     response_text = r.data
     if response_code == 200:
