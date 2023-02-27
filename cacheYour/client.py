@@ -18,7 +18,7 @@ class RedisClient(metaclass=Singleton):
         self.pool = redis.ConnectionPool(host="localhost",
                                          port=6379,
                                          db=0,
-                                         max_connections=1000)
+                                         max_connections=10000)
 
     @property
     def conn(self):
@@ -30,5 +30,6 @@ class RedisClient(metaclass=Singleton):
         self._conn = redis.Redis(connection_pool=self.pool,
                                  socket_timeout=300)
 
-    def closeConnection(self):
-        self._conn.close()
+    def releaseConnection(self):
+        self.pool.release(self._conn)
+        del self._conn
