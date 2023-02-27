@@ -30,7 +30,7 @@ class DataCache:
         if index_attributes:
             from cacheYour.attributes.indexAttributes import AttributeIndex
             attribute_cache = AttributeIndex(client=self.client)
-            attribute_cache.checkAttributeIndexStatusCache(index_attributes=index_attributes)
+            attribute_cache.checkAttributeStatusCache(index_attributes=index_attributes)
             print(f"Index Attribute Cache present")
         else:
             from cacheYour.attributes.attribute import AttributeCache
