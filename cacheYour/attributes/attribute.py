@@ -318,6 +318,10 @@ class AttributeCache:
                 cache = AttributeCache(client=client)
                 cache.processAttributeValueUnitCache()
                 attributeValueUnit_details = client.conn.get(search_key)
+
+                ## close
+                client.closeConnection()
+
                 return attributeValueUnit_details
 
     @staticmethod

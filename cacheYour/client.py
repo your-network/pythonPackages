@@ -14,7 +14,11 @@ class Singleton(type):
 class RedisClient(metaclass=Singleton):
 
     def __init__(self):
-        self.pool = redis.ConnectionPool(host="localhost", port=6379, db=0)
+        print(f"Creating 1000 connection, aleksei wants to see this")
+        self.pool = redis.ConnectionPool(host="localhost",
+                                         port=6379,
+                                         db=0,
+                                         max_connections=1000)
 
     @property
     def conn(self):
@@ -23,4 +27,8 @@ class RedisClient(metaclass=Singleton):
         return self._conn
 
     def getConnection(self):
-        self._conn = redis.Redis(connection_pool=self.pool)
+        self._conn = redis.Redis(connection_pool=self.pool,
+                                 socket_timeout=300)
+
+    def closeConnection(self):
+        self._conn.close()
