@@ -11,17 +11,19 @@ class Singleton(type):
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
 
-class RedisClient(metaclass=Singleton):
+class RedisPool(metaclass=Singleton):
 
-    def __init__(self):
+    def getPool(self):
         print(f"Creating 1000 connection, aleksei wants to see this")
         self.pool = redis.ConnectionPool(host="localhost",
                                          port=6379,
                                          db=0,
                                          max_connections=10000)
+        return self.pool
 
-    @property
-    def conn(self):
+class RedisClient(metaclass=Singleton):
+    def connection(self, ConnectionPool):
+        self.pool = ConnectionPool
         if not hasattr(self, '_conn'):
             self.getConnection()
         return self._conn
@@ -30,6 +32,6 @@ class RedisClient(metaclass=Singleton):
         self._conn = redis.Redis(connection_pool=self.pool,
                                  socket_timeout=300)
 
-    def releaseConnection(self):
-        self.pool.release(self._conn)
+    def closeConnection(self):
+        self._conn.close()
         del self._conn
