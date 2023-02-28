@@ -22,8 +22,10 @@ class RedisPool(metaclass=Singleton):
         return self.pool
 
 class RedisClient(metaclass=Singleton):
-    def connection(self, ConnectionPool):
-        self.pool = ConnectionPool
+    def __init__(self, pool):
+        self.pool = pool
+
+    def conn(self):
         if not hasattr(self, '_conn'):
             self.getConnection()
         return self._conn
