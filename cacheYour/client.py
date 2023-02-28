@@ -28,9 +28,8 @@ class RedisClient(metaclass=Singleton):
     def getConnection(self):
         self.conn = redis.Redis(connection_pool=self.pool,
                                  socket_timeout=300)
+        return self.conn
 
     def closeConnection(self):
         self.conn.close()
         del self.conn
-
-
