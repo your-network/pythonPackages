@@ -25,15 +25,12 @@ class RedisClient(metaclass=Singleton):
     def __init__(self, pool):
         self.pool = pool
 
-    def conn(self):
-        if not hasattr(self, '_conn'):
-            self.getConnection()
-        return self._conn
-
     def getConnection(self):
-        self._conn = redis.Redis(connection_pool=self.pool,
+        self.conn = redis.Redis(connection_pool=self.pool,
                                  socket_timeout=300)
 
     def closeConnection(self):
-        self._conn.close()
-        del self._conn
+        self.conn.close()
+        del self.conn
+
+

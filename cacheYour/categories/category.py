@@ -1,17 +1,16 @@
 import json
 import os
-from cacheYour.client import RedisClient
 
 class CategoryCache:
-    def __init__(self, client: RedisClient):
-        self.client = client
+    def __init__(self, connection):
+        self.connection = connection
 
     '''Functions around checking status of category cache'''
     def checkCategoryStatusCache(self,
                                  source_categories: dict = {}):
         from cacheYour.categories.topicPackage import categoryLogger
 
-        status = self.client.conn.get(f"category.details.cache")
+        status = self.connection.get(f"category.details.cache")
 
         if status and bool(status):
             ## logging
@@ -117,8 +116,8 @@ class CategoryCache:
                     self.processFeedCategory(category=category,
                                         source_id=int(source_id))
 
-        self.client.conn.set(f"category.details.cache", "True", ex=172800)
-        self.client.conn.set(f"category.details.short-term.cache", "True", ex=3000)
+        self.connection.set(f"category.details.cache", "True", ex=172800)
+        self.connection.set(f"category.details.short-term.cache", "True", ex=3000)
 
         ## logging
         if os.environ.get('DEBUG') == 'DEBUG':
@@ -133,28 +132,28 @@ class CategoryCache:
                                purpose: int,
                                source: int,
                                categoryId: int):
-        self.client.conn.set(f"externalCategoryId.{externalId}.{source}.{purpose}", str(categoryId))
+        self.connection.set(f"externalCategoryId.{externalId}.{source}.{purpose}", str(categoryId))
 
     def saveExternalCategoryName(self,
                                  externalName: str,
                                  purpose: int,
                                  source: int,
                                  categoryId: int):
-        self.client.conn.set(f"externalCategoryName.{externalName}.{source}.{purpose}", str(categoryId))
+        self.connection.set(f"externalCategoryName.{externalName}.{source}.{purpose}", str(categoryId))
 
     '''Functions around category details'''
     def saveCategoryDetails(self,
                             categoryId: int,
                             language: str,
                             data: dict):
-        self.client.conn.set(f"category.{categoryId}.{language}", json.dumps(data))
+        self.connection.set(f"category.{categoryId}.{language}", json.dumps(data))
 
     '''Functions around active status of categories'''
     def saveExternalCategoryActive(self,
                                    externalId: int,
                                   source: int,
                                   active: bool):
-        self.client.conn.set(f"externalCategoryId.active.{externalId}.{source}", str(active))
+        self.connection.set(f"externalCategoryId.active.{externalId}.{source}", str(active))
 
 
     ## GET METHODS
