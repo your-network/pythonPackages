@@ -1,14 +1,14 @@
 import json
 import os
-from cacheYour.client import RedisClient
+from redis import Redis
 
 class SerieCache:
-    def __init__(self, client: RedisClient):
-        self.client = client
+    def __init__(self, connection: Redis):
+        self.connection = connection
 
     def checkSeriesStatusCache(self):
         while True:
-            status = self.client.conn.get(f"series.details.cache")
+            status = self.connection.get(f"series.details.cache")
             if status and bool(status):
                 return True
             else:
@@ -59,8 +59,8 @@ class SerieCache:
                                                       source=int(source),
                                                       seriesId=int(serie['id']))
 
-        self.client.conn.set(f"series.details.cache", "True", ex=172800)
-        self.client.conn.set(f"series.details.short-term.cache", "True", ex=3000)
+        self.connection.set(f"series.details.cache", "True", ex=172800)
+        self.connection.set(f"series.details.short-term.cache", "True", ex=3000)
 
         ## logging
         if os.environ.get('DEBUG') == 'DEBUG':
@@ -72,21 +72,21 @@ class SerieCache:
     def saveSeriesDetails(self,
                           seriesId: int,
                           data: dict):
-        self.client.conn.set(f"series.{seriesId}", json.dumps(data))
+        self.connection.set(f"series.{seriesId}", json.dumps(data))
 
     def saveExternalSeriesId(self,
                              externalId: int,
                              source: int,
                              seriesId: int):
-        self.client.conn.set(f"externalSeriesId.{externalId}.{source}", str(seriesId))
+        self.connection.set(f"externalSeriesId.{externalId}.{source}", str(seriesId))
 
     ## GET METHODS
     @staticmethod
-    def getSeriesDetails(client: RedisClient,
+    def getSeriesDetails(connection: Redis,
                          seriesId: int):
         search_key = f"series.{seriesId}"
 
-        series_details = client.conn.get(search_key)
+        series_details = connection.get(search_key)
         if series_details:
             return json.loads(series_details)
 
@@ -100,25 +100,25 @@ class SerieCache:
                 brandLogger.createDebugLog(message=log_message)
 
             ## short term cache check to fix looping on new creation
-            status = client.conn.get(f"series.details.short-term.cache")
+            status = connection.get(f"series.details.short-term.cache")
 
             if status and bool(status):
                 return {}
             else:
-                serie_cache = SerieCache(client=client)
+                serie_cache = SerieCache(connection=connection)
                 serie_cache.processSeriesCache()
-                series_details = client.conn.get(search_key)
+                series_details = connection.get(search_key)
                 if series_details:
                     return json.loads(series_details)
                 else:
                     return {}
 
     @staticmethod
-    def getInternalSeriesId(client: RedisClient,
+    def getInternalSeriesId(connection: Redis,
                             externalId: int,
                             source: int):
         search_key = f"externalSeriesId.{externalId}.{source}"
-        series_id = client.conn.get(search_key)
+        series_id = connection.get(search_key)
         if series_id:
             return int(series_id)
 
@@ -132,15 +132,15 @@ class SerieCache:
                 brandLogger.createDebugLog(message=log_message)
 
             ## short term cache check to fix looping on new creation
-            status = client.conn.get(f"series.details.short-term.cache")
+            status = connection.get(f"series.details.short-term.cache")
 
             if status and bool(status):
                 return {}
 
             else:
-                serie_cache = SerieCache(client=client)
+                serie_cache = SerieCache(connection=connection)
                 serie_cache.processSeriesCache()
-                series_id = client.conn.get(search_key)
+                series_id = connection.get(search_key)
                 if series_id:
                     return int(series_id)
                 else:

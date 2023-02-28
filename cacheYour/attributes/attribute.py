@@ -3,16 +3,16 @@ import os
 import rootpath
 ## directory
 abs_path = rootpath.detect()
-from cacheYour.client import RedisClient
+from redis import Redis
 
 class AttributeCache:
-    def __init__(self, client: RedisClient):
-        self.client = client
+    def __init__(self, connection: Redis):
+        self.connection = connection
     '''
         Attribute  Cache
     '''
     def checkAttributeStatusCache(self) -> bool:
-        status = self.client.conn.get(f"attribute.cache")
+        status = self.connection.get(f"attribute.cache")
         if status and bool(status):
             return True
         else:
@@ -54,8 +54,8 @@ class AttributeCache:
                                         source=int(attr_dic['source']),
                                         attributeId=int(attr_dic['id']))
 
-        self.client.conn.set(f"attribute.cache", "True", ex=172800)
-        self.client.conn.set(f"attribute.short-term.cache", "True", ex=3000)
+        self.connection.set(f"attribute.cache", "True", ex=172800)
+        self.connection.set(f"attribute.short-term.cache", "True", ex=3000)
 
         ## logging
         if os.environ.get('DEBUG') == 'DEBUG':
@@ -90,19 +90,19 @@ class AttributeCache:
                              language: str,
                              data: dict):
         key = f"attribute.{attributeId}.{language}"
-        self.client.conn.set(key, json.dumps(data))
+        self.connection.set(key, json.dumps(data))
 
     def saveExternalAttributeId(self,
                                 externalId: int,
                                 source: int,
                                 attributeId: int):
-        self.client.conn.set(f"externalAttributeId.{externalId}.{source}", str(attributeId))
+        self.connection.set(f"externalAttributeId.{externalId}.{source}", str(attributeId))
 
     '''
         Attribute Value Unit Cache
     '''
     def checkAttributeValueUnitStatusCache(self) -> bool:
-        status = self.client.conn.get(f"attributeValueUnit.cache")
+        status = self.connection.get(f"attributeValueUnit.cache")
         if status and bool(status):
             return True
         else:
@@ -142,8 +142,8 @@ class AttributeCache:
                                                       source=2,
                                                       attributeValueUnitId=int(unit['id']))
 
-        self.client.conn.set(f"attributeValueUnit.cache", "True", ex=172800)
-        self.client.conn.set(f"attributeValueUnit.short-term.cache", "True", ex=3000)
+        self.connection.set(f"attributeValueUnit.cache", "True", ex=172800)
+        self.connection.set(f"attributeValueUnit.short-term.cache", "True", ex=3000)
 
         ## logging
         if os.environ.get('DEBUG') == 'DEBUG':
@@ -214,21 +214,21 @@ class AttributeCache:
                                       language: str,
                                       data: dict):
         key = f"attributeValueUnitId.{attributeValueUnitId}.{language}"
-        self.client.conn.set(key, json.dumps(data))
+        self.connection.set(key, json.dumps(data))
 
     def saveExternalAttributeValueUnitId(self,
                                          externalId: int,
                                          source: int,
                                          attributeValueUnitId: int):
-        self.client.conn.set(f"externalAttributeValueUnitId.{externalId}.{source}", str(attributeValueUnitId))
+        self.connection.set(f"externalAttributeValueUnitId.{externalId}.{source}", str(attributeValueUnitId))
 
     ## GET METHODS
     @staticmethod
-    def getAttributeDetails(client: RedisClient,
+    def getAttributeDetails(connection: Redis,
                             attributeId: int,
                             language: str):
         search_key = f"attribute.{attributeId}.{language}"
-        attribute_details = client.conn.get(search_key)
+        attribute_details = connection.get(search_key)
         if attribute_details:
             return json.loads(attribute_details)
 
@@ -243,23 +243,23 @@ class AttributeCache:
                 attributeLogger.createDebugLog(message=log_message)
 
             ## short term cache check to fix looping on new category creation
-            status = client.conn.get(f"attribute.short-term.cache")
+            status = connection.get(f"attribute.short-term.cache")
 
             if status and bool(status):
                 return {}
 
             else:
-                cache = AttributeCache(client=client)
+                cache = AttributeCache(connection=connection)
                 cache.processAttributeCache()
-                attribute_details = client.conn.get(search_key)
+                attribute_details = connection.get(search_key)
                 return attribute_details
 
     @staticmethod
-    def getInternalAttributeId(client: RedisClient,
+    def getInternalAttributeId(connection: Redis,
                                externalId: int,
                                source: int):
         search_key = f"externalAttributeId.{externalId}.{source}"
-        attribute_id = client.conn.get(search_key)
+        attribute_id = connection.get(search_key)
         if attribute_id:
             return int(attribute_id)
 
@@ -274,27 +274,27 @@ class AttributeCache:
                 attributeLogger.createDebugLog(message=log_message)
 
             ## short term cache check to fix looping on new category creation
-            status = client.conn.get(f"attribute.short-term.cache")
+            status = connection.get(f"attribute.short-term.cache")
 
             if status and bool(status):
                 return None
 
             else:
                 ## process cache
-                cache = AttributeCache(client=client)
+                cache = AttributeCache(connection=connection)
                 cache.processAttributeCache()
-                attribute_id = client.conn.get(search_key)
+                attribute_id = connection.get(search_key)
                 if attribute_id:
                     return int(attribute_id)
                 else:
                     return None
 
     @staticmethod
-    def getAttributeValueUnitDetails(client: RedisClient,
+    def getAttributeValueUnitDetails(connection: Redis,
                                      attributeValueUnitId: int,
                                      language: str):
         search_key = f"attributeValueUnitId.{attributeValueUnitId}.{language}"
-        attributeValueUnit_details = client.conn.get(search_key)
+        attributeValueUnit_details = connection.get(search_key)
         if attributeValueUnit_details:
             return json.loads(attributeValueUnit_details)
 
@@ -309,24 +309,24 @@ class AttributeCache:
                 attributeLogger.createDebugLog(message=log_message)
 
             ## short term cache check to fix looping on new category creation
-            status = client.conn.get(f"attributeValueUnit.short-term.cache")
+            status = connection.get(f"attributeValueUnit.short-term.cache")
 
             if status and bool(status):
                 return {}
             else:
                 ## process cache
-                cache = AttributeCache(client=client)
+                cache = AttributeCache(connection=connection)
                 cache.processAttributeValueUnitCache()
-                attributeValueUnit_details = client.conn.get(search_key)
+                attributeValueUnit_details = connection.get(search_key)
 
                 return attributeValueUnit_details
 
     @staticmethod
-    def getInternalAttributeValueUnitId(client: RedisClient,
+    def getInternalAttributeValueUnitId(connection: Redis,
                                         externalId: int,
                                         source: int):
         search_key = f"externalAttributeValueUnitId.{externalId}.{source}"
-        attributeValueUnit_id = client.conn.get(search_key)
+        attributeValueUnit_id = connection.get(search_key)
         if attributeValueUnit_id:
             return int(attributeValueUnit_id)
 
@@ -341,15 +341,15 @@ class AttributeCache:
                 attributeLogger.createDebugLog(message=log_message)
 
             ## short term cache check to fix looping on new category creation
-            status = client.conn.get(f"attributeValueUnit.short-term.cache")
+            status = connection.get(f"attributeValueUnit.short-term.cache")
 
             if status and bool(status):
                 return None
             else:
                 ## process cache
-                cache = AttributeCache(client=client)
+                cache = AttributeCache(connection=connection)
                 cache.processAttributeValueUnitCache()
-                attributeValueUnit_id = client.conn.get(search_key)
+                attributeValueUnit_id = connection.get(search_key)
                 if attributeValueUnit_id:
                     return int(attributeValueUnit_id)
                 else:

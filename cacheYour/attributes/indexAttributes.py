@@ -2,19 +2,19 @@ import json
 import os
 from datetime import datetime
 import rootpath
-from cacheYour.client import RedisClient
+from redis import Redis
 
 ## directory
 abs_path = rootpath.detect()
 
 class AttributeIndex:
-    def __init__(self, client: RedisClient):
-        self.client = client
+    def __init__(self, connection: Redis):
+        self.connection = connection
 
     def checkAttributeStatusCache(self,
                                   index_attributes: dict):
         while True:
-            status = self.client.conn.get(f"attribute.index.cache")
+            status = self.connection.get(f"attribute.index.cache")
             if status and bool(status):
                 return True
             else:
@@ -54,7 +54,7 @@ class AttributeIndex:
                                                        mapped_attributes=index_attributes,
                                                        attribute=attr_dic)
 
-        self.client.conn.set(f"attribute.index.cache", "True", ex=172800)
+        self.connection.set(f"attribute.index.cache", "True", ex=172800)
 
         ## logging
         if os.environ.get('DEBUG') == 'DEBUG':
@@ -101,16 +101,16 @@ class AttributeIndex:
                                   language: str,
                                   data: dict):
         key = f"attribute.index.{attributeId}.{categoryId}.{language}"
-        self.client.conn.set(key, json.dumps(data))
+        self.connection.set(key, json.dumps(data))
 
     ## GET METHODS
     @staticmethod
-    def getIndexAttributeDetails(client: RedisClient,
+    def getIndexAttributeDetails(connection: Redis,
                                  attributeId: int,
                                  categoryId: int,
                                  language: str):
         search_key = f"attribute.index.{attributeId}.{categoryId}.{language}"
-        attribute_details = client.conn.get(search_key)
+        attribute_details = connection.get(search_key)
         if attribute_details:
             return json.loads(attribute_details)
 
