@@ -1,8 +1,9 @@
 import json
 import os
+from redis import Redis
 
 class CategoryCache:
-    def __init__(self, connection):
+    def __init__(self, connection: Redis):
         self.connection = connection
 
     '''Functions around checking status of category cache'''
@@ -158,14 +159,14 @@ class CategoryCache:
 
     ## GET METHODS
     @staticmethod
-    def getInternalCategory(client: RedisClient,
+    def getInternalCategory(connection: Redis,
                             external: int,
                             purpose: int,
                             source: int,
                             matchingType: str):
 
         search_key = f"externalCategory{matchingType.capitalize()}.{external}.{source}.{purpose}"
-        category_id = client.conn.get(search_key)
+        category_id = connection.get(search_key)
         if category_id:
             return int(category_id)
 
@@ -178,30 +179,30 @@ class CategoryCache:
                 categoryLogger.createDebugLog(message=log_message)
 
             ## short term cache check to fix looping on new category creation
-            status = client.conn.get(f"category.details.short-term.cache")
+            status = connection.get(f"category.details.short-term.cache")
 
             if status and bool(status):
                 return {}
 
             else:
                 ## process cache again
-                category_cache = CategoryCache(client=client)
+                category_cache = CategoryCache(connection=connection)
                 category_cache.setCategoryCache()
 
-                category_id = client.conn.get(search_key)
+                category_id = connection.get(search_key)
                 if category_id:
                     return int(category_id)
                 else:
                     return None
 
     @staticmethod
-    def getCategoryDetails(client: RedisClient,
+    def getCategoryDetails(connection: Redis,
                            categoryId: int,
                            language: str):
         from cacheYour.categories.topicPackage import categoryLogger
 
         search_key = f"category.{categoryId}.{language}"
-        category_details = client.conn.get(search_key)
+        category_details = connection.get(search_key)
         if category_details:
             return json.loads(category_details)
 
@@ -214,29 +215,29 @@ class CategoryCache:
                 categoryLogger.createDebugLog(message=log_message)
 
             ## short term cache check to fix looping on new category creation
-            status = client.conn.get(f"category.details.short-term.cache")
+            status = connection.get(f"category.details.short-term.cache")
 
             if status and bool(status):
                 return {}
 
             else:
                 ## process cache again
-                category_cache = CategoryCache(client=client)
+                category_cache = CategoryCache(connection=connection)
                 category_cache.setCategoryCache()
 
-                category_details = client.conn.get(search_key)
+                category_details = connection.get(search_key)
                 if category_details:
                     return json.loads(category_details)
                 else:
                     return {}
     @staticmethod
-    def getExternalCategoryActive(client: RedisClient,
+    def getExternalCategoryActive(connection: Redis,
                                   externalId,
                                  source: int):
         from cacheYour.categories.topicPackage import categoryLogger
 
         search_key = f"externalCategoryId.active.{externalId}.{source}"
-        category_active = client.conn.get(search_key)
+        category_active = connection.get(search_key)
         if category_active:
             return bool(category_active)
 
@@ -248,16 +249,16 @@ class CategoryCache:
                 categoryLogger.createDebugLog(message=log_message)
 
             ## short term cache check to fix looping on new category creation
-            status = client.conn.get(f"category.details.short-term.cache")
+            status = connection.get(f"category.details.short-term.cache")
 
             if status and bool(status):
                 return {}
 
             else:
                 ## process cache again
-                category_cache = CategoryCache(client=client)
+                category_cache = CategoryCache(connection=connection)
                 category_cache.setCategoryCache()
-                category_active = client.conn.get(search_key)
+                category_active = connection.get(search_key)
                 if category_active:
                     return bool(category_active)
                 else:
