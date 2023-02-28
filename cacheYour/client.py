@@ -1,20 +1,20 @@
-import redis
+from redis import Redis, ConnectionPool
 
 def getRedisPool():
     print(f"Creating 1000 connection, aleksei wants to see this")
-    pool = redis.ConnectionPool(host="localhost",
-                                     port=6379,
-                                     db=0,
-                                     max_connections=10000)
+    pool = ConnectionPool(host="localhost",
+                          port=6379,
+                          db=0,
+                          max_connections=10000)
     return pool
 
 class RedisClient:
-    def __init__(self, pool):
+    def __init__(self, pool: ConnectionPool):
         self.pool = pool
 
     def getConnection(self):
-        self.conn = redis.Redis(connection_pool=self.pool,
-                                socket_timeout=300)
+        self.conn = Redis(connection_pool=self.pool,
+                          socket_timeout=300)
         return self.conn
 
     def closeConnection(self):
