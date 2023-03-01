@@ -34,7 +34,7 @@ class CategoryCache:
                             source_id: int) -> None:
         ## saving external name data
         if category.get('externalCategoryId'):
-            self.saveExternalCategoryId(externalId=category['internalCategoryName'],
+            self.saveExternalCategoryId(externalId=category['externalCategoryId'],
                                         purpose=1,
                                         source=source_id,
                                         categoryId=int(category['internalCategoryId']))
