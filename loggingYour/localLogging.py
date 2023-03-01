@@ -13,7 +13,7 @@ class LocalLogger:
 
         # create logger with 'spam_application'
         self.local_logger = logging.getLogger(logger_name)
-        self.local_logger.setLevel(logging.WARNING)
+        self.local_logger.setLevel(logging.DEBUG)
 
         # create file handler which logs even debug messages
         fh_handler = TimedRotatingFileHandler(filename=f"{log_path}/debug.json",

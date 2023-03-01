@@ -31,19 +31,22 @@ class CategoryCache:
 
     def processFeedCategory(self,
                             category: dict,
-                            source_id: int):
-        ## saving external id data
-        if category.get('externalCategoryName'):
-            self.saveExternalCategoryId(externalId=category['externalCategoryName'],
+                            source_id: int) -> None:
+        ## saving external name data
+        if category.get('externalCategoryId'):
+            self.saveExternalCategoryId(externalId=category['internalCategoryName'],
                                         purpose=1,
                                         source=source_id,
                                         categoryId=int(category['internalCategoryId']))
-        ## saving external name data
-        if category.get('internalCategoryName'):
-            self.saveExternalCategoryName(externalName=category['internalCategoryName'],
+            return
+
+        ## saving external id data
+        if category.get('externalCategoryName'):
+            self.saveExternalCategoryName(externalName=category['externalCategoryName'],
                                           purpose=1,
                                           source=source_id,
                                           categoryId=int(category['internalCategoryId']))
+            return
 
     def processCategory(self,
                         category: dict):
@@ -115,7 +118,7 @@ class CategoryCache:
                 for category in source_categories.get(source_id, []):
                     ## save data
                     self.processFeedCategory(category=category,
-                                        source_id=int(source_id))
+                                             source_id=int(source_id))
 
         self.connection.set(f"category.details.cache", "True", ex=172800)
         self.connection.set(f"category.details.short-term.cache", "True", ex=3000)

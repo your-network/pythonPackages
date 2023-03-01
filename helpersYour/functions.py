@@ -159,7 +159,6 @@ class PathResolver:
         for folder in folder_path_list:
             full_path = os.path.join(full_path, folder)
             if not os.path.exists(full_path):
-                print(f"Preparing {full_path}")
                 os.mkdir(full_path)
 
         return os.path.join(rootpath.detect(), folder_path)

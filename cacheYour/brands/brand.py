@@ -25,17 +25,20 @@ class BrandCache:
 
     def processFeedBrand(self,
                          brand: dict,
-                         source_id: int):
+                         source_id: int) -> None:
         ## saving external id data
         if brand.get('externalBrandId'):
             self.saveExternalBrandId(externalId=brand['externalBrandId'],
-                                    source=source_id,
-                                    brandId=int(brand['internalBrandId']))
+                                     source=source_id,
+                                     brandId=int(brand['internalBrandId']))
+            return
+
         ## saving external name data
         if brand.get('externalBrandName'):
             self.saveExternalBrandName(externalName=brand['externalBrandName'],
-                                    source=source_id,
-                                    brandId=int(brand['internalBrandId']))
+                                       source=source_id,
+                                       brandId=int(brand['internalBrandId']))
+            return
 
     def processBrand(self,
                      brand):
