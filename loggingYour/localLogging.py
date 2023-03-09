@@ -113,6 +113,11 @@ class LocalLogger:
         try:
             self.local_logger.error(json.dumps(message))
             print(message)
+            ## google logging
+            from loggingYour.appVariables import google_msg_handler
+            google_msg_handler.logStruct(topic=message.get('topic'),
+                                         data=message.get('data'),
+                                         level="ERROR")
         except:
             error = traceback.format_exc()
             self.local_logger.error(f"Error Error logging: error: {str(error)}")
@@ -121,8 +126,14 @@ class LocalLogger:
                          message: dict,
                          **kwargs):
         try:
+            ## local logging
             self.local_logger.warning(json.dumps(message))
             print(message)
+            ## google logging
+            from loggingYour.appVariables import google_msg_handler
+            google_msg_handler.logStruct(topic=message.get('topic'),
+                                         data=message.get('data'),
+                                         level="WARNING")
         except:
             error = traceback.format_exc()
             self.local_logger.error(f"Error Warning logging: error: {str(error)}")
