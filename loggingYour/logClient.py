@@ -16,10 +16,6 @@ class logClient:
 
         return logger
 
-
-
-
-
 #
 # DEFAULT = 0
 # DEBUG = 100
