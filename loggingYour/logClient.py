@@ -8,6 +8,10 @@ class logClient:
     def __init__(self, service_account_info: str):
         self.client = google.cloud.logging_v2.Client.from_service_account_json(service_account_info)
 
+    def getHanlder(self, logger_name: str) -> object:
+        handler = CloudLoggingHandler(self.client, name=logger_name, transport=SyncTransport)
+        return handler
+
     def setLogger(self, logger_name: str) -> object:
         handler = CloudLoggingHandler(self.client, name=logger_name, transport=SyncTransport)
         setup_logging(handler)
