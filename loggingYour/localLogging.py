@@ -4,6 +4,16 @@ from logging.handlers import TimedRotatingFileHandler
 from loggingYour.formatter import JsonFormatter
 from flask.logging import default_handler
 import json
+import os
+## Google logging
+from google.cloud.logging_v2.handlers import setup_logging, CloudLoggingHandler
+from google.cloud.logging_v2.handlers.transports import SyncTransport
+import rootpath
+abs_path = rootpath.detect()
+from loggingYour.logClient import logClient
+log_client = logClient(f"{abs_path}/atomic-affinity-356010-c4893c67467b.json")
+handler = CloudLoggingHandler(log_client, name=os.environ.get('GOOGLE_LOGGER_NAME', 'YOURGoogle.default'), transport=SyncTransport)
+setup_logging(handler)
 
 class LocalLogger:
 
@@ -16,7 +26,7 @@ class LocalLogger:
         self.local_logger.setLevel(logging.DEBUG)
 
         # create file handler which logs even debug messages
-        fh_handler = TimedRotatingFileHandler(filename=f"{log_path}/debug.json",
+        fh_handler = TimedRotatingFileHandler(filename=f"{log_path}/debug.log",
                                               when='D',
                                               interval=1,
                                               backupCount=5,
@@ -24,7 +34,7 @@ class LocalLogger:
                                               delay=False)
         fh_handler.setLevel(logging.DEBUG)
         # create file handler which logs even debug messages
-        ih_handler = TimedRotatingFileHandler(filename=f"{log_path}/info.json",
+        ih_handler = TimedRotatingFileHandler(filename=f"{log_path}/info.log",
                                               when='D',
                                               interval=1,
                                               backupCount=5,
@@ -32,7 +42,7 @@ class LocalLogger:
                                               delay=False)
         ih_handler.setLevel(logging.INFO)
         # create console handler with an error log level
-        ch_handler = TimedRotatingFileHandler(filename=f"{log_path}/error.json",
+        ch_handler = TimedRotatingFileHandler(filename=f"{log_path}/error.log",
                                               when='D',
                                               interval=1,
                                               backupCount=5,
@@ -40,7 +50,7 @@ class LocalLogger:
                                               delay=False)
         ch_handler.setLevel(logging.ERROR)
         # create console handler with a higher log level
-        wh_handler = TimedRotatingFileHandler(filename=f"{log_path}/warning.json",
+        wh_handler = TimedRotatingFileHandler(filename=f"{log_path}/warning.log",
                                               when='D',
                                               interval=1,
                                               backupCount=5,
