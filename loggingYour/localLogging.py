@@ -102,7 +102,6 @@ class LocalLogger:
                        **kwargs):
         try:
             self.local_logger.debug(json.dumps(message))
-            print(message)
         except:
             error = traceback.format_exc()
             self.local_logger.error(f"Error Debug logging: error: {str(error)}")
@@ -112,7 +111,6 @@ class LocalLogger:
                       **kwargs):
         try:
             self.local_logger.info(json.dumps(message))
-            print(message)
         except:
             error = traceback.format_exc()
             self.local_logger.error(f"Error Info logging: error: {str(error)}")
@@ -122,7 +120,6 @@ class LocalLogger:
                        **kwargs):
         try:
             self.local_logger.error(json.dumps(message))
-            print(message)
         except:
             error = traceback.format_exc()
             self.local_logger.error(f"Error Error logging: error: {str(error)}")
@@ -133,7 +130,6 @@ class LocalLogger:
         try:
             ## local logging
             self.local_logger.warning(json.dumps(message))
-            print(message)
         except:
             error = traceback.format_exc()
             self.local_logger.error(f"Error Warning logging: error: {str(error)}")
