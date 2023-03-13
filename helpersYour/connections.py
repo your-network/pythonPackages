@@ -3,12 +3,13 @@ import urllib3
 class HTTPConnections:
 
     def openHTTPPool(self,
-                 maxsize: int = 100,
-                 num_pools: int = 10):
+                     maxsize: int = 100,
+                     num_pools: int = 10,
+                     timeout: int = 120):
 
         self.http_pool = urllib3.PoolManager(num_pools=num_pools,
                                              maxsize=maxsize,
-                                             timeout=60,
+                                             timeout=timeout,
                                              block=True)
 
         return self.http_pool
