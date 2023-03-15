@@ -91,27 +91,9 @@ class SerieCache:
             return json.loads(series_details)
 
         else:
-            ## logging
-            from cacheYour.brands.topicPackage import brandLogger
-            if os.environ.get('DEBUG') == 'DEBUG':
-                log_message = {"topic": f"getSeriesDetails: key not found so "
-                                        f"verify cache moment and if needed process cache",
-                               "message": {"key": search_key}}
-                brandLogger.createDebugLog(message=log_message)
-
-            ## short term cache check to fix looping on new creation
-            status = connection.get(f"series.details.short-term.cache")
-
-            if status and bool(status):
-                return {}
-            else:
-                serie_cache = SerieCache(connection=connection)
-                serie_cache.processSeriesCache()
-                series_details = connection.get(search_key)
-                if series_details:
-                    return json.loads(series_details)
-                else:
-                    return {}
+            return SerieCache.keyNotFoundLogic(search_key=search_key,
+                                               connection=connection,
+                                               content_type=dict)
 
     @staticmethod
     def getInternalSeriesId(connection: Redis,
@@ -123,25 +105,53 @@ class SerieCache:
             return int(series_id)
 
         else:
-            ## logging
-            from cacheYour.brands.topicPackage import brandLogger
-            if os.environ.get('DEBUG') == 'DEBUG':
-                log_message = {"topic": f"getInternalSeriesId: key not found so "
-                                        f"verify cache moment and if needed process cache",
-                               "message": {"key": search_key}}
-                brandLogger.createDebugLog(message=log_message)
+            return SerieCache.keyNotFoundLogic(search_key=search_key,
+                                               connection=connection,
+                                               content_type=int)
 
-            ## short term cache check to fix looping on new creation
-            status = connection.get(f"series.details.short-term.cache")
+    @staticmethod
+    def keyNotFoundLogic(search_key: str,
+                         connection: Redis,
+                         content_type: type):
+        from cacheYour.brands.topicPackage import brandLogger
 
-            if status and bool(status):
-                return {}
+        ## logging
+        if os.environ.get('DEBUG') == 'DEBUG':
+            log_message = {"topic": f"SeriesCache: key not found so "
+                                    f"verify cache moment and if needed process cache",
+                           "key": search_key}
+            brandLogger.createDebugLog(message=log_message)
 
+        ## short term cache check to fix looping on new category creation
+        status = connection.get(f"series.details.short-term.cache")
+
+        if status and bool(status):
+            return None
+
+        else:
+            serie_cache = SerieCache(connection=connection)
+            serie_cache.processSeriesCache()
+            result = connection.get(search_key)
+            if result:
+                if content_type is str:
+                    return result
+
+                ## Boolean
+                if content_type is bool:
+                    try:
+                        return bool(result)
+                    finally:
+                        return False
+
+                ## Dictionary
+                if content_type is dict:
+                    return json.loads(result)
+
+                ## Integer
+                if content_type is int:
+                    try:
+                        return int(result)
+                    finally:
+                        return None
             else:
-                serie_cache = SerieCache(connection=connection)
-                serie_cache.processSeriesCache()
-                series_id = connection.get(search_key)
-                if series_id:
-                    return int(series_id)
-                else:
-                    return None
+                return None

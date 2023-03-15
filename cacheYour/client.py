@@ -1,7 +1,7 @@
 from redis import Redis, ConnectionPool
 
 def getRedisPool():
-    print(f"Creating 1000 connection, aleksei wants to see this")
+    print(f"Creating 1000 connection pool")
     pool = ConnectionPool(host="localhost",
                           port=6379,
                           db=0,

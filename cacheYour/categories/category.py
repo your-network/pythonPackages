@@ -73,6 +73,8 @@ class CategoryCache:
             self.saveCategoryDetails(categoryId=category['id'],
                                      language=language,
                                      data=base)
+            self.saveCategoryNameDetails(categoryName=base['name'],
+                                         data=base)
 
         ## externalId
         if category.get("externalIDs"):
@@ -159,6 +161,11 @@ class CategoryCache:
                                   active: bool):
         self.connection.set(f"externalCategoryId.active.{externalId}.{source}", str(active))
 
+    '''Function saving category name'''
+    def saveCategoryNameDetails(self,
+                                categoryName: str,
+                                data: dict):
+        self.connection.set(f"category.{categoryName}", json.dumps(data))
 
     ## GET METHODS
     @staticmethod
@@ -174,95 +181,95 @@ class CategoryCache:
             return int(category_id)
 
         else:
-            ## logging
-            from cacheYour.categories.topicPackage import categoryLogger
-            if os.environ.get('DEBUG') == 'DEBUG':
-                log_message = {"topic": f"getInternalCategory: key not found so process cache",
-                               "message": {"key": search_key}}
-                categoryLogger.createDebugLog(message=log_message)
-
-            ## short term cache check to fix looping on new category creation
-            status = connection.get(f"category.details.short-term.cache")
-
-            if status and bool(status):
-                return {}
-
-            else:
-                ## process cache again
-                category_cache = CategoryCache(connection=connection)
-                category_cache.setCategoryCache()
-
-                category_id = connection.get(search_key)
-                if category_id:
-                    return int(category_id)
-                else:
-                    return None
+            return CategoryCache.keyNotFoundLogic(search_key=search_key,
+                                                  connection=connection,
+                                                  content_type=int)
 
     @staticmethod
     def getCategoryDetails(connection: Redis,
                            categoryId: int,
                            language: str):
-        from cacheYour.categories.topicPackage import categoryLogger
-
         search_key = f"category.{categoryId}.{language}"
         category_details = connection.get(search_key)
         if category_details:
             return json.loads(category_details)
 
         else:
-            ## logging
-            if os.environ.get('DEBUG') == 'DEBUG':
-                log_message = {"topic": f"getCategoryDetails: category key not found so "
-                                        f"verify cache moment and if needed process cache",
-                               "message": {"key": search_key}}
-                categoryLogger.createDebugLog(message=log_message)
+            return CategoryCache.keyNotFoundLogic(search_key=search_key,
+                                                  connection=connection,
+                                                  content_type=dict)
 
-            ## short term cache check to fix looping on new category creation
-            status = connection.get(f"category.details.short-term.cache")
-
-            if status and bool(status):
-                return {}
-
-            else:
-                ## process cache again
-                category_cache = CategoryCache(connection=connection)
-                category_cache.setCategoryCache()
-
-                category_details = connection.get(search_key)
-                if category_details:
-                    return json.loads(category_details)
-                else:
-                    return {}
     @staticmethod
     def getExternalCategoryActive(connection: Redis,
                                   externalId,
                                  source: int):
-        from cacheYour.categories.topicPackage import categoryLogger
-
         search_key = f"externalCategoryId.active.{externalId}.{source}"
         category_active = connection.get(search_key)
         if category_active:
             return bool(category_active)
 
         else:
-            ## logging
-            if os.environ.get('DEBUG') == 'DEBUG':
-                log_message = {"topic": f"getExternalCategoryActive: category key not found",
-                               "message": {"key": search_key}}
-                categoryLogger.createDebugLog(message=log_message)
+            return CategoryCache.keyNotFoundLogic(search_key=search_key,
+                                                  connection=connection,
+                                                  content_type=bool)
 
-            ## short term cache check to fix looping on new category creation
-            status = connection.get(f"category.details.short-term.cache")
+    @staticmethod
+    def getCategoryNameDetails(connection: Redis,
+                               categoryName: str) -> dict:
+        search_key = f"category.{categoryName}"
+        category_details = connection.get(search_key)
+        if category_details:
+            return json.loads(category_details)
+        else:
+            return CategoryCache.keyNotFoundLogic(search_key=search_key,
+                                                  connection=connection,
+                                                  content_type=dict)
 
-            if status and bool(status):
-                return {}
+    @staticmethod
+    def keyNotFoundLogic(search_key: str,
+                         connection: Redis,
+                         content_type: type):
+        from cacheYour.categories.topicPackage import categoryLogger
 
+        ## logging
+        if os.environ.get('DEBUG') == 'DEBUG':
+            log_message = {"topic": f"CategoryCache: key not found so "
+                                    f"verify cache moment and if needed process cache",
+                           "key": search_key}
+            categoryLogger.createDebugLog(message=log_message)
+
+        ## short term cache check to fix looping on new category creation
+        status = connection.get(f"category.details.short-term.cache")
+
+        if status and bool(status):
+            return None
+
+        else:
+            ## process cache again
+            category_cache = CategoryCache(connection=connection)
+            category_cache.setCategoryCache()
+
+            result = connection.get(search_key)
+            if result:
+                if content_type is str:
+                    return result
+
+                ## Boolean
+                if content_type is bool:
+                    try:
+                        return bool(result)
+                    finally:
+                        return False
+
+                ## Dictionary
+                if content_type is dict:
+                    return json.loads(result)
+
+                ## Integer
+                if content_type is int:
+                    try:
+                        return int(result)
+                    finally:
+                        return None
             else:
-                ## process cache again
-                category_cache = CategoryCache(connection=connection)
-                category_cache.setCategoryCache()
-                category_active = connection.get(search_key)
-                if category_active:
-                    return bool(category_active)
-                else:
-                    return False
+                return None

@@ -37,7 +37,7 @@ class AttributeCache:
         start_time = datetime.now()
         if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {
-                "topic": f"saveAttributeCache: start saving index data",
+                "topic": f"saveAttributeCache: start saving attribute data",
                 "message": {}}
             attributeLogger.createDebugLog(message=log_message)
 
@@ -46,7 +46,7 @@ class AttributeCache:
         for attribute in attributes:
             attr_dic = remove_dic_key(dic=attribute, keys=['categoryRelations'])
             self.processAttributeLanguages(languages=ACTIVE_LANGUAGES,
-                                      attribute=attr_dic)
+                                           attribute=attr_dic)
 
             ## saving external id lookup
             if attr_dic.get('externalId'):
@@ -60,7 +60,7 @@ class AttributeCache:
         ## logging
         if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {
-                "topic": f"saveAttributeCache: finished saving index data",
+                "topic": f"saveAttributeCache: finished saving attribute data",
                 "message": {"processingTime": str(datetime.now() - start_time)}}
             attributeLogger.createDebugLog(message=log_message)
 
@@ -75,15 +75,15 @@ class AttributeCache:
                     ## save attribute data
                     data = {**attribute, **{'name': name}}
                     self.saveAttributeDetails(attributeId=attribute['id'],
-                                             language=language,
-                                             data=data)
+                                              language=language,
+                                              data=data)
                     continue
 
             ## fallback
             data = {**attribute, **{'name': attribute['name']}}
             self.saveAttributeDetails(attributeId=attribute['id'],
-                                     language=language,
-                                     data=data)
+                                      language=language,
+                                      data=data)
 
     def saveAttributeDetails(self,
                              attributeId: int,
@@ -233,26 +233,10 @@ class AttributeCache:
             return json.loads(attribute_details)
 
         else:
-            ## logging
-            from cacheYour.attributes.topicPackage import attributeLogger
-            ## logging
-            if os.environ.get('DEBUG') == 'DEBUG':
-                log_message = {"topic": f"getAttributeDetails: key not found so "
-                                        f"verify cache moment and if needed process cache",
-                               "message": {"key": search_key}}
-                attributeLogger.createDebugLog(message=log_message)
-
-            ## short term cache check to fix looping on new category creation
-            status = connection.get(f"attribute.short-term.cache")
-
-            if status and bool(status):
-                return {}
-
-            else:
-                cache = AttributeCache(connection=connection)
-                cache.processAttributeCache()
-                attribute_details = connection.get(search_key)
-                return attribute_details
+            return AttributeCache.keyNotFoundLogic(search_key=search_key,
+                                                   cache_key="attribute.short-term.cache",
+                                                   connection=connection,
+                                                   content_type=dict)
 
     @staticmethod
     def getInternalAttributeId(connection: Redis,
@@ -264,30 +248,10 @@ class AttributeCache:
             return int(attribute_id)
 
         else:
-            ## logging
-            from cacheYour.attributes.topicPackage import attributeLogger
-            ## logging
-            if os.environ.get('DEBUG') == 'DEBUG':
-                log_message = {"topic": f"getInternalAttributeId: key not found so "
-                                        f"verify cache moment and if needed process cache",
-                               "message": {"key": search_key}}
-                attributeLogger.createDebugLog(message=log_message)
-
-            ## short term cache check to fix looping on new category creation
-            status = connection.get(f"attribute.short-term.cache")
-
-            if status and bool(status):
-                return None
-
-            else:
-                ## process cache
-                cache = AttributeCache(connection=connection)
-                cache.processAttributeCache()
-                attribute_id = connection.get(search_key)
-                if attribute_id:
-                    return int(attribute_id)
-                else:
-                    return None
+            return AttributeCache.keyNotFoundLogic(search_key=search_key,
+                                                   cache_key="attribute.short-term.cache",
+                                                   connection=connection,
+                                                   content_type=int)
 
     @staticmethod
     def getAttributeValueUnitDetails(connection: Redis,
@@ -299,27 +263,10 @@ class AttributeCache:
             return json.loads(attributeValueUnit_details)
 
         else:
-            ## logging
-            from cacheYour.attributes.topicPackage import attributeLogger
-            ## logging
-            if os.environ.get('DEBUG') == 'DEBUG':
-                log_message = {"topic": f"getAttributeValueUnitDetails: key not found so "
-                                        f"verify cache moment and if needed process cache",
-                               "message": {"key": search_key}}
-                attributeLogger.createDebugLog(message=log_message)
-
-            ## short term cache check to fix looping on new category creation
-            status = connection.get(f"attributeValueUnit.short-term.cache")
-
-            if status and bool(status):
-                return {}
-            else:
-                ## process cache
-                cache = AttributeCache(connection=connection)
-                cache.processAttributeValueUnitCache()
-                attributeValueUnit_details = connection.get(search_key)
-
-                return attributeValueUnit_details
+            return AttributeCache.keyNotFoundLogic(search_key=search_key,
+                                                   cache_key="attributeValueUnit.short-term.cache",
+                                                   connection=connection,
+                                                   content_type=dict)
 
     @staticmethod
     def getInternalAttributeValueUnitId(connection: Redis,
@@ -331,26 +278,59 @@ class AttributeCache:
             return int(attributeValueUnit_id)
 
         else:
-            ## logging
-            from cacheYour.attributes.topicPackage import attributeLogger
-            ## logging
-            if os.environ.get('DEBUG') == 'DEBUG':
-                log_message = {"topic": f"getInternalAttributeValueUnitId: key not found so "
-                                        f"verify cache moment and if needed process cache",
-                               "message": {"key": search_key}}
-                attributeLogger.createDebugLog(message=log_message)
+            return AttributeCache.keyNotFoundLogic(search_key=search_key,
+                                                   cache_key="attributeValueUnit.short-term.cache",
+                                                   connection=connection,
+                                                   content_type=int)
 
-            ## short term cache check to fix looping on new category creation
-            status = connection.get(f"attributeValueUnit.short-term.cache")
+    @staticmethod
+    def keyNotFoundLogic(search_key: str,
+                         cache_key: str,
+                         connection: Redis,
+                         content_type: type):
+        from cacheYour.attributes.topicPackage import attributeLogger
 
-            if status and bool(status):
-                return None
-            else:
-                ## process cache
-                cache = AttributeCache(connection=connection)
+        ## logging
+        if os.environ.get('DEBUG') == 'DEBUG':
+            log_message = {"topic": f"AttributeCache: key not found so "
+                                    f"verify cache moment and if needed process cache",
+                           "key": search_key}
+            attributeLogger.createDebugLog(message=log_message)
+
+        ## short term cache check to fix looping on new category creation
+        status = connection.get(cache_key)
+
+        if status and bool(status):
+            return None
+
+        else:
+            cache = AttributeCache(connection=connection)
+            if 'attributeValueUnit' in cache_key:
                 cache.processAttributeValueUnitCache()
-                attributeValueUnit_id = connection.get(search_key)
-                if attributeValueUnit_id:
-                    return int(attributeValueUnit_id)
-                else:
-                    return None
+            else:
+                cache.processAttributeCache()
+
+            result = connection.get(search_key)
+            if result:
+                if content_type is str:
+                    return result
+
+                ## Boolean
+                if content_type is bool:
+                    try:
+                        return bool(result)
+                    finally:
+                        return False
+
+                ## Dictionary
+                if content_type is dict:
+                    return json.loads(result)
+
+                ## Integer
+                if content_type is int:
+                    try:
+                        return int(result)
+                    finally:
+                        return None
+            else:
+                return None

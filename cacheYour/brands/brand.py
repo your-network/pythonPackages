@@ -65,6 +65,8 @@ class BrandCache:
                 self.saveBrandDetails(brandId=brand['id'],
                                       language=language,
                                       data=base)
+                self.saveBrandNameDetails(brandName=base['name'],
+                                          data=base)
 
         ## interal id lookup
         if brand.get("externalIDs"):
@@ -136,6 +138,11 @@ class BrandCache:
                               brandId: int):
         self.connection.set(f"externalBrandName.{externalName}.{source}", str(brandId))
 
+    def saveBrandNameDetails(self,
+                             brandName: str,
+                             data: dict):
+        self.connection.set(f"brand.{brandName}", json.dumps(data))
+
     ## GET METHODS
     @staticmethod
     def getBrandDetails(connection: Redis,
@@ -148,29 +155,9 @@ class BrandCache:
             return json.loads(brand_details)
 
         else:
-            ## logging
-            from cacheYour.brands.topicPackage import brandLogger
-            if os.environ.get('DEBUG') == 'DEBUG':
-                log_message = {"topic": f"getBrandDetails: key not found so "
-                                        f"verify cache moment and if needed process cache",
-                               "message": {"key": search_key}}
-                brandLogger.createDebugLog(message=log_message)
-
-            ## short term cache check to fix looping on new creation
-            status = connection.get(f"brand.details.short-term.cache")
-
-            if status and bool(status):
-                return {}
-
-            else:
-                ## process cache
-                brand_cache = BrandCache(connection=connection)
-                brand_cache.setBrandCache()
-                brand_details = connection.get(search_key)
-                if brand_details:
-                    return json.loads(brand_details)
-                else:
-                    return {}
+            return BrandCache.keyNotFoundLogic(search_key=search_key,
+                                               connection=connection,
+                                               content_type=dict)
 
     @staticmethod
     def getInternalBrand(connection: Redis,
@@ -183,27 +170,53 @@ class BrandCache:
             return int(brand_id)
 
         else:
-            ## logging
-            from cacheYour.brands.topicPackage import brandLogger
-            if os.environ.get('DEBUG') == 'DEBUG':
-                log_message = {"topic": f"getInternalBrand: key not found so "
-                                        f"verify cache moment and if needed process cache",
-                               "message": {"key": search_key}}
-                brandLogger.createDebugLog(message=log_message)
+            return BrandCache.keyNotFoundLogic(search_key=search_key,
+                                               connection=connection,
+                                               content_type=int)
 
-            ## short term cache check to fix looping on new creation
-            status = connection.get(f"brand.details.short-term.cache")
+    @staticmethod
+    def keyNotFoundLogic(search_key: str,
+                         connection: Redis,
+                         content_type: type):
+        from cacheYour.brands.topicPackage import brandLogger
 
-            if status and bool(status):
-                return {}
+        ## logging
+        if os.environ.get('DEBUG') == 'DEBUG':
+            log_message = {"topic": f"BrandsCache: key not found so "
+                                    f"verify cache moment and if needed process cache",
+                           "key": search_key}
+            brandLogger.createDebugLog(message=log_message)
 
+        ## short term cache check to fix looping on new category creation
+        status = connection.get(f"brand.details.short-term.cache")
+
+        if status and bool(status):
+            return None
+
+        else:
+            brand_cache = BrandCache(connection=connection)
+            brand_cache.setBrandCache()
+            result = connection.get(search_key)
+            if result:
+                if content_type is str:
+                    return result
+
+                ## Boolean
+                if content_type is bool:
+                    try:
+                        return bool(result)
+                    finally:
+                        return False
+
+                ## Dictionary
+                if content_type is dict:
+                    return json.loads(result)
+
+                ## Integer
+                if content_type is int:
+                    try:
+                        return int(result)
+                    finally:
+                        return None
             else:
-                ## process cache
-                brand_cache = BrandCache(connection=connection)
-                brand_cache.setBrandCache()
-                brand_id = connection.get(search_key)
-                if brand_id:
-                    return int(brand_id)
-                else:
-                    return None
-
+                return None
