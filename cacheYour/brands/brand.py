@@ -116,7 +116,7 @@ class BrandCache:
         if os.environ.get('DEBUG') == 'DEBUG':
             log_message = {
                 "topic": f"processBrandCache: finished saving brand data",
-                "message": {"processingTime": str(datetime.now() - start_time)}}
+                "processingTime": str(datetime.now() - start_time)}
             brandLogger.createDebugLog(message=log_message)
 
     def saveBrandDetails(self,
@@ -150,6 +150,20 @@ class BrandCache:
                         language: str):
 
         search_key = f"brand.{brandId}.{language}"
+        brand_details = connection.get(search_key)
+        if brand_details:
+            return json.loads(brand_details)
+
+        else:
+            return BrandCache.keyNotFoundLogic(search_key=search_key,
+                                               connection=connection,
+                                               content_type=dict)
+
+    @staticmethod
+    def getBrandNameDetails(connection: Redis,
+                            brandName: int):
+
+        search_key = f"brand.{brandName}"
         brand_details = connection.get(search_key)
         if brand_details:
             return json.loads(brand_details)
