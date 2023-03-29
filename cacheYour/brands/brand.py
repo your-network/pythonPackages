@@ -1,6 +1,7 @@
 import json
 import os
 from redis import Redis
+from cacheYour.helpers.images import imageProcessing
 
 class BrandCache:
     def __init__(self, connection: Redis):
@@ -44,29 +45,35 @@ class BrandCache:
                      brand):
         from cacheYour.appVariables import ACTIVE_LANGUAGES
 
-        if brand['public']:
-            for language in ACTIVE_LANGUAGES:
-                base = {'id': brand['id'], 'slug': brand['slug'], 'created': brand['created']}
+        for language in ACTIVE_LANGUAGES:
+            base = {'id': brand['id'],
+                    'slug': brand['slug'],
+                    'created': brand['created']}
 
-                ## translations
-                if brand.get('translations'):
-                    if language in brand['translations'].keys() and brand['translations'].get(language):
-                        name = brand['translations'][language]['name']
-                        description = brand['translations'][language].get('description')
-                        base.update({'name': name,
-                                     'description': description})
+            ## translations
+            if brand.get('translations'):
+                if language in brand['translations'].keys() and brand['translations'].get(language):
+                    name = brand['translations'][language]['name']
+                    description = brand['translations'][language].get('description')
+                    base.update({'name': name,
+                                 'description': description})
 
-                ## fallback translations
-                if base.get('name') is None:
-                    base.update({'name': brand['name'],
-                                 'description': brand['description']})
+            ## fallback translations
+            if base.get('name') is None:
+                base.update({'name': brand['name'],
+                             'description': brand['description']})
 
-                ## saving data
-                self.saveBrandDetails(brandId=brand['id'],
-                                      language=language,
+            ## images
+            images = imageProcessing(data=brand,
+                                     type='brand')
+            base = {**base, **images}
+
+            ## saving data
+            self.saveBrandDetails(brandId=brand['id'],
+                                  language=language,
+                                  data=base)
+            self.saveBrandNameDetails(brandName=base['name'],
                                       data=base)
-                self.saveBrandNameDetails(brandName=base['name'],
-                                          data=base)
 
         ## interal id lookup
         if brand.get("externalIDs"):

@@ -1,6 +1,7 @@
 import json
 import os
 from redis import Redis
+from cacheYour.helpers.images import imageProcessing
 
 class CategoryCache:
     def __init__(self, connection: Redis):
@@ -68,6 +69,11 @@ class CategoryCache:
             ## fallback translations
             if base.get('name') is None:
                 base.update({'name': category['name']})
+
+            ## images
+            images = imageProcessing(data=category,
+                                     type='category')
+            base = {**base, **images}
 
             ## saving data
             self.saveCategoryDetails(categoryId=category['id'],
