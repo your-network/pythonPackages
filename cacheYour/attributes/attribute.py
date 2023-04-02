@@ -51,8 +51,14 @@ class AttributeCache:
             ## saving external id lookup
             if attr_dic.get('externalId'):
                 self.saveExternalAttributeId(externalId=int(attr_dic['externalId']),
-                                        source=int(attr_dic['source']),
-                                        attributeId=int(attr_dic['id']))
+                                             source=int(attr_dic['source']),
+                                             attributeId=int(attr_dic['id']))
+
+            ## saving details based on name
+            self.saveAttributeNameDetails(attributeName=attribute['name'],
+                                          data=attr_dic)
+
+
 
         self.connection.set(f"attribute.cache", "True", ex=172800)
         self.connection.set(f"attribute.short-term.cache", "True", ex=3000)
@@ -90,6 +96,12 @@ class AttributeCache:
                              language: str,
                              data: dict):
         key = f"attribute.{attributeId}.{language}"
+        self.connection.set(key, json.dumps(data))
+
+    def saveAttributeNameDetails(self,
+                                 attributeName: str,
+                                 data: dict):
+        key = f"attribute.{attributeName}"
         self.connection.set(key, json.dumps(data))
 
     def saveExternalAttributeId(self,
@@ -228,6 +240,20 @@ class AttributeCache:
                             attributeId: int,
                             language: str):
         search_key = f"attribute.{attributeId}.{language}"
+        attribute_details = connection.get(search_key)
+        if attribute_details:
+            return json.loads(attribute_details)
+
+        else:
+            return AttributeCache.keyNotFoundLogic(search_key=search_key,
+                                                   cache_key="attribute.short-term.cache",
+                                                   connection=connection,
+                                                   content_type=dict)
+
+    @staticmethod
+    def getAttributeNameDetails(connection: Redis,
+                                attributeName: str):
+        search_key = f"attribute.{attributeName}"
         attribute_details = connection.get(search_key)
         if attribute_details:
             return json.loads(attribute_details)
