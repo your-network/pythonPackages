@@ -1,4 +1,3 @@
-from cacheYour.client import RedisClient
 
 class DataCache:
     def __init__(self, connection):
