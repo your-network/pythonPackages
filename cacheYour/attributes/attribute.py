@@ -48,8 +48,7 @@ class AttributeCache:
             attr_dic = remove_dic_key(dic=attribute, keys=['categoryRelations'])
 
             ## index type
-            if attribute['searchable']:
-                attribute = processAttributeIndexDetails(attribute=attribute)
+            attribute = processAttributeIndexDetails(attribute=attribute)
 
             self.processAttributeLanguages(languages=ACTIVE_LANGUAGES,
                                            attribute=attr_dic)
