@@ -32,6 +32,7 @@ class AttributeCache:
         from cacheYour.appVariables import connectionPool, ACTIVE_LANGUAGES
         from apiYour.getApi import Attributes
         from helpersYour.functions import remove_dic_key
+        from cacheYour.attributes.helpers import processAttributeIndexDetails
 
         ## logging
         start_time = datetime.now()
@@ -45,6 +46,11 @@ class AttributeCache:
 
         for attribute in attributes:
             attr_dic = remove_dic_key(dic=attribute, keys=['categoryRelations'])
+
+            ## index type
+            if attribute['searchable']:
+                attribute = processAttributeIndexDetails(attribute=attribute)
+
             self.processAttributeLanguages(languages=ACTIVE_LANGUAGES,
                                            attribute=attr_dic)
 
@@ -57,8 +63,6 @@ class AttributeCache:
             ## saving details based on name
             self.saveAttributeNameDetails(attributeName=attribute['name'],
                                           data=attr_dic)
-
-
 
         self.connection.set(f"attribute.cache", "True", ex=172800)
         self.connection.set(f"attribute.short-term.cache", "True", ex=3000)

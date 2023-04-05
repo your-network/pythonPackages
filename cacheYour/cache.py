@@ -5,8 +5,7 @@ class DataCache:
 
     def checkCache(self,
                    source_brands: dict = {},
-                   source_categories: dict = {},
-                   index_attributes: dict = {}):
+                   source_categories: dict = {}):
         ## category cache
         from cacheYour.categories.category import CategoryCache
         category_cache = CategoryCache(connection=self.connection)
@@ -26,22 +25,15 @@ class DataCache:
         print(f"Series Cache present")
 
         ## Attribute cache
-        if index_attributes:
-            from cacheYour.attributes.indexAttributes import AttributeIndex
-            attribute_cache = AttributeIndex(connection=self.connection)
-            attribute_cache.checkAttributeStatusCache(index_attributes=index_attributes)
-            print(f"Index Attribute Cache present")
-        else:
-            from cacheYour.attributes.attribute import AttributeCache
-            attribute_cache = AttributeCache(connection=self.connection)
-            attribute_cache.checkAttributeStatusCache()
-            attribute_cache.checkAttributeValueUnitStatusCache()
-            print(f"Attribute & AttributeValueUnit Cache present")
+        from cacheYour.attributes.attribute import AttributeCache
+        attribute_cache = AttributeCache(connection=self.connection)
+        attribute_cache.checkAttributeStatusCache()
+        attribute_cache.checkAttributeValueUnitStatusCache()
+        print(f"Attribute & AttributeValueUnit Cache present")
 
     def triggerCache(self,
                      source_brands: dict = {},
-                     source_categories: dict = {},
-                     index_attributes: dict = {}):
+                     source_categories: dict = {}):
         ## category cache
         from cacheYour.categories.category import CategoryCache
         category_cache = CategoryCache(connection=self.connection)
@@ -61,14 +53,8 @@ class DataCache:
         print(f"Series Cache processed")
 
         ## Attribute cache
-        if index_attributes:
-            from cacheYour.attributes.indexAttributes import AttributeIndex
-            attribute_cache = AttributeIndex(connection=self.connection)
-            attribute_cache.processIndexAttributeCache(index_attributes=index_attributes)
-            print(f"Index Attribute Cache processed")
-        else:
-            from cacheYour.attributes.attribute import AttributeCache
-            attribute_cache = AttributeCache(connection=self.connection)
-            attribute_cache.processAttributeCache()
-            attribute_cache.processAttributeValueUnitCache()
-            print(f"Index Attribute Cache processed")
+        from cacheYour.attributes.attribute import AttributeCache
+        attribute_cache = AttributeCache(connection=self.connection)
+        attribute_cache.processAttributeCache()
+        attribute_cache.processAttributeValueUnitCache()
+        print(f"Index Attribute Cache processed")

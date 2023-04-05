@@ -1,118 +1,28 @@
-import json
-import os
-from datetime import datetime
-import rootpath
-from redis import Redis
+FILTER_ATTRIBUTES = {
+ 1065: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [1410]},
+ 16803: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [1410]},
+ 1860: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [1410]},
+ 1866: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [1410]},
+ 1923: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [1410]},
+ 788: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [1410]},
+ 7454: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [1410]},
+ 7416: {"aggrType": "range", "filterType": "buckets", "appliedCategories": [1410]},
+ 338: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [1410]},
+ 661: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [1410]},
 
-## directory
-abs_path = rootpath.detect()
+ 41: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [1083]},
+ 54: {"aggrType": "range", "filterType": "buckets", "appliedCategories": [1083]},
+ 253: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [1083]},
+ 315: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [1083]},
+ 4534: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [1083]},
+ 5294: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [1083]},
+ 11044: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [1083]},
+ 15660: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [1083]},
+ 16546: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [1083]},
+ 26676: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [1083]},
 
-class AttributeIndex:
-    def __init__(self, connection: Redis):
-        self.connection = connection
-
-    def checkAttributeStatusCache(self,
-                                  index_attributes: dict):
-        while True:
-            status = self.connection.get(f"attribute.index.cache")
-            if status and bool(status):
-                return True
-            else:
-                self.processIndexAttributeCache(index_attributes=index_attributes)
-                return True
-
-    def processIndexAttributeCache(self,
-                                   index_attributes: dict):
-        from cacheYour.appVariables import connectionPool, ACTIVE_LANGUAGES
-        from apiYour.getApi import Category, Attributes
-        from cacheYour.attributes.topicPackage import attributeLogger
-        from helpersYour.functions import remove_dic_key
-
-        ## logging
-        start_time = datetime.now()
-        if os.environ.get('DEBUG') == 'DEBUG':
-            log_message = {
-                "topic": f"saveAttributeCategoryCache: start saving index data",
-                "message": {}}
-            attributeLogger.createDebugLog(message=log_message)
-
-        ## get all brands
-        categories = Category.getAll(includeServiceCategories=False,
-                                     connection=connectionPool)
-
-        ## process category attributes
-        for category in categories:
-            if category['public']:
-                attributes = Attributes.getAll(categoryId=category['id'],
-                                               connection=connectionPool)
-
-                for attribute in attributes:
-                    if attribute['searchable']:
-                        attr_dic = remove_dic_key(dic=attribute, keys=['categoryRelations'])
-                        self.processAttributeLanguages(languages=ACTIVE_LANGUAGES,
-                                                       categoryId=category['id'],
-                                                       mapped_attributes=index_attributes,
-                                                       attribute=attr_dic)
-
-        self.connection.set(f"attribute.index.cache", "True", ex=172800)
-
-        ## logging
-        if os.environ.get('DEBUG') == 'DEBUG':
-            log_message = {
-                "topic": f"saveAttributeCategoryCache: finished saving index data",
-                "message": {"processingTime": str(datetime.now() - start_time)}}
-            attributeLogger.createDebugLog(message=log_message)
-
-    def processAttributeLanguages(self,
-                                  languages: list,
-                                  attribute: dict,
-                                  categoryId: int,
-                                  mapped_attributes: dict) -> None:
-        for language in languages:
-            ## mapped type attribute data
-            mapped_type = None
-            if mapped_attributes[language].get(str(attribute['id'])):
-                mapped_type = mapped_attributes[language].get(str(attribute['id']))['type']
-
-            if attribute.get('translations'):
-                if attribute['translations'].get(language):
-                    name = attribute['translations'][language]['name']
-
-                    ## save attribute data
-                    attribute.update({'mapped_type': mapped_type,
-                                      'name': name})
-                    self.saveIndexAttributeDetails(attributeId=attribute['id'],
-                                                   categoryId=categoryId,
-                                                   language=language,
-                                                   data=attribute)
-                    continue
-
-            ## fallback
-            attribute.update({'mapped_type': mapped_type,
-                              'name': attribute['name']})
-            self.saveIndexAttributeDetails(attributeId=attribute['id'],
-                                           categoryId=categoryId,
-                                           language=language,
-                                           data=attribute)
-
-    def saveIndexAttributeDetails(self,
-                                  attributeId: int,
-                                  categoryId: int,
-                                  language: str,
-                                  data: dict):
-        key = f"attribute.index.{attributeId}.{categoryId}.{language}"
-        self.connection.set(key, json.dumps(data))
-
-    ## GET METHODS
-    @staticmethod
-    def getIndexAttributeDetails(connection: Redis,
-                                 attributeId: int,
-                                 categoryId: int,
-                                 language: str):
-        search_key = f"attribute.index.{attributeId}.{categoryId}.{language}"
-        attribute_details = connection.get(search_key)
-        if attribute_details:
-            return json.loads(attribute_details)
-
-        else:
-            return None
+ 6373: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [54]},
+ 7471: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [54]},
+ 8654: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [54]},
+ 14299: {"aggrType": "terms", "filterType": "buckets", "appliedCategories": [54]}
+}
