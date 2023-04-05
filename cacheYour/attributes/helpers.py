@@ -23,7 +23,7 @@ def processAttributeIndexDetails(attribute: dict) -> dict:
         attr_value = "keyword"
 
     ## extra details
-    index_details = FILTER_ATTRIBUTES.get(int(attribute['id']), {})
+    index_details = FILTER_ATTRIBUTES.get(str(attribute['id']), {})
     index_details.update({'indexValueType': attr_value})
 
     ## updating attribute
