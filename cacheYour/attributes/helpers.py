@@ -21,13 +21,13 @@ def processAttributeIndexDetails(attribute: dict) -> dict:
             attr_value = "keyword"
     else:
         attr_value = "keyword"
+    attribute.update({'indexValueType': attr_value})
 
     ## extra details
     index_details = FILTER_ATTRIBUTES.get(str(attribute['id']), {})
-    index_details.update({'indexValueType': attr_value})
 
     ## updating attribute
-    attribute = {**attribute, **index_details}
+    attribute_final = {**attribute, **index_details}
 
-    return attribute
+    return attribute_final
 
