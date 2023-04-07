@@ -542,6 +542,228 @@ class Product:
         return products
 
     @staticmethod
+    def getAttributes(connection: object,
+                       logger: LocalLogger = None,
+                       productId: int = None,
+                       lang: str = "en",
+                       optionalFields: str = "AttributeTranslations",
+                       **kwargs) -> dict:
+
+        ## variables
+        func_parameters = locals()
+        base_params = buildRequestParameters(parameters=func_parameters)
+
+        ## logging
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
+            log_message = {"topic": f"Error get all product attributes",
+                           "function": "getProductAttributes",
+                           "endpoint": "/Product/<productId>/Attributes"}
+            logger.createDebugLog(message=log_message, **base_params)
+
+        ## request variables
+        try:
+            ## process request from connection pool
+            r = connection.request(method="GET",
+                                   url=f"{os.environ['YOUR_API_URL']}/Product/{productId}/Attributes",
+                                   fields=base_params,
+                                   headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                            'Content-Type': 'application/json'})
+
+            response_code = r.status
+            response_text = r.data
+            if response_code == 200:
+                result = json.loads(response_text.decode('utf-8'))
+                data = result.get('data')
+                return data
+            else:
+                ## logging
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
+                    log_message = {"topic": f"Error get all",
+                                   "function": "getProductAttributes",
+                                   "endpoint": "/Product/<productId>/Attributes",
+                                   "code": response_code,
+                                   "response": response_text}
+                    logger.createErrorLog(message=log_message, **base_params)
+
+        except Exception as e:
+            ## logging
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
+                log_message = {"topic": f"Error get all",
+                               "function": "getProductAttributes",
+                               "endpoint": "/Product/<productId>/Attributes",
+                               "error": str(e)}
+                logger.createErrorLog(message=log_message, **base_params)
+
+        return {}
+
+    @staticmethod
+    def getImages(connection: object,
+                   logger: LocalLogger = None,
+                   productId: int = None,
+                   optionalFields: str = "ExtraResolutions",
+                   **kwargs) -> list:
+
+        ## variables
+        func_parameters = locals()
+        base_params = buildRequestParameters(parameters=func_parameters)
+
+        ## logging
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
+            log_message = {"topic": f"Error get all product images",
+                           "function": "getProductImages",
+                           "endpoint": "/Product/<productId>/Images"}
+            logger.createDebugLog(message=log_message, **base_params)
+
+        try:
+            ## process request from connection pool
+            r = connection.request(method="GET",
+                                   url=f"{os.environ['YOUR_API_URL']}/Product/{productId}/Images",
+                                   fields=base_params,
+                                   headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                            'Content-Type': 'application/json'})
+
+            response_code = r.status
+            response_text = r.data
+            if response_code == 200:
+                result = json.loads(response_text.decode('utf-8'))
+                data = result.get('data')
+                return data
+            else:
+                ## logging
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
+                    log_message = {"topic": f"Error get all",
+                                   "function": "getProductImages",
+                                   "endpoint": "/Product/<productId>/Images",
+                                   "code": response_code,
+                                   "response": response_text}
+                    logger.createErrorLog(message=log_message, **base_params)
+
+        except Exception as e:
+            ## logging
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
+                log_message = {"topic": f"Error get all",
+                               "function": "getProductImages",
+                               "endpoint": "/Product/<productId>/Images",
+                               "error": str(e)}
+                logger.createErrorLog(message=log_message, **base_params)
+
+        return []
+
+    @staticmethod
+    def getReviews(connection: object,
+                   logger: LocalLogger = None,
+                   productId: int = None,
+                   resultsPerPage: int = 50,
+                   page: int = None,
+                   lang: str = "en",
+                   sortBy: str = "Popularity",
+                   desc: bool = True,
+                   optional_fields: list = [],
+                   query: str = None,
+                   **kwargs) -> dict:
+
+        ## variables
+        func_parameters = locals()
+        base_params = buildRequestParameters(parameters=func_parameters)
+
+        ## logging
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
+            log_message = {"topic": f"Error get all product reviews",
+                           "function": "getProductReviews",
+                           "endpoint": "/Product/<productId>/Reviews"}
+            logger.createDebugLog(message=log_message, **base_params)
+
+        try:
+            ## process request from connection pool
+            r = connection.request(method="GET",
+                                   url=f"{os.environ['YOUR_API_URL']}/Product/{productId}/Reviews",
+                                   fields=base_params,
+                                   headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                            'Content-Type': 'application/json'})
+
+            response_code = r.status
+            response_text = r.data
+            if response_code == 200:
+                result = json.loads(response_text.decode('utf-8'))
+                data = result.get('data')
+                return data
+            else:
+                ## logging
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
+                    log_message = {"topic": f"Error get all",
+                                   "function": "getProductReviews",
+                                   "endpoint": "/Product/<productId>/Reviews",
+                                   "code": response_code,
+                                   "response": response_text}
+                    logger.createErrorLog(message=log_message, **base_params)
+
+        except Exception as e:
+            ## logging
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
+                log_message = {"topic": f"Error get all",
+                               "function": "getProductReviews",
+                               "endpoint": "/Product/<productId>/Reviews",
+                               "error": str(e)}
+                logger.createErrorLog(message=log_message, **base_params)
+
+        return {}
+
+    @staticmethod
+    def getReasonsToBuy(connection: object,
+                   logger: LocalLogger = None,
+                   productId: int = None,
+                   page: int = None,
+                   lang: str = "en",
+                   optional_fields: list = [],
+                   **kwargs) -> list:
+
+        ## variables
+        func_parameters = locals()
+        base_params = buildRequestParameters(parameters=func_parameters)
+
+        ## logging
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
+            log_message = {"topic": f"Error get all product ReasonsToBuy",
+                           "function": "getProductReasonsToBuy",
+                           "endpoint": "/Product/<productId>/ReasonsToBuy"}
+            logger.createDebugLog(message=log_message, **base_params)
+
+        try:
+            ## process request from connection pool
+            r = connection.request(method="GET",
+                                   url=f"{os.environ['YOUR_API_URL']}/Product/{productId}/ReasonsToBuy",
+                                   fields=base_params,
+                                   headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                            'Content-Type': 'application/json'})
+
+            response_code = r.status
+            response_text = r.data
+            if response_code == 200:
+                result = json.loads(response_text.decode('utf-8'))
+                data = result.get('data')
+                return data
+            else:
+                ## logging
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
+                    log_message = {"topic": f"Error get all",
+                                   "function": "getProductReasonsToBuy",
+                                   "endpoint": "/Product/<productId>/ReasonsToBuy",
+                                   "code": response_code,
+                                   "response": response_text}
+                    logger.createErrorLog(message=log_message, **base_params)
+
+        except Exception as e:
+            ## logging
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
+                log_message = {"topic": f"Error get all",
+                               "function": "getProductReasonsToBuy",
+                               "endpoint": "/Product/<productId>/ReasonsToBuy",
+                               "error": str(e)}
+                logger.createErrorLog(message=log_message, **base_params)
+
+        return []
+
+    @staticmethod
     def getAllExternalIds(connection: object,
                           logger: LocalLogger = None,
                           sourceId: int = None,
@@ -663,6 +885,7 @@ class Product:
 
         return {}
 
+
 def getUserSearch(identifier: str,
                   identifierType: str,
                   connection: object,
@@ -703,3 +926,105 @@ def getUserSearch(identifier: str,
             logger.createErrorLog(message=log_message)
 
     return {}
+
+class QnA:
+    @staticmethod
+    def getQuestions(productId: str,
+            connection: object,
+            logger: LocalLogger = None,
+            query: str = None,
+            language: str = None,
+            resultsPerPage: int = 10,
+            page: int = 1,
+            withAnswersOnly: bool = True,
+            askedByUserOnly: bool = False,
+            answeredByUserOnly: bool = False,
+            includePending: bool = False,
+            includeApproved: bool = True,
+            **kwargs) -> dict:
+
+        ## logging
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
+            log_message = {"topic": f"Start get all",
+                           "function": "getProduct",
+                           "endpoint": "/QnA/Question"}
+            logger.createDebugLog(message=log_message)
+
+        ## variables
+        func_parameters = locals()
+        base_params = buildRequestParameters(parameters=func_parameters)
+
+        ## process request from connection pool
+        r = connection.request(method="GET",
+                               fields=base_params,
+                               url=f"{os.environ['YOUR_API_URL']}/QnA/Question",
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+
+        response_code = r.status
+        response_text = r.data
+        if response_code == 200:
+            result = json.loads(response_text.decode('utf-8'))
+            data = result.get('data')
+            if data:
+                return data
+
+        else:
+            ## logging
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
+                log_message = {"topic": f"Error get all",
+                               "function": "getProduct",
+                               "endpoint": "/QnA/Question",
+                               "code": response_code,
+                               "response": response_text}
+                logger.createErrorLog(message=log_message)
+
+        return {}
+
+    @staticmethod
+    def getQuestionAnswers(questionId: int,
+                           connection: object,
+                           logger: LocalLogger = None,
+                           resultsPerPage: int = 10,
+                           page: int = 1,
+                           answeredByUserOnly: bool = False,
+                           **kwargs) -> dict:
+
+        ## logging
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
+            log_message = {"topic": f"Start get all",
+                           "function": "getProduct",
+                           "endpoint": "/QnA/Question/{questionId}/Answers"}
+            logger.createDebugLog(message=log_message)
+
+        ## variables
+        func_parameters = locals()
+        base_params = buildRequestParameters(parameters=func_parameters)
+
+        ## process request from connection pool
+        r = connection.request(method="GET",
+                               fields=base_params,
+                               url=f"{os.environ['YOUR_API_URL']}/QnA/Question/{questionId}/Answers",
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+
+        response_code = r.status
+        response_text = r.data
+        if response_code == 200:
+            result = json.loads(response_text.decode('utf-8'))
+            data = result.get('data')
+            if data:
+                return data
+
+        else:
+            ## logging
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
+                log_message = {"topic": f"Error get all",
+                               "function": "getProduct",
+                               "endpoint": "/QnA/Question/{questionId}/Answers",
+                               "code": response_code,
+                               "response": response_text}
+                logger.createErrorLog(message=log_message)
+
+        return {}
+
