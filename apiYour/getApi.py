@@ -650,6 +650,59 @@ class Product:
         return []
 
     @staticmethod
+    def getMedia(connection: object,
+                   logger: LocalLogger = None,
+                   productId: int = None,
+                   optionalFields: str = "ExtraResolutions",
+                   **kwargs) -> list:
+
+        ## variables
+        func_parameters = locals()
+        base_params = buildRequestParameters(parameters=func_parameters)
+
+        ## logging
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
+            log_message = {"topic": f"Error get all product images",
+                           "function": "getProductMedia",
+                           "endpoint": "/Product/<productId>/Media"}
+            logger.createDebugLog(message=log_message, **base_params)
+
+        try:
+            ## process request from connection pool
+            r = connection.request(method="GET",
+                                   url=f"{os.environ['YOUR_API_URL']}/Product/{productId}/Media",
+                                   fields=base_params,
+                                   headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                            'Content-Type': 'application/json'})
+
+            response_code = r.status
+            response_text = r.data
+            if response_code == 200:
+                result = json.loads(response_text.decode('utf-8'))
+                data = result.get('data')
+                return data
+            else:
+                ## logging
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
+                    log_message = {"topic": f"Error get all",
+                                   "function": "getProductMedia",
+                                   "endpoint": "/Product/<productId>/Media",
+                                   "code": response_code,
+                                   "response": response_text}
+                    logger.createErrorLog(message=log_message, **base_params)
+
+        except Exception as e:
+            ## logging
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
+                log_message = {"topic": f"Error get all",
+                               "function": "getProductMedia",
+                               "endpoint": "/Product/<productId>/Media",
+                               "error": str(e)}
+                logger.createErrorLog(message=log_message, **base_params)
+
+        return []
+
+    @staticmethod
     def getReviews(connection: object,
                    logger: LocalLogger = None,
                    productId: int = None,
