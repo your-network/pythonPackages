@@ -11,7 +11,7 @@ from google.cloud.logging_v2.handlers.transports import SyncTransport
 import rootpath
 abs_path = rootpath.detect()
 from loggingYour.logClient import logClient
-log_client = logClient(f"{abs_path}/atomic-affinity-356010-c4893c67467b.json")
+log_client = logClient(f"./atomic-affinity-356010-c4893c67467b.json")
 google_handler = log_client.getHanlder(logger_name=os.environ.get('GOOGLE_LOGGER_NAME', 'YOURGoogle.default'))
 
 class LocalLogger:

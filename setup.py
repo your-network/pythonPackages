@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pythonPackages",
-    version='0.7.1.8',
+    version='0.7.1.9',
     author='Thijmen',
     author_email='thijmen@your.io',
     description='All packages used for YOUR development',
