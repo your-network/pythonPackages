@@ -1,8 +1,10 @@
+import os
+
 from redis import Redis, ConnectionPool
 
 def getRedisPool():
     print(f"Creating 1000 connection pool")
-    pool = ConnectionPool(host="redis",
+    pool = ConnectionPool(host=os.getenv('REDIS_HOST', "localhost"),
                           port=6379,
                           db=0,
                           max_connections=10000)
