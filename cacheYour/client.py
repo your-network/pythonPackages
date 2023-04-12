@@ -2,8 +2,8 @@ import os
 
 from redis import Redis, ConnectionPool
 
-def getRedisPool():
-    pool = ConnectionPool(host=os.getenv('REDIS_HOST', "localhost"),
+def getRedisPool(host: str):
+    pool = ConnectionPool(host=host,
                           port=6379,
                           db=0,
                           max_connections=10000)
