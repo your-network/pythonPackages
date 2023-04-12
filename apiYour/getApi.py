@@ -938,6 +938,51 @@ class Product:
 
         return {}
 
+    @staticmethod
+    def exist(id: str,
+            connection: object,
+            logger: LocalLogger = None,
+            idType: str = None,
+            **kwargs) -> dict:
+
+        ## logging
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
+            log_message = {"topic": f"Start get all",
+                           "function": "productExists",
+                           "endpoint": "/Product/Exists",
+                           "id": id,
+                           "idType": idType}
+            logger.createDebugLog(message=log_message)
+
+        ## process request from connection pool
+        r = connection.request(method="GET",
+                               url=f"{os.environ['YOUR_API_URL']}/Product/Exists?id={id}&idType={idType}",
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+
+        response_code = r.status
+        response_text = r.data
+        if response_code == 200:
+            result = json.loads(response_text.decode('utf-8'))
+            data = result.get('data')
+            if data:
+                return data
+
+        else:
+            ## logging
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
+                log_message = {"topic": f"Error get all",
+                               "function": "getProduct",
+                               "endpoint": "/Product/{productId}",
+                               "id": id,
+                               "idType": idType,
+                               "code": response_code,
+                               "response": response_text}
+                logger.createErrorLog(message=log_message)
+
+        return {}
+
+
 
 def getUserSearch(identifier: str,
                   identifierType: str,
