@@ -6,7 +6,8 @@ def getRedisPool(host: str):
     pool = ConnectionPool(host=host,
                           port=6379,
                           db=0,
-                          max_connections=10000)
+                          max_connections=10000,
+                          decode_responses=True)
     return pool
 
 class RedisClient:
@@ -15,8 +16,7 @@ class RedisClient:
 
     def getConnection(self):
         self.conn = Redis(connection_pool=self.pool,
-                          socket_timeout=300,
-                          decode_responses=True)
+                          socket_timeout=300)
         return self.conn
 
     def closeConnection(self):
