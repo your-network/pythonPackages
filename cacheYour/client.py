@@ -15,7 +15,8 @@ class RedisClient:
 
     def getConnection(self):
         self.conn = Redis(connection_pool=self.pool,
-                          socket_timeout=300)
+                          socket_timeout=300,
+                          decode_responses=True)
         return self.conn
 
     def closeConnection(self):
