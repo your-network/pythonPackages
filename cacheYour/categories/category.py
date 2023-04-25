@@ -93,9 +93,10 @@ class CategoryCache:
                                                     categoryId=int(category['id']))
 
                         ## active categories
-                        self.saveExternalCategoryActive(externalId=int(externalId),
-                                                        source=int(source),
-                                                        active=category['public'])
+                        if int(category['purpose']) == 1:
+                            self.saveExternalCategoryActive(externalId=int(externalId),
+                                                            source=int(source),
+                                                            active=category['public'])
 
     def setCategoryCache(self,
                          source_categories: dict = {}):
