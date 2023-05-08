@@ -59,6 +59,61 @@ class Category:
 
             return []
 
+    @staticmethod
+    def patchUpdate(payload: dict,
+                   category_id: int,
+                   connection: object,
+                   logger: LocalLogger = None) -> list:
+
+        ## logging
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
+            log_message = {"topic": f"Start update",
+                           "function": "patchUpdateCategory",
+                           "endpoint": "/Category/{category_id}",
+                           "categoryId": category_id,
+                           "data": payload}
+            logger.createDebugLog(message=log_message)
+
+        ## process request from connection pool
+        encoded_data = json.dumps(payload).encode('utf-8')
+        r = connection.request(method="PATCH",
+                               url=f"{os.environ['YOUR_API_URL']}/Category/{category_id}",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+        status_code = r.status
+        response_text = r.data
+
+        if status_code == 200:
+            resp_body = json.loads(response_text.decode('utf-8'))
+            resp_data = resp_body.get('data')
+
+            if resp_data:
+                media = resp_data.get('duplicates', [])
+
+                ## logging
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
+                    log_message = {"topic": f"Finish update",
+                                   "function": "patchUpdateCategory",
+                                   "endpoint": "/Category/{category_id}",
+                                   "categoryId": category_id}
+                    logger.createDebugLog(message=log_message)
+
+                return media
+
+        else:
+            ## logging
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
+                log_message = {"topic": f"Error update",
+                               "function": "patchUpdateCategory",
+                               "endpoint": "/Category/{category_id}",
+                               "categoryId": category_id,
+                               "code": status_code,
+                               "response": response_text}
+                logger.createErrorLog(message=log_message)
+
+            return []
+
 class Brand:
     @staticmethod
     def putUpdate(payload: dict,
