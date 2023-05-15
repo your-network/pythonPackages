@@ -596,3 +596,64 @@ class Attributes:
                 logger.createErrorLog(message=log_message)
 
         return
+
+
+class Questions:
+    @staticmethod
+    def create(data: dict,
+               connection: object,
+               logger: LocalLogger = None):
+        ## logging
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
+            log_message = {"topic": f"Start create qna entry value unit",
+                           "function": "createQnA",
+                           "endpoint": "/QnA/Question",
+                           "data": data}
+            logger.createDebugLog(message=log_message)
+
+        ## process request from connection pool
+        encoded_data = json.dumps(data).encode('utf-8')
+        r = connection.request(method="POST",
+                               url=f"{os.environ['YOUR_API_URL']}/QnA/Question",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+        status_code = r.status
+        resp_data = r.data
+
+        if status_code in [200, 400]:
+            resp_body = json.loads(resp_data.decode('utf-8'))
+            if resp_body.get('data'):
+                qna_id = resp_body['data'].get('id')
+
+                ## logging
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
+                    log_message = {"topic": f"finished creating",
+                                   "function": "createQnA",
+                                   "endpoint": "/QnA/Question",
+                                   "code": status_code,
+                                   "response": resp_data,
+                                   "qnaId": qna_id}
+                    logger.createDebugLog(message=log_message)
+
+                return qna_id
+
+            else:
+                ## logging
+                if logger and os.environ.get('DEBUG') == 'DEBUG':
+                    log_message = {"topic": f"no response data",
+                                   "function": "createQnA",
+                                   "endpoint": "/QnA/Question",
+                                   "code": status_code,
+                                   "response": resp_data}
+                    logger.createWarningLog(message=log_message)
+
+        else:
+            ## logging
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
+                log_message = {"topic": f"error creating qna",
+                               "function": "createQnA",
+                               "endpoint": "/QnA/Question",
+                               "code": status_code,
+                               "response": resp_data}
+                logger.createErrorLog(message=log_message)
