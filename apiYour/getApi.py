@@ -481,8 +481,8 @@ class Product:
         ## variables
         func_parameters = locals()
         base_params = buildRequestParameters(parameters=func_parameters)
-        urllib.parse.urlencode(params)
-        print(f"Product getAll base_params: {base_params}")
+        urllib.parse.urlencode(base_params)
+        print(f"Product getAll url params: {base_params}")
 
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':
