@@ -28,12 +28,10 @@ def buildRequestParameters(parameters: dict) -> dict:
     request_parameters = {}
 
     for key in parameters.keys():
-        if key not in ['connection', 'logger']:
+        if key not in ['connection', 'logger', 'optionalFields']:
             ## process additional kwargs
             if key == 'kwargs' and parameters.get(key):
                 for kwarg_key in parameters[key].keys():
-                    # if kwarg_key == 'attributes':
-                    #     request_parameters.update({'optionalFields': ['attributes', 'AttributeTranslations']})
                     if parameters[key].get(kwarg_key):
                         request_parameters.update({kwarg_key: parameters[key][kwarg_key]})
 

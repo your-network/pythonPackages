@@ -482,6 +482,9 @@ class Product:
         func_parameters = locals()
         base_params = buildRequestParameters(parameters=func_parameters)
         url_params = urllib.parse.urlencode(base_params)
+        if optionalFields:
+            for field in optionalFields:
+                url_params = url_params + f"&optionalFields={field}"
         print(f"Product getAll url params: {url_params}")
 
         ## logging
