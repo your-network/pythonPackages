@@ -465,7 +465,7 @@ class Product:
     def getAll(connection: object,
                logger: LocalLogger = None,
                resultsPerPage: int = 1000,
-               page: int = None,
+               page: int = 0,
                categoryId: int = None,
                brandId: int = None,
                language: str = "en",
@@ -488,6 +488,7 @@ class Product:
             logger.createDebugLog(message=log_message, **base_params)
 
         products = []
+        page = 0
         try:
             while True:
                 ## process request from connection pool
@@ -502,7 +503,7 @@ class Product:
                 if response_code == 200:
                     result = json.loads(response_text.decode('utf-8'))
                     data = result.get('data')
-                    if len(data.get('results', [])) > 0:
+                    if data.get('results'):
                         products = products + data['results']
                         page += 1
                         page_set_parameters = base_params.update({'page': page})
