@@ -321,6 +321,7 @@ class Product:
                            "productId": productId,
                            "data": payload}
             logger.createDebugLog(message=log_message, **additional_labels)
+            print(log_message)
 
         ## process request from connection pool
         encoded_data = json.dumps(payload).encode('utf-8')
@@ -350,6 +351,7 @@ class Product:
                                "code": response_code,
                                "response": response_text}
                 logger.createErrorLog(message=log_message, **additional_labels)
+                print(log_message)
 
             return []
 

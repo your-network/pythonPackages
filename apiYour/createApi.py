@@ -138,7 +138,6 @@ class Category:
                                "labels": additional_labels}
                 logger.createErrorLog(message=log_message)
 
-        return
 
 class Series:
     @staticmethod
@@ -195,7 +194,6 @@ class Series:
                                "labels": labels}
                 logger.createErrorLog(message=log_message)
 
-        return
 
 class Relations:
     @staticmethod
@@ -635,6 +633,7 @@ class Questions:
                                    "response": resp_data,
                                    "qnaId": qna_id}
                     logger.createDebugLog(message=log_message)
+                    print(log_message)
 
                 return qna_id
 
@@ -647,6 +646,7 @@ class Questions:
                                    "code": status_code,
                                    "response": resp_data}
                     logger.createWarningLog(message=log_message)
+                    print(log_message)
 
         else:
             ## logging
@@ -657,3 +657,4 @@ class Questions:
                                "code": status_code,
                                "response": resp_data}
                 logger.createErrorLog(message=log_message)
+                print(log_message)
