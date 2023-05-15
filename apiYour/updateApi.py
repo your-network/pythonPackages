@@ -349,7 +349,7 @@ class Product:
                                "endpoint": "/Product/{productId}",
                                "productId": productId,
                                "code": response_code,
-                               "response": response_text}
+                               "response": str(response_text)}
                 logger.createErrorLog(message=log_message, **additional_labels)
                 print(log_message)
 

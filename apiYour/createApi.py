@@ -630,7 +630,7 @@ class Questions:
                                    "function": "createQnA",
                                    "endpoint": "/QnA/Question",
                                    "code": status_code,
-                                   "response": resp_data,
+                                   "response": str(resp_data),
                                    "qnaId": qna_id}
                     logger.createDebugLog(message=log_message)
                     print(log_message)
@@ -644,7 +644,7 @@ class Questions:
                                    "function": "createQnA",
                                    "endpoint": "/QnA/Question",
                                    "code": status_code,
-                                   "response": resp_data}
+                                   "response": str(resp_data)}
                     logger.createWarningLog(message=log_message)
                     print(log_message)
 
@@ -655,6 +655,6 @@ class Questions:
                                "function": "createQnA",
                                "endpoint": "/QnA/Question",
                                "code": status_code,
-                               "response": resp_data}
+                               "response": str(resp_data)}
                 logger.createErrorLog(message=log_message)
                 print(log_message)
