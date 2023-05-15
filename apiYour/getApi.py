@@ -464,13 +464,13 @@ class Product:
     @staticmethod
     def getAll(connection: object,
                logger: LocalLogger = None,
-               page_results: int = 1000,
+               resultsPerPage: int = 1000,
                page: int = None,
-               category_id: int = None,
-               brand_id: int = None,
+               categoryId: int = None,
+               brandId: int = None,
                language: str = "en",
                sorting: str = "Popularity",
-               optional_fields: list = [],
+               optionalFields: list = [],
                query: str = None,
                **kwargs) -> list:
 

@@ -32,9 +32,9 @@ def buildRequestParameters(parameters: dict) -> dict:
             ## process additional kwargs
             if key == 'kwargs' and parameters.get(key):
                 for kwarg_key in parameters[key].keys():
-                    if kwarg_key == 'attributes':
-                        request_parameters.update({'optionalFields': ['attributes', 'AttributeTranslations']})
-                    elif parameters[key].get(kwarg_key):
+                    # if kwarg_key == 'attributes':
+                    #     request_parameters.update({'optionalFields': ['attributes', 'AttributeTranslations']})
+                    if parameters[key].get(kwarg_key):
                         request_parameters.update({kwarg_key: parameters[key][kwarg_key]})
 
             ## process passed parameters
