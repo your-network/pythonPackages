@@ -257,6 +257,7 @@ class Attribute:
 
             return False
 
+
 class Product:
     @staticmethod
     def putUpdate(productId: int,
@@ -304,6 +305,54 @@ class Product:
                 logger.createErrorLog(message=log_message, **additional_labels)
 
             return []
+
+    @staticmethod
+    def patch(productId: int,
+              payload: dict,
+              additional_labels: dict = {},
+              connection: object = None,
+              logger: LocalLogger = None) -> list:
+
+        ## logging
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
+            log_message = {"topic": f"Start update",
+                           "function": "patchUpdateProduct",
+                           "endpoint": "/Product/{productId}",
+                           "productId": productId,
+                           "data": payload}
+            logger.createDebugLog(message=log_message, **additional_labels)
+
+        ## process request from connection pool
+        encoded_data = json.dumps(payload).encode('utf-8')
+        r = connection.request(method="PATCH",
+                               url=f"{os.environ['YOUR_API_URL']}/Product/{productId}",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+
+        response_code = r.status
+        response_text = r.data
+        if response_code == 200:
+            result = json.loads(response_text.decode('utf-8'))
+            resp_data = result.get('data')
+            if resp_data:
+                media = resp_data.get('duplicates', [])
+
+                return media
+
+        else:
+            ## logging
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
+                log_message = {"topic": f"Error update",
+                               "function": "patchUpdateProduct",
+                               "endpoint": "/Product/{productId}",
+                               "productId": productId,
+                               "code": response_code,
+                               "response": response_text}
+                logger.createErrorLog(message=log_message, **additional_labels)
+
+            return []
+
 
 class Series:
     @staticmethod
