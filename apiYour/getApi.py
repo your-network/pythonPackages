@@ -464,7 +464,6 @@ class Product:
     @staticmethod
     def getAll(connection: object,
                logger: LocalLogger = None,
-               max_results: int = 100000000,
                page_results: int = 1000,
                page: int = None,
                category_id: int = None,
@@ -491,45 +490,35 @@ class Product:
         products = []
         try:
             while True:
-                if len(products) < max_results:
-                    ## process request from connection pool
-                    r = connection.request(method="GET",
-                                           url=f"{os.environ['YOUR_API_URL']}/Product",
-                                           fields=base_params,
-                                           headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
-                                                    'Content-Type': 'application/json'})
+                ## process request from connection pool
+                r = connection.request(method="GET",
+                                       url=f"{os.environ['YOUR_API_URL']}/Product",
+                                       fields=base_params,
+                                       headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                                'Content-Type': 'application/json'})
 
-                    response_code = r.status
-                    response_text = r.data
-                    if response_code == 200:
-                        result = json.loads(response_text.decode('utf-8'))
-                        data = result.get('data')
-                        if len(data.get('results', [])) > 0:
-                            products = products + data['results']
-                            page += 1
-                            page_set_parameters = base_params.update({'page': page})
-                            continue
-
-                        else:
-                            break
+                response_code = r.status
+                response_text = r.data
+                if response_code == 200:
+                    result = json.loads(response_text.decode('utf-8'))
+                    data = result.get('data')
+                    if len(data.get('results', [])) > 0:
+                        products = products + data['results']
+                        page += 1
+                        page_set_parameters = base_params.update({'page': page})
+                        continue
 
                     else:
-                        ## logging
-                        if logger and os.environ.get('DEBUG') == 'DEBUG':
-                            log_message = {"topic": f"Error get all products",
-                                           "function": "getAllProducts",
-                                           "endpoint": "/Product",
-                                           "code": response_code,
-                                           "response": response_text}
-                            logger.createDebugLog(message=log_message, **base_params)
                         break
+
                 else:
                     ## logging
                     if logger and os.environ.get('DEBUG') == 'DEBUG':
-                        log_message = {"topic": f"Max results reached",
+                        log_message = {"topic": f"Error get all products",
                                        "function": "getAllProducts",
                                        "endpoint": "/Product",
-                                       "maxResults": max_results}
+                                       "code": response_code,
+                                       "response": response_text}
                         logger.createDebugLog(message=log_message, **base_params)
                     break
 
