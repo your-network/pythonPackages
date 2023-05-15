@@ -479,6 +479,8 @@ class Product:
         func_parameters = locals()
         base_params = buildRequestParameters(parameters=func_parameters)
 
+        print(f"Product getAll base_params: {base_params}")
+
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Error get all products",
@@ -510,6 +512,7 @@ class Product:
 
                         else:
                             break
+
                     else:
                         ## logging
                         if logger and os.environ.get('DEBUG') == 'DEBUG':
@@ -628,6 +631,7 @@ class Product:
                 result = json.loads(response_text.decode('utf-8'))
                 data = result.get('data')
                 return data
+
             else:
                 ## logging
                 if logger and os.environ.get('DEBUG') == 'DEBUG':
