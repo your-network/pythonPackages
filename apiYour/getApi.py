@@ -519,8 +519,9 @@ class Product:
                                        "function": "getAllProducts",
                                        "endpoint": "/Product",
                                        "code": response_code,
-                                       "response": response_text}
+                                       "response": str(response_text)}
                         logger.createDebugLog(message=log_message, **base_params)
+                        print(log_message)
                     break
 
         except Exception as e:
@@ -531,7 +532,7 @@ class Product:
                                "endpoint": "/Product",
                                "error": str(e)}
                 logger.createErrorLog(message=log_message, **base_params)
-
+                print(log_message)
         return products
 
     @staticmethod
