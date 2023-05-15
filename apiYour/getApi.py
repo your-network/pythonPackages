@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 from apiYour.helpers import buildRequestParameters
 from loggingYour.localLogging import LocalLogger
+import urllib
 
 class Category:
     @staticmethod
@@ -82,6 +83,9 @@ class Category:
         ## variables
         func_parameters = locals()
         base_params = buildRequestParameters(parameters=func_parameters)
+        url_params = urllib.parse.urlencode(base_params)
+
+        print(f"Product GetAll url params: {url_params}")
 
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':
@@ -98,7 +102,7 @@ class Category:
 
             ## process request from connection pool
             r = connection.request(method="GET",
-                                   url=f"{os.environ['YOUR_API_URL']}/Category/GetAll",
+                                   url=f"{os.environ['YOUR_API_URL']}/Category/GetAll?{url_params}",
                                    fields=base_params,
                                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                             'Content-Type': 'application/json'})
@@ -477,12 +481,12 @@ class Product:
         ## variables
         func_parameters = locals()
         base_params = buildRequestParameters(parameters=func_parameters)
-
+        urllib.parse.urlencode(params)
         print(f"Product getAll base_params: {base_params}")
 
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':
-            log_message = {"topic": f"Error get all products",
+            log_message = {"topic": f"Start get all products",
                            "function": "getAllProducts",
                            "endpoint": "/Product"}
             logger.createDebugLog(message=log_message, **base_params)
