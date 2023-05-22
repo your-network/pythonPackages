@@ -56,8 +56,8 @@ class AttributeCache:
             ## saving external id lookup
             if attr_dic.get('externalId'):
                 self.saveExternalAttributeId(externalId=int(attr_dic['externalId']),
-                                             source=int(attr_dic['source']),
-                                             attributeId=int(attr_dic['id']))
+                                             source=attr_dic['source'],
+                                             attributeId=attr_dic['id'])
 
             ## saving details based on name
             self.saveAttributeNameDetails(attributeName=attribute['name'],
