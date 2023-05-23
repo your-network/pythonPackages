@@ -55,7 +55,7 @@ class AttributeCache:
 
             ## saving external id lookup
             if attr_dic.get('externalId'):
-                self.saveExternalAttributeId(externalId=int(attr_dic['externalId']),
+                self.saveExternalAttributeId(externalId=attr_dic['externalId'],
                                              source=attr_dic['source'],
                                              attributeId=attr_dic['id'])
 
@@ -153,9 +153,9 @@ class AttributeCache:
 
             ## saving external id lookup
             if unit.get('externalId'):
-                self.saveExternalAttributeValueUnitId(externalId=int(unit['externalId']),
+                self.saveExternalAttributeValueUnitId(externalId=unit['externalId'],
                                                       source=2,
-                                                      attributeValueUnitId=int(unit['id']))
+                                                      attributeValueUnitId=unit['id'])
 
         self.connection.set(f"attributeValueUnit.cache", "True", ex=172800)
         self.connection.set(f"attributeValueUnit.short-term.cache", "True", ex=3000)
