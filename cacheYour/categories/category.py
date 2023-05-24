@@ -117,6 +117,7 @@ class CategoryCache:
         ## get all brands
         categories = Category.getAll(includeServiceCategories=True,
                                      connection=connectionPool)
+        print(f"Process number categories: {len(categories)}")
 
         ## create one lookup for categories
         for category in categories:
