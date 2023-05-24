@@ -2,6 +2,7 @@ import json
 import os
 from redis import Redis
 from cacheYour.helpers.images import imageProcessing
+from cacheYour.helpers.text import process_lookup_name
 
 class CategoryCache:
     def __init__(self, connection: Redis):
@@ -172,7 +173,7 @@ class CategoryCache:
     def saveCategoryNameDetails(self,
                                 categoryName: str,
                                 data: dict):
-        self.connection.set(f"category.{categoryName}", json.dumps(data))
+        self.connection.set(f"category.{process_lookup_name(categoryName)}", json.dumps(data))
 
     ## GET METHODS
     @staticmethod
@@ -223,7 +224,7 @@ class CategoryCache:
     @staticmethod
     def getCategoryNameDetails(connection: Redis,
                                categoryName: str) -> dict:
-        search_key = f"category.{categoryName}"
+        search_key = f"category.{process_lookup_name(categoryName)}"
         category_details = connection.get(search_key)
         if category_details:
             return json.loads(category_details)

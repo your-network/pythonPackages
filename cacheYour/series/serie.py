@@ -1,6 +1,7 @@
 import json
 import os
 from redis import Redis
+from cacheYour.helpers.text import process_lookup_name
 
 class SerieCache:
     def __init__(self, connection: Redis):
@@ -85,7 +86,7 @@ class SerieCache:
     def saveSeriesNameDetails(self,
                               seriesName: str,
                               data: dict):
-        self.connection.set(f"series.{seriesName}", json.dumps(data))
+        self.connection.set(f"series.{process_lookup_name(seriesName)}", json.dumps(data))
 
     ## GET METHODS
     @staticmethod
@@ -119,7 +120,7 @@ class SerieCache:
     @staticmethod
     def getSeriesNameDetails(connection: Redis,
                              seriesName: str) -> dict:
-        search_key = f"series.{seriesName}"
+        search_key = f"series.{process_lookup_name(seriesName)}"
         category_details = connection.get(search_key)
         if category_details:
             return json.loads(category_details)

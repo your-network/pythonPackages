@@ -2,6 +2,7 @@ import json
 import os
 from redis import Redis
 from cacheYour.helpers.images import imageProcessing
+from cacheYour.helpers.text import process_lookup_name
 
 class BrandCache:
     def __init__(self, connection: Redis):
@@ -84,7 +85,6 @@ class BrandCache:
                                                  source=int(source),
                                                  brandId=int(brand['id']))
 
-
     def setBrandCache(self,
                       source_brands: dict = {}):
         from datetime import datetime
@@ -148,7 +148,7 @@ class BrandCache:
     def saveBrandNameDetails(self,
                              brandName: str,
                              data: dict):
-        self.connection.set(f"brand.{brandName}", json.dumps(data))
+        self.connection.set(f"brand.{process_lookup_name(brandName)}", json.dumps(data))
 
     ## GET METHODS
     @staticmethod
@@ -168,9 +168,8 @@ class BrandCache:
 
     @staticmethod
     def getBrandNameDetails(connection: Redis,
-                            brandName: int):
-
-        search_key = f"brand.{brandName}"
+                            brandName: str):
+        search_key = f"brand.{process_lookup_name(brandName)}"
         brand_details = connection.get(search_key)
         if brand_details:
             return json.loads(brand_details)

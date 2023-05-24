@@ -4,6 +4,7 @@ import rootpath
 ## directory
 abs_path = rootpath.detect()
 from redis import Redis
+from cacheYour.helpers.text import process_lookup_name
 
 class AttributeCache:
     def __init__(self, connection: Redis):
@@ -104,7 +105,7 @@ class AttributeCache:
     def saveAttributeNameDetails(self,
                                  attributeName: str,
                                  data: dict):
-        key = f"attribute.{attributeName}"
+        key = f"attribute.{process_lookup_name(attributeName)}"
         self.connection.set(key, json.dumps(data))
 
     def saveExternalAttributeId(self,
@@ -256,7 +257,7 @@ class AttributeCache:
     @staticmethod
     def getAttributeNameDetails(connection: Redis,
                                 attributeName: str):
-        search_key = f"attribute.{attributeName}"
+        search_key = f"attribute.{process_lookup_name(attributeName)}"
         attribute_details = connection.get(search_key)
         if attribute_details:
             return json.loads(attribute_details)
