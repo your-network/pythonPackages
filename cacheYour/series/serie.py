@@ -49,6 +49,8 @@ class SerieCache:
             ## saving data
             self.saveSeriesDetails(seriesId=serie['id'],
                                    data=base)
+            self.saveSeriesNameDetails(seriesName=serie['name'],
+                                       data=base)
 
             ## externalId
             if serie.get("externalIDs"):
@@ -80,6 +82,11 @@ class SerieCache:
                              seriesId: int):
         self.connection.set(f"externalSeriesId.{externalId}.{source}", str(seriesId))
 
+    def saveSeriesNameDetails(self,
+                              seriesName: str,
+                              data: dict):
+        self.connection.set(f"series.{seriesName}", json.dumps(data))
+
     ## GET METHODS
     @staticmethod
     def getSeriesDetails(connection: Redis,
@@ -108,6 +115,18 @@ class SerieCache:
             return SerieCache.keyNotFoundLogic(search_key=search_key,
                                                connection=connection,
                                                content_type=int)
+
+    @staticmethod
+    def getSeriesNameDetails(connection: Redis,
+                             seriesName: str) -> dict:
+        search_key = f"series.{seriesName}"
+        category_details = connection.get(search_key)
+        if category_details:
+            return json.loads(category_details)
+        else:
+            return SerieCache.keyNotFoundLogic(search_key=search_key,
+                                               connection=connection,
+                                               content_type=dict)
 
     @staticmethod
     def keyNotFoundLogic(search_key: str,
