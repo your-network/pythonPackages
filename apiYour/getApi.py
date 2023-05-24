@@ -83,9 +83,8 @@ class Category:
         ## variables
         func_parameters = locals()
         base_params = buildRequestParameters(parameters=func_parameters)
-        url_params = urllib.parse.urlencode(base_params)
 
-        print(f"Product GetAll url params: {url_params}")
+        print(f"Product GetAll url params: {base_params}")
 
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':
@@ -99,11 +98,11 @@ class Category:
         categories = []
         while next_page:
             base_params.update({"page": page})
+            url_params = urllib.parse.urlencode(base_params)
 
             ## process request from connection pool
             r = connection.request(method="GET",
-                                   url=f"{os.environ['YOUR_API_URL']}/Category/GetAll?{url_params}",
-                                   fields=base_params,
+                                   url=f"{os.environ['YOUR_API_URL']}/Category?{url_params}",
                                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                             'Content-Type': 'application/json'})
 
