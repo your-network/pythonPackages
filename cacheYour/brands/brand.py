@@ -103,6 +103,7 @@ class BrandCache:
         ## get all brands
         brands = Brands.getAll(resultsPerPage=1000,
                                connection=connectionPool)
+        print(f"Process number brands: {len(brands)}")
 
         ## create one lookup for brands
         for brand in brands:

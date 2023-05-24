@@ -174,7 +174,9 @@ class CategoryCache:
     def saveCategoryNameDetails(self,
                                 categoryName: str,
                                 data: dict):
-        self.connection.set(f"category.{process_lookup_name(categoryName)}", json.dumps(data))
+        search_key = f"category.{process_lookup_name(categoryName)}"
+        self.connection.set(search_key, json.dumps(data))
+        print(f"Saved category name search key: {search_key}")
 
     ## GET METHODS
     @staticmethod
