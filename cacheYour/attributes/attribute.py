@@ -44,6 +44,7 @@ class AttributeCache:
             attributeLogger.createDebugLog(message=log_message)
 
         attributes = Attributes.getAll(connection=connectionPool)
+        print(f"Process number attributes: {len(attributes)}")
 
         for attribute in attributes:
             attr_dic = remove_dic_key(dic=attribute, keys=['categoryRelations'])
@@ -109,7 +110,7 @@ class AttributeCache:
         self.connection.set(key, json.dumps(data))
 
     def saveExternalAttributeId(self,
-                                externalId: int,
+                                externalId: any,
                                 source: int,
                                 attributeId: int):
         self.connection.set(f"externalAttributeId.{externalId}.{source}", str(attributeId))
@@ -270,7 +271,7 @@ class AttributeCache:
 
     @staticmethod
     def getInternalAttributeId(connection: Redis,
-                               externalId: int,
+                               externalId: any,
                                source: int):
         search_key = f"externalAttributeId.{externalId}.{source}"
         attribute_id = connection.get(search_key)

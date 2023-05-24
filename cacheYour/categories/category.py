@@ -88,14 +88,14 @@ class CategoryCache:
             for source in category["externalIDs"]:
                 if category["externalIDs"].get(source):
                     for externalId in category["externalIDs"][source]:
-                        self.saveExternalCategoryId(externalId=int(externalId),
+                        self.saveExternalCategoryId(externalId=externalId,
                                                     source=int(source),
                                                     purpose=int(category['purpose']),
                                                     categoryId=int(category['id']))
 
                         ## active categories
                         if int(category['purpose']) == 1:
-                            self.saveExternalCategoryActive(externalId=int(externalId),
+                            self.saveExternalCategoryActive(externalId=externalId,
                                                             source=int(source),
                                                             active=category['public'])
 
@@ -165,7 +165,7 @@ class CategoryCache:
 
     '''Functions around active status of categories'''
     def saveExternalCategoryActive(self,
-                                   externalId: int,
+                                   externalId: any,
                                   source: int,
                                   active: bool):
         self.connection.set(f"externalCategoryId.active.{externalId}.{source}", str(active))

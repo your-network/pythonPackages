@@ -39,6 +39,7 @@ class SerieCache:
 
         ## get all brands
         series = Series.getAll(connection=connectionPool)
+        print(f"Process number series: {len(series)}")
 
         ## create one lookup for categories
         for serie in series:
