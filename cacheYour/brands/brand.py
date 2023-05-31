@@ -81,7 +81,7 @@ class BrandCache:
             for source in brand["externalIDs"]:
                 if brand["externalIDs"].get(source):
                     for externalId in brand["externalIDs"][source]:
-                        self.saveExternalBrandId(externalId=int(externalId),
+                        self.saveExternalBrandId(externalId=externalId,
                                                  source=int(source),
                                                  brandId=int(brand['id']))
 
