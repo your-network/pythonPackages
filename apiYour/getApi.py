@@ -84,8 +84,6 @@ class Category:
         func_parameters = locals()
         base_params = buildRequestParameters(parameters=func_parameters)
 
-        print(f"Product GetAll url params: {base_params}")
-
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start get all categories",
