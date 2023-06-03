@@ -482,7 +482,6 @@ class Product:
         if optionalFields:
             for field in optionalFields:
                 url_params = url_params + f"&optionalFields={field}"
-        print(f"Product getAll url params: {url_params}")
 
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':
