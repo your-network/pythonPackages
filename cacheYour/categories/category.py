@@ -90,7 +90,11 @@ class CategoryCache:
                             for meta_row in attr['meta']:
                                 lookup_dic.update({meta_row['key']: meta_row['value']})
                         # Update
-                        upload_dic.update({f"{attr['id']}.{attr['value'].lower()}": lookup_dic})
+                        if isinstance(attr['value'], list):
+                            attr_value = attr['value'][0]
+                        else:
+                            attr_value = attr['value']
+                        upload_dic.update({f"{attr['id']}.{attr_value.lower()}": lookup_dic})
 
                 base.update({'attributes': upload_dic})
 
