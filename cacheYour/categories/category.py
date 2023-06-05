@@ -81,14 +81,20 @@ class CategoryCache:
                 if category.get('attributes'):
                     upload_dic = {}
                     for attr in category['attributes']:
-                        upload_dic.update({attr['id']: {'id': attr['id'],
-                                                        'name': attr['name'],
-                                                        'value': attr['value']}})
+                        # Lookup
+                        lookup_dic =  {'id': attr['id'],
+                                       'name': attr['name'],
+                                       'value': attr['value']}
                         # Meta
-                        for meta_row in attr.get('meta',[]):
-                            upload_dic[attr['id']].update({meta_row['key']: meta_row['value']})
+                        if attr.get('meta') and isinstance(attr.get('meta'), list):
+                            for meta_row in attr['meta']:
+                                lookup_dic.update({meta_row['key']: meta_row['value']})
+                        # Update
+                        upload_dic.update({attr['id']: lookup_dic})
 
                 base.update({'attributes': upload_dic})
+
+                print(f"Category {category['id']} has attributes: {upload_dic}")
 
             ## Save
             self.saveCategoryDetails(categoryId=category['id'],
