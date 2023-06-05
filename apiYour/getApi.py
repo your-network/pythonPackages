@@ -876,6 +876,7 @@ class Product:
             connection: object,
             logger: LocalLogger = None,
             attributes: bool = False,
+            privateAttributes: bool = False,
             media: bool = False,
             parentCategories: bool = False,
             ReasonsToBuy: bool = False,
@@ -890,6 +891,8 @@ class Product:
             param_url = param_url + f"Lang={language}"
         if attributes:
             param_url = param_url + f"&optionalFields=AttributeTranslations&optionalFields=Attributes"
+        if privateAttributes:
+            param_url = param_url + f"&optionalFields=PrivateAttributes"
         if media:
             param_url = param_url + f"&optionalFields=Media"
         if parentCategories:
