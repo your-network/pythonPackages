@@ -94,7 +94,9 @@ class CategoryCache:
 
                 base.update({'attributes': upload_dic})
 
-                print(f"Category {category['id']} has attributes: {upload_dic}")
+                print(f"Category {category['id']}, \n"
+                      f"category: {category} \n"
+                      f"attributes: {upload_dic}")
 
             ## Save
             self.saveCategoryDetails(categoryId=category['id'],
