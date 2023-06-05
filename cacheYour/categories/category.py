@@ -67,16 +67,30 @@ class CategoryCache:
                 if language in category['translations'].keys() and category['translations'].get(language):
                     base.update({'name': category['translations'][language]['name']})
 
-            ## fallback translations
+            ## Fallback
             if base.get('name') is None:
                 base.update({'name': category['name']})
 
-            ## images
+            ## Images
             images = imageProcessing(data=category,
                                      type='category')
             base = {**base, **images}
 
-            ## saving data
+            ## Attributes
+            if int(category['purpose']) == 3:
+                if category.get('attributes'):
+                    upload_dic = {}
+                    for attr in category['attributes']:
+                        upload_dic.update({attr['id']: {'id': attr['id'],
+                                                        'name': attr['name'],
+                                                        'value': attr['value']}})
+                        # Meta
+                        for meta_row in attr.get('meta',[]):
+                            upload_dic[attr['id']].update({meta_row['key']: meta_row['value']})
+
+                base.update({'attributes': upload_dic})
+
+            ## Save
             self.saveCategoryDetails(categoryId=category['id'],
                                      language=language,
                                      data=base)
