@@ -29,17 +29,17 @@ class BrandCache:
                          brand: dict,
                          source_id: int) -> None:
         ## saving external id data
-        if brand.get('externalBrandId'):
-            self.saveExternalBrandId(externalId=brand['externalBrandId'],
+        if brand.get('ExternalId'):
+            self.saveExternalBrandId(externalId=brand['ExternalId'],
                                      source=source_id,
-                                     brandId=int(brand['internalBrandId']))
+                                     brandId=int(brand['InternalId']))
             return
 
         ## saving external name data
-        if brand.get('externalBrandName'):
-            self.saveExternalBrandName(externalName=brand['externalBrandName'],
+        if brand.get('ExternalName'):
+            self.saveExternalBrandName(externalName=brand['ExternalName'],
                                        source=source_id,
-                                       brandId=int(brand['internalBrandId']))
+                                       brandId=int(brand['InternalId']))
             return
 
     def processBrand(self,
@@ -111,11 +111,10 @@ class BrandCache:
 
         ## feed matching
         if source_brands:
-            for source_id in source_brands.keys():
-                for brand in source_brands.get(source_id, []):
-                    ## save data
-                    self.processFeedBrand(brand=brand,
-                                          source_id=int(source_id))
+            for brand in source_brands:
+                ## save data
+                self.processFeedBrand(brand=brand,
+                                      source_id=int(brand.get('SourceId')))
 
         self.connection.set(f"brand.details.cache", "True", ex=172800)
         self.connection.set(f"brand.details.short-term.cache", "True", ex=3000)

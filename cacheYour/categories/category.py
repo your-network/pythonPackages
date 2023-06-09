@@ -35,20 +35,18 @@ class CategoryCache:
                             category: dict,
                             source_id: int) -> None:
         ## saving external name data
-        if category.get('externalCategoryId'):
-            self.saveExternalCategoryId(externalId=category['externalCategoryId'],
+        if category.get('ExternalId'):
+            self.saveExternalCategoryId(externalId=category['ExternalId'],
                                         purpose=1,
                                         source=source_id,
-                                        categoryId=int(category['internalCategoryId']))
-            return
+                                        categoryId=int(category['InternalId']))
 
         ## saving external id data
-        if category.get('externalCategoryName'):
-            self.saveExternalCategoryName(externalName=category['externalCategoryName'],
+        if category.get('ExternalName'):
+            self.saveExternalCategoryName(externalName=category['ExternalName'],
                                           purpose=1,
                                           source=source_id,
-                                          categoryId=int(category['internalCategoryId']))
-            return
+                                          categoryId=int(category['InternalId']))
 
     def processCategory(self,
                         category: dict):
@@ -151,11 +149,10 @@ class CategoryCache:
 
         ## process feed categories
         if source_categories:
-            for source_id in source_categories.keys():
-                for category in source_categories.get(source_id, []):
-                    ## save data
-                    self.processFeedCategory(category=category,
-                                             source_id=int(source_id))
+            for category in source_categories:
+                ## save data
+                self.processFeedCategory(category=category,
+                                         source_id=category.get('SourceId'))
 
         self.connection.set(f"category.details.cache", "True", ex=172800)
         self.connection.set(f"category.details.short-term.cache", "True", ex=3000)
