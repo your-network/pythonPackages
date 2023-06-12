@@ -22,8 +22,8 @@ class ProductCache:
         ## Whitelist
         if whitelist:
             for external_entry in whitelist:
-                ProductCache.save_whitelist_entry(source_id=external_entry['source_id'],
-                                                  external_id=external_entry['external_id'])
+                ProductCache.save_whitelist_entry(source_id=external_entry['SourceId'],
+                                                  external_id=external_entry['ExternalId'])
 
         ## logging
         if os.environ.get('DEBUG') == 'DEBUG':
