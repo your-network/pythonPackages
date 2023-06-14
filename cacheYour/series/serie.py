@@ -64,7 +64,7 @@ class SerieCache:
                                                       seriesId=int(serie['id']))
 
         self.connection.set(f"series.details.cache", "True", ex=172800)
-        self.connection.set(f"series.details.short-term.cache", "True", ex=3000)
+        self.connection.set(f"series.details.short-term.cache", "True", ex=6000)
 
         ## logging
         if os.environ.get('DEBUG') == 'DEBUG':

@@ -66,7 +66,7 @@ class AttributeCache:
                                           data=attr_dic)
 
         self.connection.set(f"attribute.cache", "True", ex=172800)
-        self.connection.set(f"attribute.short-term.cache", "True", ex=3000)
+        self.connection.set(f"attribute.short-term.cache", "True", ex=6000)
 
         ## logging
         if os.environ.get('DEBUG') == 'DEBUG':

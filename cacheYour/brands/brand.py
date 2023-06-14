@@ -117,7 +117,7 @@ class BrandCache:
                                       source_id=int(brand.get('SourceId')))
 
         self.connection.set(f"brand.details.cache", "True", ex=172800)
-        self.connection.set(f"brand.details.short-term.cache", "True", ex=3000)
+        self.connection.set(f"brand.details.short-term.cache", "True", ex=6000)
 
         ## logging
         if os.environ.get('DEBUG') == 'DEBUG':
