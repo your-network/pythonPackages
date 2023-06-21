@@ -2,11 +2,13 @@ import os
 
 from redis import Redis, ConnectionPool
 
-def getRedisPool(host: str):
+def getRedisPool(host: str,
+                 password: str):
     pool = ConnectionPool(host=host,
                           port=6379,
                           db=0,
                           max_connections=10000,
+                          password=password,
                           decode_responses=True)
     return pool
 
