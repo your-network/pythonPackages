@@ -5,7 +5,8 @@ class DataCache:
 
     def checkCache(self,
                    source_brands: dict = {},
-                   source_categories: dict = {}):
+                   source_categories: dict = {},
+                   source_attributes: dict = {}):
         ## category cache
         from cacheYour.categories.category import CategoryCache
         category_cache = CategoryCache(connection=self.connection)
@@ -27,13 +28,14 @@ class DataCache:
         ## Attribute cache
         from cacheYour.attributes.attribute import AttributeCache
         attribute_cache = AttributeCache(connection=self.connection)
-        attribute_cache.checkAttributeStatusCache()
+        attribute_cache.checkAttributeStatusCache(source_attributes=source_attributes)
         attribute_cache.checkAttributeValueUnitStatusCache()
         print(f"Attribute & AttributeValueUnit Cache present")
 
     def triggerCache(self,
                      source_brands: dict = {},
-                     source_categories: dict = {}):
+                     source_categories: dict = {},
+                     source_attributes: dict = {}):
         ## category cache
         from cacheYour.categories.category import CategoryCache
         category_cache = CategoryCache(connection=self.connection)
@@ -55,6 +57,6 @@ class DataCache:
         ## Attribute cache
         from cacheYour.attributes.attribute import AttributeCache
         attribute_cache = AttributeCache(connection=self.connection)
-        attribute_cache.processAttributeCache()
+        attribute_cache.processAttributeCache(source_attributes=source_attributes)
         attribute_cache.processAttributeValueUnitCache()
         print(f"Index Attribute Cache processed")

@@ -12,7 +12,8 @@ class AttributeCache:
     '''
         Attribute  Cache
     '''
-    def checkAttributeStatusCache(self) -> bool:
+    def checkAttributeStatusCache(self,
+                                  source_attributes: dict) -> bool:
         status = self.connection.get(f"attribute.cache")
         if status and bool(status):
             return True
@@ -24,10 +25,27 @@ class AttributeCache:
                                "message": {}}
                 attributeLogger.createDebugLog(message=log_message)
 
-            self.processAttributeCache()
+            self.processAttributeCache(source_attributes=source_attributes)
             return True
 
-    def processAttributeCache(self):
+    def processFeedAttribute(self,
+                            attribute: dict,
+                            source_id: int) -> None:
+        ## saving external name data
+        if attribute.get('ExternalId'):
+            self.saveExternalAttributeId(externalId=attribute['ExternalId'],
+                                         source=source_id,
+                                         attributeId=int(attribute['InternalId']))
+
+        ## saving external id data
+        if attribute.get('ExternalName'):
+            self.saveExternalAttributeName(externalName=attribute['ExternalName'],
+                                           source=source_id,
+                                           attributeId=int(attribute['InternalId']))
+
+
+    def processAttributeCache(self,
+                              source_attributes: dict):
         from cacheYour.attributes.topicPackage import attributeLogger
         from datetime import datetime
         from cacheYour.appVariables import connectionPool, ACTIVE_LANGUAGES
@@ -64,6 +82,12 @@ class AttributeCache:
             ## saving details based on name
             self.saveAttributeNameDetails(attributeName=attribute['name'],
                                           data=attr_dic)
+
+        # Feed attributes
+        if source_attributes:
+            for attribute in source_attributes:
+                self.processFeedAttribute(attribute=attribute,
+                                          source_id=attr_dic['source'])
 
         self.connection.set(f"attribute.cache", "True", ex=172800)
         self.connection.set(f"attribute.short-term.cache", "True", ex=6000)
@@ -114,6 +138,12 @@ class AttributeCache:
                                 source: int,
                                 attributeId: int):
         self.connection.set(f"externalAttributeId.{externalId}.{source}", str(attributeId))
+
+    def saveExternalAttributeName(self,
+                                  externalName: str,
+                                  source: int,
+                                  attributeId: int):
+        self.connection.set(f"externalAttributeName.{externalName}.{source}", str(attributeId))
 
     '''
         Attribute Value Unit Cache
@@ -272,8 +302,9 @@ class AttributeCache:
     @staticmethod
     def getInternalAttributeId(connection: Redis,
                                externalId: any,
-                               source: int):
-        search_key = f"externalAttributeId.{externalId}.{source}"
+                               source: int,
+                               matchType: str = 'id'):
+        search_key = f"externalAttribute{matchType.capitalize()}.{externalId}.{source}"
         attribute_id = connection.get(search_key)
         if attribute_id:
             return int(attribute_id)
