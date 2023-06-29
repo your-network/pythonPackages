@@ -544,11 +544,17 @@ class Product:
                        productId: int = None,
                        lang: str = "en",
                        optionalFields: str = "AttributeTranslations",
+                       privateAttributes: bool = False,
                        **kwargs) -> dict:
 
         ## variables
         func_parameters = locals()
         base_params = buildRequestParameters(parameters=func_parameters)
+
+        # Request Url
+        request_url = f"{os.environ['YOUR_API_URL']}/Product/{productId}/Attributes"
+        if privateAttributes:
+            request_url = request_url + "?optionalFields=PrivateAttributes"
 
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':
@@ -561,7 +567,7 @@ class Product:
         try:
             ## process request from connection pool
             r = connection.request(method="GET",
-                                   url=f"{os.environ['YOUR_API_URL']}/Product/{productId}/Attributes",
+                                   url=request_url,
                                    fields=base_params,
                                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                             'Content-Type': 'application/json'})
