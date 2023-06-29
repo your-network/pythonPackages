@@ -543,32 +543,29 @@ class Product:
                        logger: LocalLogger = None,
                        productId: int = None,
                        lang: str = "en",
-                       optionalFields: str = "AttributeTranslations",
+                       attributeTranslations: bool = True,
                        privateAttributes: bool = False,
                        **kwargs) -> dict:
 
-        ## variables
-        func_parameters = locals()
-        base_params = buildRequestParameters(parameters=func_parameters)
-
         # Request Url
-        request_url = f"{os.environ['YOUR_API_URL']}/Product/{productId}/Attributes"
+        request_url = f"{os.environ['YOUR_API_URL']}/Product/{productId}/Attributes?lang={lang}"
         if privateAttributes:
-            request_url = request_url + "?optionalFields=PrivateAttributes"
+            request_url = request_url + "&optionalFields=PrivateAttributes"
+        if attributeTranslations:
+            request_url = request_url + "&optionalFields=AttributeTranslations"
 
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Error get all product attributes",
                            "function": "getProductAttributes",
                            "endpoint": "/Product/<productId>/Attributes"}
-            logger.createDebugLog(message=log_message, **base_params)
+            logger.createDebugLog(message=log_message)
 
         ## request variables
         try:
             ## process request from connection pool
             r = connection.request(method="GET",
                                    url=request_url,
-                                   fields=base_params,
                                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                             'Content-Type': 'application/json'})
 
@@ -586,7 +583,7 @@ class Product:
                                    "endpoint": "/Product/<productId>/Attributes",
                                    "code": response_code,
                                    "response": response_text}
-                    logger.createErrorLog(message=log_message, **base_params)
+                    logger.createErrorLog(message=log_message)
 
         except Exception as e:
             ## logging
@@ -595,7 +592,7 @@ class Product:
                                "function": "getProductAttributes",
                                "endpoint": "/Product/<productId>/Attributes",
                                "error": str(e)}
-                logger.createErrorLog(message=log_message, **base_params)
+                logger.createErrorLog(message=log_message)
 
         return {}
 
