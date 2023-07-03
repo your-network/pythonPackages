@@ -13,7 +13,7 @@ class AttributeCache:
         Attribute  Cache
     '''
     def checkAttributeStatusCache(self,
-                                  source_attributes: dict) -> bool:
+                                  source_attributes: dict = None) -> bool:
         status = self.connection.get(f"attribute.cache")
         if status and bool(status):
             return True
@@ -45,7 +45,7 @@ class AttributeCache:
 
 
     def processAttributeCache(self,
-                              source_attributes: dict):
+                              source_attributes: dict = None):
         from cacheYour.attributes.topicPackage import attributeLogger
         from datetime import datetime
         from cacheYour.appVariables import connectionPool, ACTIVE_LANGUAGES
