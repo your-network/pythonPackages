@@ -108,7 +108,11 @@ def publishTopicMessage(publisher, topic_name, data):
                                data=json.dumps(data).encode('utf-8'),
                                retry=custom_retry)
     try:
-        return "Success"
+        message_id = future.result()
+        if message_id:
+            return True
+        else:
+            return False
     except Exception as e:
         print("Error publishing: " + str(e))
         return str(e)
