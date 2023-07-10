@@ -986,6 +986,51 @@ class Product:
 
         return {}
 
+    def getQuestions(productId: str,
+                     connection: object,
+                     logger: LocalLogger = None,
+                     language: str = None,
+                     resultsPerPage: int = 10,
+                     page: int = 1,
+                     **kwargs) -> dict:
+
+        ## logging
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
+            log_message = {"topic": f"Start get all",
+                           "function": "getProduct",
+                           "endpoint": "/QnA/Question"}
+            logger.createDebugLog(message=log_message)
+
+        ## variables
+        func_parameters = locals()
+        base_params = buildRequestParameters(parameters=func_parameters)
+
+        ## process request from connection pool
+        r = connection.request(method="GET",
+                               fields=base_params,
+                               url=f"{os.environ['YOUR_API_URL']}/Product/{productId}/QnA",
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+
+        response_code = r.status
+        response_text = r.data
+        if response_code == 200:
+            result = json.loads(response_text.decode('utf-8'))
+            data = result.get('data')
+            if data:
+                return data
+
+        else:
+            ## logging
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
+                log_message = {"topic": f"Error get all",
+                               "function": "getProduct",
+                               "endpoint": "/QnA/Question",
+                               "code": response_code,
+                               "response": response_text}
+                logger.createErrorLog(message=log_message)
+
+        return {}
 
 
 def getUserSearch(identifier: str,
