@@ -84,6 +84,19 @@ class Category:
         func_parameters = locals()
         base_params = buildRequestParameters(parameters=func_parameters)
 
+        ## params
+        param_url = f"?resultsPerPage={resultsPerPage}"
+        if categoryId:
+            param_url = param_url + f"&categoryId={categoryId}"
+        if brandId:
+            param_url = param_url + f"&brandId={brandId}"
+        if withProductsOnly:
+            param_url = param_url + f"&optionalFields=withProductsOnly"
+        if withChildrenOnly:
+            param_url = param_url + f"&optionalFields=withChildrenOnly"
+        if withImagesOnly:
+            param_url = param_url + f"&optionalFields=withImagesOnly"
+
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start get all categories",
@@ -92,15 +105,13 @@ class Category:
             logger.createDebugLog(message=log_message,
                                   **base_params)
 
-        next_page = True
         categories = []
-        while next_page:
-            base_params.update({"page": page})
-            url_params = urllib.parse.urlencode(base_params)
+        while True:
+            pare_url_params = param_url + f"&page={page}"
 
             ## process request from connection pool
             r = connection.request(method="GET",
-                                   url=f"{os.environ['YOUR_API_URL']}/Category?{url_params}",
+                                   url=f"{os.environ['YOUR_API_URL']}/Category{pare_url_params}",
                                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                             'Content-Type': 'application/json'})
 
@@ -342,6 +353,13 @@ class Brands:
         func_parameters = locals()
         base_params = buildRequestParameters(parameters=func_parameters)
 
+        ## params
+        param_url = f"?resultsPerPage={resultsPerPage}"
+        if categoryId:
+            param_url = param_url + f"&categoryId={categoryId}"
+        if withProductsOnly:
+            param_url = param_url + f"&optionalFields=withProductsOnly"
+
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start get all",
@@ -349,16 +367,14 @@ class Brands:
                            "endpoint": "/Brand"}
             logger.createDebugLog(message=log_message, **base_params)
 
-        next_page = True
         page = 1
         brands = []
-        while next_page:
-            base_params.update({"page": page})
+        while True:
+            page_param_url = param_url + f"&page={page}"
 
             ## process request from connection pool
             r = connection.request(method="GET",
-                                   url=f"{os.environ['YOUR_API_URL']}/Brand",
-                                   fields=base_params,
+                                   url=f"{os.environ['YOUR_API_URL']}/Brand{page_param_url}",
                                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                             'Content-Type': 'application/json'})
 
