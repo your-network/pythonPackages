@@ -33,6 +33,37 @@ class Product:
         else:
             return False
 
+    @staticmethod
+    def patch(connection: object,
+              product_id: str,
+              payload: list,
+              logger: LocalLogger = None) -> bool:
+
+        ## logging
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
+            log_message = {"topic": f"start create brand",
+                           "function": "ProductPatch",
+                           "endpoint": "/Product",
+                           "productId": product_id,
+                           "payload": payload}
+            logger.createDebugLog(message=log_message)
+
+        # Process
+        encoded_data = json.dumps(payload).encode('utf-8')
+        r = connection.request(method="PATCH",
+                               url=f"{os.environ['YOUR_API_URL']}/Product/{product_id}",
+                               body=encoded_data,
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+        status_code = r.status
+        resp_data = r.data
+
+        if status_code == 200:
+            return True
+
+        else:
+            return False
+
 
 class Brand:
     @staticmethod
