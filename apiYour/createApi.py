@@ -36,7 +36,7 @@ class Product:
     @staticmethod
     def patch(connection: object,
               product_id: str,
-              payload: list,
+              payload: dict,
               logger: LocalLogger = None) -> bool:
 
         ## logging
