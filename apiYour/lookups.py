@@ -116,11 +116,12 @@ def createAttributeTypeUnitNameLookup(your_attr_type_units: list) -> dict:
 
 
 def productIdCheckExists(productId:str,
-                         type:str,
-                         connection: object):
+                         connection: object,
+                         sourceId: str,
+                         type:str = 'External') -> str:
 
     r = connection.request(method="GET",
-                           url=f"{os.environ['YOUR_API_URL']}/Product/Exists?id={productId}&idType={type}",
+                           url=f"{os.environ['YOUR_API_URL']}/Product/Exists?id={productId}&idType={type}&source={sourceId}",
                            headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                     'Content-Type': 'application/json'})
     response_code = r.status
@@ -128,8 +129,11 @@ def productIdCheckExists(productId:str,
     if response_code == 200:
         result = json.loads(response_text.decode('utf-8'))
         return result.get('data')
+
     else:
-        return False
+        if response_code == 409:
+            print(f"ProductExists error multiple found, productId: {productId}, sourceId: {sourceId}")
+
 
 class Brand:
     @staticmethod
