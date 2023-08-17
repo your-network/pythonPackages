@@ -1053,46 +1053,86 @@ class Product:
         return {}
 
 
-def getUserSearch(identifier: str,
-                  identifierType: str,
-                  connection: object,
-                  logger: LocalLogger = None,
-                  **kwargs) -> dict:
+class Customer:
+    @staticmethod
+    def getUserSearch(identifier: str,
+                      identifierType: str,
+                      connection: object,
+                      logger: LocalLogger = None,
+                      **kwargs) -> dict:
 
-    ## logging
-    if logger and os.environ.get('DEBUG') == 'DEBUG':
-        log_message = {"topic": f"Start get",
-                       "function": "getUserSearch",
-                       "endpoint": "/User/Search",
-                       "identifier": identifier}
-        logger.createErrorLog(message=log_message)
-
-    ## process request from connection pool
-    r = connection.request(method="GET",
-                           url=f"{os.environ['YOUR_API_URL']}/User/Search",
-                           fields={identifierType: identifier},
-                           headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
-                                    'Content-Type': 'application/json'})
-
-    response_code = r.status
-    response_text = r.data
-    if response_code == 200:
-        result = json.loads(response_text.decode('utf-8'))
-        data = result.get('data')
-        if data:
-            return data
-
-    else:
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':
-            log_message = {"topic": f"Error get",
+            log_message = {"topic": f"Start get",
                            "function": "getUserSearch",
                            "endpoint": "/User/Search",
-                           "code": response_code,
-                           "response": response_text}
+                           "identifier": identifier}
             logger.createErrorLog(message=log_message)
 
-    return {}
+        ## process request from connection pool
+        r = connection.request(method="GET",
+                               url=f"{os.environ['YOUR_API_URL']}/User/Search",
+                               fields={identifierType: identifier},
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+
+        response_code = r.status
+        response_text = r.data
+        if response_code == 200:
+            result = json.loads(response_text.decode('utf-8'))
+            data = result.get('data')
+            if data:
+                return data
+
+        else:
+            ## logging
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
+                log_message = {"topic": f"Error get",
+                               "function": "getUserSearch",
+                               "endpoint": "/User/Search",
+                               "code": response_code,
+                               "response": response_text}
+                logger.createErrorLog(message=log_message)
+
+        return {}
+
+    @staticmethod
+    def getOrganization(customerId: str,
+                        connection: object,
+                        logger: LocalLogger = None,
+                        **kwargs) -> dict:
+
+        ## logging
+        if logger and os.environ.get('DEBUG') == 'DEBUG':
+            log_message = {"topic": f"Start get",
+                           "function": "getCustomerOrganization",
+                           "endpoint": "/Organization/{customerId}"}
+            logger.createErrorLog(message=log_message)
+
+        ## process request from connection pool
+        r = connection.request(method="GET",
+                               url=f"{os.environ['YOUR_API_URL']}/Organization/{customerId}",
+                               headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
+                                        'Content-Type': 'application/json'})
+
+        response_code = r.status
+        response_text = r.data
+        if response_code == 200:
+            result = json.loads(response_text.decode('utf-8'))
+            return result.get('data')
+
+        else:
+            ## logging
+            if logger and os.environ.get('DEBUG') == 'DEBUG':
+                log_message = {"topic": f"Error get",
+                               "function": "getCustomerOrganization",
+                               "endpoint": "/Organization/{customerId}",
+                               "code": response_code,
+                               "response": response_text}
+                logger.createErrorLog(message=log_message)
+
+        return {}
+
 
 class QnA:
     @staticmethod
