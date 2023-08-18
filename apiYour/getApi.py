@@ -927,6 +927,8 @@ class Product:
         if mediaAttributes:
             param_url = param_url + f"&optionalFields=MediaAttributeValues"
 
+        url_constructed = f"{os.environ['YOUR_API_URL']}/Product/{productId}{param_url}"
+
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start get all",
@@ -935,9 +937,12 @@ class Product:
                            "requestParams": param_url}
             logger.createDebugLog(message=log_message)
 
+        print(f"Get product URL: {url_constructed} /"
+              f"Token: {os.environ['YOUR_API_TOKEN']}")
+
         ## process request from connection pool
         r = connection.request(method="GET",
-                               url=f"{os.environ['YOUR_API_URL']}/Product/{productId}{param_url}",
+                               url=url_constructed,
                                headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                         'Content-Type': 'application/json'})
 
