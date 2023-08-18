@@ -911,7 +911,7 @@ class Product:
         ## params
         param_url = f"?optionalFields=Translations"
         if language:
-            param_url = param_url + f"Lang={language}"
+            param_url = param_url + f"&Lang={language}"
         if attributes:
             param_url = param_url + f"&optionalFields=AttributeTranslations&optionalFields=Attributes"
         if privateAttributes:
@@ -936,9 +936,6 @@ class Product:
                            "endpoint": "/Product/{productId}",
                            "requestParams": param_url}
             logger.createDebugLog(message=log_message)
-
-        print(f"Get product URL: {url_constructed} /"
-              f"Token: {os.environ['YOUR_API_TOKEN']}")
 
         ## process request from connection pool
         r = connection.request(method="GET",
