@@ -3,11 +3,13 @@ import os
 from redis import Redis, ConnectionPool
 
 def getRedisPool(host: str,
+                 user:str,
                  password: str):
     pool = ConnectionPool(host=host,
                           port=6379,
                           db=0,
                           max_connections=10000,
+                          username=user,
                           password=password,
                           decode_responses=True)
     return pool
