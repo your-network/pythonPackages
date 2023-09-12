@@ -98,6 +98,8 @@ class Category:
             param_url = param_url + f"&optionalFields=withImagesOnly"
         if includeServiceCategories:
             param_url = param_url + f"&includeServiceCategories=true"
+        if lang:
+            param_url = param_url + f"&lang={lang}"
 
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':

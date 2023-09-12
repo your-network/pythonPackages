@@ -3,15 +3,23 @@ import os
 from redis import Redis, ConnectionPool
 
 def getRedisPool(host: str,
-                 user:str,
-                 password: str):
-    pool = ConnectionPool(host=host,
-                          port=6379,
-                          db=0,
-                          max_connections=10000,
-                          username=user,
-                          password=password,
-                          decode_responses=True)
+                 password: str,
+                 user:str = None):
+    if user:
+        pool = ConnectionPool(host=host,
+                              port=6379,
+                              db=0,
+                              max_connections=10000,
+                              username=user,
+                              password=password,
+                              decode_responses=True)
+    else:
+        pool = ConnectionPool(host=host,
+                              port=6379,
+                              db=0,
+                              max_connections=10000,
+                              password=password,
+                              decode_responses=True)
     return pool
 
 class RedisClient:
