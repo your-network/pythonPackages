@@ -26,18 +26,18 @@ def createCategoryIdLookup(your_categories: list,
 
     ## process categories for lookup
     for category in your_categories:
-        if category.get('externalIDs') or str(category['purpose']) == "2":
-            if str(category['purpose']) == "2":
-                external_id = category['properties']["ID"]
-                category.update({'externalIDs': {"2": [external_id]}})
-            for source in category['externalIDs'].keys():
-                category_lookup[str(source)][str(category['purpose'])].update({str(category['externalIDs'][source][0]): category['id']})
-        else:
-            ## logging
-            if logger and bool(os.getenv('DEBUG', 'False')):
-                log_message = {"topic": f"Category without externalIds",
-                               "function": "getAllExternalProductIds"}
-                logger.createWarningLog(message=log_message)
+        try:
+            if category.get('externalIDs') or str(category['purpose']) == "2":
+                for source in category['externalIDs'].keys():
+                    category_lookup[str(source)][str(category['purpose'])].update({str(category['externalIDs'][source][0]): category['id']})
+            else:
+                ## logging
+                if logger and bool(os.getenv('DEBUG', 'False')):
+                    log_message = {"topic": f"Category without externalIds",
+                                   "function": "getAllExternalProductIds"}
+                    logger.createWarningLog(message=log_message)
+        except Exception as e:
+            print(f"Error: {e}")
 
     return category_lookup
 
