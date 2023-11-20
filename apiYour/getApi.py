@@ -433,6 +433,12 @@ class Series:
                            "endpoint": "/Series",
                            "params": param_url}
             logger.createDebugLog(message=log_message)
+        print(f"-------- GET API YOUR ---------- \n"
+              f"Start get all series \n"
+              f"params: {param_url} \n"
+              f"apiUrl: {os.environ['YOUR_API_URL']} \n"
+              f"Full: {os.environ['YOUR_API_URL']}/Series{param_url} \n"
+              f"-----------------------------------\n")
 
         next_page = True
         series = []
