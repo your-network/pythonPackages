@@ -423,28 +423,26 @@ class Series:
                resultsPerPage: int = 1000,
                page: int = 1,
                **kwargs) -> list:
-
-        ## variables
-        func_parameters = locals()
-        base_params = buildRequestParameters(parameters=func_parameters)
+        ## params
+        param_url = f"?resultsPerPage={resultsPerPage}"
 
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start get all",
                            "function": "getAllSeries",
-                           "endpoint": "/Series"}
-            logger.createDebugLog(message=log_message, **base_params)
+                           "endpoint": "/Series",
+                           "params": param_url}
+            logger.createDebugLog(message=log_message)
 
         next_page = True
         series = []
         try:
             while next_page:
-                base_params.update({"page": page})
+                page_param_url = param_url + f"&page={page}"
 
                 ## process request from connection pool
                 r = connection.request(method="GET",
-                                       url=f"{os.environ['YOUR_API_URL']}/Series",
-                                       fields=base_params,
+                                       url=f"{os.environ['YOUR_API_URL']}/Series{page_param_url}",
                                        headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                                 'Content-Type': 'application/json'})
 
