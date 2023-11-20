@@ -454,6 +454,15 @@ class Series:
 
                 response_code = r.status
                 response_text = r.data
+
+                print(f"-------- GET API YOUR ---------- \n"
+                      f"Call Made \n"
+                      f"params: {page_param_url} \n"
+                      f"Full: {os.environ['YOUR_API_URL']}/Series{page_param_url} \n"
+                      f"ResponseCode: {response_code} \n"
+                      f"ResponseData: {response_text} \n"
+                      f"-----------------------------------\n")
+
                 if response_code == 200:
                     result = json.loads(response_text.decode('utf-8'))
                     data = result.get('data')
