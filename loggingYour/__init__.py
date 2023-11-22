@@ -1,2 +1,1 @@
-from .messageHandler import *
-from .logClient import *
+from .localLogging import *
