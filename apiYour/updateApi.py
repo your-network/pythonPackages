@@ -1,6 +1,5 @@
 import os
 import json
-from loggingYour.messageHandler import messageHandler
 from loggingYour.localLogging import LocalLogger
 
 class Category:
