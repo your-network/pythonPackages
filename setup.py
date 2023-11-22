@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pythonPackages",
-    version='0.7.9.6',
+    version='0.7.9.7',
     author='Thijmen',
     author_email='thijmen@your.io',
     description='All packages used for YOUR development',
@@ -18,6 +18,12 @@ setup(
                       'python-dateutil',
                       'requests',
                       'rootpath',
+                      'google-cloud',
+                      'google-api-core',
+                      'google-auth',
+                      'google-cloud-logging',
+                      'google-cloud-core',
+                      'google-cloud-pubsub',
                       'beautifulsoup4'],
     zip_safe=False,
 )
