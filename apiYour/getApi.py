@@ -1,5 +1,6 @@
 import os
 import json
+from typing import List
 from datetime import datetime
 from apiYour.helpers import buildRequestParameters
 from loggingYour.localLogging import LocalLogger
@@ -633,14 +634,19 @@ class Product:
 
     @staticmethod
     def getImages(connection: object,
-                   logger: LocalLogger = None,
-                   productId: int = None,
-                   optionalFields: str = "ExtraResolutions",
-                   **kwargs) -> list:
+                  logger: LocalLogger = None,
+                  productId: int = None,
+                  lang: str = 'en',
+                  optionalFields: List[str] = None,
+                  **kwargs) -> list:
 
         ## variables
         func_parameters = locals()
         base_params = buildRequestParameters(parameters=func_parameters)
+        url_params = urllib.parse.urlencode(base_params)
+        if optionalFields:
+            for field in optionalFields:
+                url_params = url_params + f"&optionalFields={field}"
 
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':
@@ -652,8 +658,7 @@ class Product:
         try:
             ## process request from connection pool
             r = connection.request(method="GET",
-                                   url=f"{os.environ['YOUR_API_URL']}/Product/{productId}/Images",
-                                   fields=base_params,
+                                   url=f"{os.environ['YOUR_API_URL']}/Product/{productId}/Images?{url_params}",
                                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                             'Content-Type': 'application/json'})
 
