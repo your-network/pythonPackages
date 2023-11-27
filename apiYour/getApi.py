@@ -694,12 +694,16 @@ class Product:
     def getMedia(connection: object,
                    logger: LocalLogger = None,
                    productId: int = None,
-                   optionalFields: str = "ExtraResolutions",
+                   optionalFields: List[str] = None,
                    **kwargs) -> list:
 
         ## variables
         func_parameters = locals()
         base_params = buildRequestParameters(parameters=func_parameters)
+        url_params = urllib.parse.urlencode(base_params)
+        if optionalFields:
+            for field in optionalFields:
+                url_params = url_params + f"&optionalFields={field}"
 
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':
@@ -711,8 +715,7 @@ class Product:
         try:
             ## process request from connection pool
             r = connection.request(method="GET",
-                                   url=f"{os.environ['YOUR_API_URL']}/Product/{productId}/Media",
-                                   fields=base_params,
+                                   url=f"{os.environ['YOUR_API_URL']}/Product/{productId}/Media?{url_params}",
                                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                             'Content-Type': 'application/json'})
 
@@ -752,13 +755,17 @@ class Product:
                    lang: str = "en",
                    sortBy: str = "Popularity",
                    desc: bool = True,
-                   optional_fields: list = [],
+                   optional_fields: List[str] = None,
                    query: str = None,
                    **kwargs) -> dict:
 
         ## variables
         func_parameters = locals()
         base_params = buildRequestParameters(parameters=func_parameters)
+        url_params = urllib.parse.urlencode(base_params)
+        if optional_fields:
+            for field in optional_fields:
+                url_params = url_params + f"&optionalFields={field}"
 
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':
@@ -770,8 +777,7 @@ class Product:
         try:
             ## process request from connection pool
             r = connection.request(method="GET",
-                                   url=f"{os.environ['YOUR_API_URL']}/Product/{productId}/Reviews",
-                                   fields=base_params,
+                                   url=f"{os.environ['YOUR_API_URL']}/Product/{productId}/Reviews{url_params}",
                                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                             'Content-Type': 'application/json'})
 
@@ -808,12 +814,16 @@ class Product:
                    productId: int = None,
                    page: int = None,
                    lang: str = "en",
-                   optional_fields: list = [],
+                   optional_fields: List[str] = None,
                    **kwargs) -> list:
 
         ## variables
         func_parameters = locals()
         base_params = buildRequestParameters(parameters=func_parameters)
+        url_params = urllib.parse.urlencode(base_params)
+        if optional_fields:
+            for field in optional_fields:
+                url_params = url_params + f"&optionalFields={field}"
 
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':
@@ -825,8 +835,7 @@ class Product:
         try:
             ## process request from connection pool
             r = connection.request(method="GET",
-                                   url=f"{os.environ['YOUR_API_URL']}/Product/{productId}/ReasonsToBuy",
-                                   fields=base_params,
+                                   url=f"{os.environ['YOUR_API_URL']}/Product/{productId}/ReasonsToBuy?{url_params}",
                                    headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                             'Content-Type': 'application/json'})
 
@@ -1033,9 +1042,9 @@ class Product:
                      logger: LocalLogger = None,
                      language: str = None,
                      resultsPerPage: int = 10,
+                     optional_fields: List[str] = None,
                      page: int = 1,
                      **kwargs) -> dict:
-
         ## logging
         if logger and os.environ.get('DEBUG') == 'DEBUG':
             log_message = {"topic": f"Start get all",
@@ -1046,11 +1055,14 @@ class Product:
         ## variables
         func_parameters = locals()
         base_params = buildRequestParameters(parameters=func_parameters)
+        url_params = urllib.parse.urlencode(base_params)
+        if optional_fields:
+            for field in optional_fields:
+                url_params = url_params + f"&optionalFields={field}"
 
         ## process request from connection pool
         r = connection.request(method="GET",
-                               fields=base_params,
-                               url=f"{os.environ['YOUR_API_URL']}/Product/{productId}/QnA",
+                               url=f"{os.environ['YOUR_API_URL']}/Product/{productId}/QnA?{url_params}",
                                headers={'Authorization': 'Bearer ' + os.environ["YOUR_API_TOKEN"],
                                         'Content-Type': 'application/json'})
 
